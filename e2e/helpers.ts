@@ -31,7 +31,9 @@ export async function measureSunFill(image: Buffer): Promise<number> {
   const { data, info } = await sharp(image).raw().toBuffer({ resolveWithObject: true });
   const isWarm = (column: number, row: number): boolean => {
     const offset = (row * info.width + column) * info.channels;
-    return data[offset]! > 140 && data[offset + 1]! > 40 && data[offset + 2]! < 90;
+    // Bright yellow patches have high blue, so compare against blue instead of a fixed ceiling.
+    // The corona's glow stays below red 125, the disc is above 140 even in dark spots.
+    return data[offset]! > 140 && data[offset]! > data[offset + 2]! * 1.5;
   };
   const centerColumn = Math.floor(info.width / 2);
   const centerRow = Math.floor(info.height / 2);
