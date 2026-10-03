@@ -1,7 +1,10 @@
+import { SolarSystemSceneLoader } from '@/scene/organisms/SolarSystemSceneLoader';
+
 export default function HomePage() {
   return (
-    <main>
-      <h1>Matheus</h1>
+    <main className="fixed inset-0">
+      <h1 className="sr-only">Matheus</h1>
+      <SolarSystemSceneLoader />
     </main>
   );
 }

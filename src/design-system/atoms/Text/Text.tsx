@@ -1,8 +1,9 @@
-import type { ComponentProps, ElementType } from 'react';
+import { createElement } from 'react';
+import type { ComponentProps } from 'react';
 import { joinClassNames } from '@/lib/join-class-names';
 
 type TextProps = ComponentProps<'p'> & {
-  as?: ElementType;
+  as?: 'p' | 'span' | 'div' | 'li' | 'strong' | 'dd' | 'dt';
   tone?: 'primary' | 'secondary';
 };
 
@@ -11,8 +12,9 @@ const toneClasses = {
   secondary: 'text-text-secondary',
 } as const;
 
-export function Text({ as: Element = 'p', tone = 'primary', className, ...rest }: TextProps) {
-  return (
-    <Element className={joinClassNames('m-0 text-base', toneClasses[tone], className)} {...rest} />
-  );
+export function Text({ as = 'p', tone = 'primary', className, ...rest }: TextProps) {
+  return createElement(as, {
+    className: joinClassNames('m-0 text-base', toneClasses[tone], className),
+    ...rest,
+  });
 }

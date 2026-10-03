@@ -36,3 +36,14 @@ The user asked mid-session to "use tailwind", overriding the CLAUDE.md default o
 Components use utility classes that reference tokens only: no arbitrary hex/px values in components.
 The "colocated style file" rule becomes "styles are utility classes in the component file".
 Reduced-motion zeroes the duration tokens.
+
+## three pinned to 0.182
+
+`three` 0.186 logs "THREE.Clock: This module has been deprecated" at runtime because @react-three/fiber 9.8.1 still
+uses `Clock`. The project requires a clean console, so `three` (and `@types/three`) are pinned to 0.182.0.
+Revisit when R3F moves to `THREE.Timer`.
+
+## Scene structure
+
+`SolarSystemSceneLoader` (client) loads `SolarSystemScene` with `next/dynamic({ ssr: false })` and chooses a quality tier
+from the viewport width (`lib/scene-quality`). `StarField` keeps an explicit `useMemo` (stable buffer identity for R3F).
