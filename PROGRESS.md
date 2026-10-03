@@ -12,12 +12,12 @@
 - [x] 8. About panel: modal dialog (focus trap, Esc, outside click, focus return, inert background), axe clean, CC BY credit in panel.
 - [x] 9. Quick-access menu (top-right disclosure, fed by body config, focus returns to its button).
 - [x] 10. Fallback: WebGL detection, error boundary (with retry), context lost/restored notice; content stays reachable.
+- [x] 11. Reduced motion (live, via matchMedia hook: no rotation, instant highlight, no damping) and responsiveness (camera framing by aspect ratio, quality tiers, no horizontal scroll at 320px).
 
 ## Next
-- 11. Reduced motion/responsive, 12. Performance, 13. Polish.
+- 12. Performance (measure, optimize, measure again; Lighthouse), 13. Polish.
 
 ## Pending reminders
-- Reduced motion: `rotationPeriodSeconds` accepts `null`; the hook that feeds it comes in item 11.
 - Polish: bloom is subtle; corona shader and surface movement planned for item 13.
 
 ## Learnings

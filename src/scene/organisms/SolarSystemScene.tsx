@@ -5,23 +5,27 @@ import { Canvas } from '@react-three/fiber';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
+import { getHighlightEasingRate, getRotationPeriodForMotion } from '@/lib/motion';
 import type { SceneQuality } from '@/lib/scene-quality';
+import { CAMERA_FIELD_OF_VIEW } from '../scene-constants';
+import { CameraDistance } from '../atoms/CameraDistance';
 import { SceneEffects } from '../atoms/SceneEffects';
 import { SceneLights } from '../atoms/SceneLights';
 import { StarField } from '../atoms/StarField';
 import { CelestialBody } from '../molecules/CelestialBody';
 
 const CAMERA_POSITION: [number, number, number] = [0, 1.5, 11];
-const CAMERA_FIELD_OF_VIEW = 50;
 const CAMERA_NEAR = 0.1;
 const CAMERA_FAR = 400;
 const MIN_ZOOM_DISTANCE = 5;
 const MAX_ZOOM_DISTANCE = 22;
 const CONTROLS_DAMPING = 0.08;
-const HIGHLIGHT_EASING_RATE = 10;
+const MAX_DISTANCE_MARGIN = 1.5;
 
 type SolarSystemSceneProps = {
   quality: SceneQuality;
+  cameraDistance: number;
+  prefersReducedMotion: boolean;
   bodies: readonly CelestialBodyConfig[];
   highlightOf: (id: string) => Highlight;
   onHoverChange: (id: string, isHovered: boolean) => void;
@@ -32,6 +36,8 @@ type SolarSystemSceneProps = {
 
 export function SolarSystemScene({
   quality,
+  cameraDistance,
+  prefersReducedMotion,
   bodies,
   highlightOf,
   onHoverChange,
@@ -59,6 +65,7 @@ export function SolarSystemScene({
       }}
     >
       <color attach="background" args={[sceneTokens.backgroundColor]} />
+      <CameraDistance distance={cameraDistance} />
       <SceneLights />
       <StarField starCount={quality.starCount} />
       {bodies.map((body) => (
@@ -67,9 +74,12 @@ export function SolarSystemScene({
           radius={body.radius}
           texture={body.texture}
           prefersSmallTexture={quality.tier === 'low'}
-          rotationPeriodSeconds={body.rotationPeriodSeconds}
+          rotationPeriodSeconds={getRotationPeriodForMotion(
+            body.rotationPeriodSeconds,
+            prefersReducedMotion,
+          )}
           highlight={highlightOf(body.id)}
-          highlightEasingRate={HIGHLIGHT_EASING_RATE}
+          highlightEasingRate={getHighlightEasingRate(prefersReducedMotion)}
           onHoverChange={(isHovered) => onHoverChange(body.id, isHovered)}
           onSelect={() => onSelect(body.id)}
         />
@@ -77,10 +87,10 @@ export function SolarSystemScene({
       <SceneEffects />
       <OrbitControls
         enablePan={false}
-        enableDamping
+        enableDamping={!prefersReducedMotion}
         dampingFactor={CONTROLS_DAMPING}
         minDistance={MIN_ZOOM_DISTANCE}
-        maxDistance={MAX_ZOOM_DISTANCE}
+        maxDistance={Math.max(MAX_ZOOM_DISTANCE, cameraDistance * MAX_DISTANCE_MARGIN)}
       />
     </Canvas>
   );

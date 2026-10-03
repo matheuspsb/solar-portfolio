@@ -44,7 +44,10 @@ it('forwards native props and the ref to the underlying element', () => {
   expect(screen.getByRole('button')).toHaveAttribute('type', 'submit');
 });
 
-it('supports the secondary variant without changing semantics', () => {
-  render(<Button variant="secondary">Fechar</Button>);
-  expect(screen.getByRole('button', { name: 'Fechar' })).toBeInTheDocument();
-});
+it.each(['primary', 'secondary', 'floating'] as const)(
+  'supports the %s variant without changing semantics',
+  (variant) => {
+    render(<Button variant={variant}>Fechar</Button>);
+    expect(screen.getByRole('button', { name: 'Fechar' })).toHaveAttribute('type', 'button');
+  },
+);

@@ -65,10 +65,9 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
     >
       <Button
         ref={toggleRef}
-        variant="secondary"
+        variant="floating"
         aria-expanded={isOpen}
         aria-controls={isOpen ? listId : undefined}
-        className="bg-surface backdrop-blur-sm"
         onClick={() => setIsOpen((wasOpen) => !wasOpen)}
       >
         Acesso rápido

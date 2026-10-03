@@ -2,7 +2,12 @@
 // camera transitions. If these helpers returned the wrong value, motion-sensitive users could
 // get nauseous or the camera would not move at all.
 import { describe, expect, it } from 'vitest';
-import { getRotationPeriodForMotion, getTransitionSeconds } from './motion';
+import {
+  INSTANT_EASING_RATE,
+  getHighlightEasingRate,
+  getRotationPeriodForMotion,
+  getTransitionSeconds,
+} from './motion';
 
 describe('getTransitionSeconds', () => {
   it('returns the base duration when motion is allowed', () => {
@@ -28,5 +33,18 @@ describe('getRotationPeriodForMotion', () => {
 
   it('returns null (no automatic rotation) when reduced motion is preferred', () => {
     expect(getRotationPeriodForMotion(180, true)).toBeNull();
+  });
+});
+
+describe('getHighlightEasingRate', () => {
+  it('eases smoothly when motion is allowed', () => {
+    const rate = getHighlightEasingRate(false);
+    expect(rate).toBeGreaterThan(0);
+    expect(Number.isFinite(rate)).toBe(true);
+  });
+
+  it('applies changes instantly when reduced motion is preferred', () => {
+    expect(getHighlightEasingRate(true)).toBe(INSTANT_EASING_RATE);
+    expect(INSTANT_EASING_RATE).toBe(Number.POSITIVE_INFINITY);
   });
 });
