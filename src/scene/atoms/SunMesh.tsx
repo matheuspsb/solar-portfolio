@@ -1,12 +1,17 @@
 import { useFrame } from '@react-three/fiber';
 import type { ThreeEvent } from '@react-three/fiber';
-import { useRef } from 'react';
-import type { Mesh, Texture } from 'three';
+import { useRef, useState } from 'react';
+import type { Mesh, ShaderMaterial, Texture } from 'three';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
 import { dampValue } from '@/lib/damp';
 import { getHighlightScale, isClickGesture } from '@/lib/interaction-state';
 import type { Highlight } from '@/lib/interaction-state';
-import { advanceRotation } from '@/lib/rotation';
+import { advanceRotation, clampFrameDelta } from '@/lib/rotation';
+import {
+  createSunSurfaceUniforms,
+  sunSurfaceFragmentShader,
+  sunSurfaceVertexShader,
+} from '../shaders/sun-surface';
 
 const SPHERE_SEGMENTS = 96;
 
@@ -15,6 +20,8 @@ type SunMeshProps = {
   texture: Texture | null;
   /** `null` disables automatic rotation (reduced motion). */
   rotationPeriodSeconds: number | null;
+  /** False freezes the drifting plasma (reduced motion). */
+  isSurfaceAnimated: boolean;
   highlight: Highlight;
   /** `Infinity` applies highlight changes instantly (reduced motion). */
   highlightEasingRate: number;
@@ -27,6 +34,7 @@ export function SunMesh({
   radius,
   texture,
   rotationPeriodSeconds,
+  isSurfaceAnimated,
   highlight,
   highlightEasingRate,
   onPointerOver,
@@ -34,11 +42,15 @@ export function SunMesh({
   onSelect,
 }: SunMeshProps) {
   const meshRef = useRef<Mesh>(null);
+  const materialRef = useRef<ShaderMaterial>(null);
+  // Created once: R3F would otherwise swap the uniforms object (and reset time) on every render.
+  const [initialUniforms] = useState(() => createSunSurfaceUniforms(sceneTokens.sunTextureTint));
   const targetScale = getHighlightScale(highlight);
 
   useFrame((_state, deltaSeconds) => {
     const mesh = meshRef.current;
-    if (!mesh) return;
+    const material = materialRef.current;
+    if (!mesh || !material) return;
     if (rotationPeriodSeconds !== null) {
       mesh.rotation.y = advanceRotation({
         angle: mesh.rotation.y,
@@ -46,13 +58,17 @@ export function SunMesh({
         periodSeconds: rotationPeriodSeconds,
       });
     }
-    const nextScale = dampValue({
-      current: mesh.scale.x,
-      target: targetScale,
-      rate: highlightEasingRate,
-      deltaSeconds,
-    });
-    mesh.scale.setScalar(nextScale);
+    if (isSurfaceAnimated) material.uniforms.uTime!.value += clampFrameDelta(deltaSeconds);
+    material.uniforms.uMap!.value = texture;
+    material.uniforms.uHasMap!.value = texture ? 1 : 0;
+    mesh.scale.setScalar(
+      dampValue({
+        current: mesh.scale.x,
+        target: targetScale,
+        rate: highlightEasingRate,
+        deltaSeconds,
+      }),
+    );
   });
 
   const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
@@ -66,8 +82,6 @@ export function SunMesh({
     onSelect();
   };
 
-  const surfaceColor = texture ? sceneTokens.sunTextureTint : sceneTokens.sunCoreColor;
-
   return (
     <mesh
       ref={meshRef}
@@ -76,11 +90,11 @@ export function SunMesh({
       onClick={handleClick}
     >
       <sphereGeometry args={[radius, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
-      {/* New material when the texture appears: three only re-checks `map` on material.version. */}
-      <meshBasicMaterial
-        key={texture ? 'textured' : 'plain'}
-        map={texture}
-        color={surfaceColor}
+      <shaderMaterial
+        ref={materialRef}
+        uniforms={initialUniforms}
+        vertexShader={sunSurfaceVertexShader}
+        fragmentShader={sunSurfaceFragmentShader}
         toneMapped={false}
       />
     </mesh>

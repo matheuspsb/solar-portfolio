@@ -40,9 +40,11 @@
 
 ## Pending reminders
 
-- Polish: bloom is subtle; corona shader and surface movement planned for item 13.
-
 ## Learnings
+
+- Tailwind v4 has no `duration-*` theme namespace: durations are plain CSS variables + `@utility duration-*` in tokens.css, and the reduced-motion override lives in a plain `:root` media query (`@theme` inside `@media` is ignored).
+- R3F `<shaderMaterial uniforms>`: the material ends up with its own uniforms object, so mutate through a ref to the material, not the object passed in (the React Compiler lint also flags the latter).
+- Axe measures colors mid-animation: wait for `document.getAnimations()` to finish before scanning.
 
 - Playwright e2e builds and serves production on port 3100 and never reuses an existing server (stop manual servers first, or the port is busy).
 - `scripts/screenshot.mjs <name> [w] [h]` captures a screenshot of the running server into `screenshots/`.

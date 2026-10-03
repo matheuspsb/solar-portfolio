@@ -29,7 +29,7 @@ export function ContentPanel({
       <div
         data-testid="panel-backdrop"
         aria-hidden="true"
-        className="absolute inset-0 bg-overlay"
+        className="animate-overlay-in absolute inset-0 bg-overlay"
         onClick={onClose}
       />
       <div
@@ -38,7 +38,7 @@ export function ContentPanel({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className="relative flex h-full w-full flex-col border-l border-border bg-space-900/95 text-text-primary shadow-panel backdrop-blur-md outline-none sm:w-(--size-panel-width)"
+        className="animate-panel-in relative flex h-full w-full flex-col border-l border-border bg-space-900/95 text-text-primary shadow-panel backdrop-blur-md outline-none sm:w-(--size-panel-width)"
       >
         <PanelHeader titleId={titleId} title={title} onClose={onClose} />
         <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>

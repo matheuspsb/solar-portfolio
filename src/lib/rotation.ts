@@ -14,7 +14,7 @@ function normalizeAngle(angle: number): number {
   return ((angle % FULL_TURN_RADIANS) + FULL_TURN_RADIANS) % FULL_TURN_RADIANS;
 }
 
-function clampFrameDelta(deltaSeconds: number): number {
+export function clampFrameDelta(deltaSeconds: number): number {
   if (Number.isNaN(deltaSeconds) || deltaSeconds < 0) return 0;
   return Math.min(deltaSeconds, MAX_FRAME_DELTA_SECONDS);
 }

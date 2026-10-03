@@ -127,7 +127,8 @@ test('stops rendering the idle loop while the panel covers the scene and resumes
   await page.getByRole('button', { name: 'Acesso rápido' }).click();
   await page.getByRole('button', { name: 'Sobre', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Sobre' })).toBeVisible();
-  await page.waitForTimeout(500);
+  // Let the slide-in and the Sun's glide aside finish before sampling.
+  await page.waitForTimeout(1500);
   const first = await page.screenshot();
   await page.waitForTimeout(2000);
   const second = await page.screenshot();

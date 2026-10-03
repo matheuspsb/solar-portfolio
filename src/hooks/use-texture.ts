@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SRGBColorSpace, TextureLoader } from 'three';
+import { MirroredRepeatWrapping, RepeatWrapping, SRGBColorSpace, TextureLoader } from 'three';
 import type { Texture } from 'three';
 
 export type TextureLoadFunction = (url: string) => Promise<Texture>;
@@ -17,6 +17,9 @@ export const loadTextureWithThree: TextureLoadFunction = async (url) => {
   const texture = await new TextureLoader().loadAsync(url);
   texture.colorSpace = SRGBColorSpace;
   texture.anisotropy = MAX_ANISOTROPY;
+  // The surface shader scrolls the texture, so it must wrap instead of clamping at the edges.
+  texture.wrapS = RepeatWrapping;
+  texture.wrapT = MirroredRepeatWrapping;
   return texture;
 };
 

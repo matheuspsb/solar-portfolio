@@ -7,8 +7,15 @@ import { useIdleReady } from '@/hooks/use-idle-ready';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { useViewportSize } from '@/hooks/use-viewport-size';
 import { getFramingDistance } from '@/lib/camera-framing';
+import { getTransitionRate, getTransitionSeconds } from '@/lib/motion';
+import { getPanelViewOffsetPixels } from '@/lib/panel-offset';
 import { getSceneQuality } from '@/lib/scene-quality';
-import { BODY_SCREEN_FILL, CAMERA_FIELD_OF_VIEW } from '../scene-constants';
+import {
+  BODY_SCREEN_FILL,
+  CAMERA_FIELD_OF_VIEW,
+  PANEL_SHIFT_TRANSITION_SECONDS,
+  PANEL_WIDTH_PIXELS,
+} from '../scene-constants';
 
 const SolarSystemScene = dynamic(
   () => import('./SolarSystemScene').then((module) => module.SolarSystemScene),
@@ -44,6 +51,15 @@ export function SolarSystemSceneLoader({
     aspectRatio: width / height,
     screenFill: BODY_SCREEN_FILL,
   });
+  const viewOffsetPixels = getPanelViewOffsetPixels({
+    viewportWidth: width,
+    panelWidthPixels: PANEL_WIDTH_PIXELS,
+    isPanelOpen: !isActive,
+  });
+  const viewOffsetEasingRate = getTransitionRate(
+    getTransitionSeconds(PANEL_SHIFT_TRANSITION_SECONDS, prefersReducedMotion),
+  );
+
   // The 3D bundle is large: wait until the content has painted and the browser is idle.
   if (!isIdle) return null;
 
@@ -51,6 +67,8 @@ export function SolarSystemSceneLoader({
     <SolarSystemScene
       quality={quality}
       cameraDistance={cameraDistance}
+      viewOffsetPixels={viewOffsetPixels}
+      viewOffsetEasingRate={viewOffsetEasingRate}
       prefersReducedMotion={prefersReducedMotion}
       bodies={bodies}
       highlightOf={highlightOf}

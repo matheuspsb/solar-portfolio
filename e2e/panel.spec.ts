@@ -64,6 +64,10 @@ test('has no detectable accessibility violations, closed and open', async ({ pag
   await page.keyboard.press('Tab');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'Sobre' })).toBeVisible();
+  // Contrast is measured on the final colors, so let the slide-in/fade-in finish first.
+  await page.evaluate(() =>
+    Promise.all(document.getAnimations().map((animation) => animation.finished)),
+  );
   const openResults = await new AxeBuilder({ page }).analyze();
   expect(openResults.violations).toEqual([]);
 });

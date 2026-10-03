@@ -3,7 +3,7 @@
 // would be missing or black exactly when the network is flaky.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
-import type { Mesh, MeshBasicMaterial } from 'three';
+import type { Mesh, ShaderMaterial } from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { CelestialBody } from './CelestialBody';
 
@@ -14,6 +14,7 @@ const defaultProps = {
   texture,
   prefersSmallTexture: false,
   rotationPeriodSeconds: 10,
+  isSurfaceAnimated: true,
   highlight: 'none',
   highlightEasingRate: 10,
   onHoverChange: () => undefined,
@@ -30,7 +31,8 @@ describe('CelestialBody', () => {
     const renderer = await ReactThreeTestRenderer.create(
       <CelestialBody {...defaultProps} loadTexture={loadTexture} />,
     );
-    expect((readMesh(renderer).material as MeshBasicMaterial).map).toBeNull();
+    await renderer.advanceFrames(1, 0.016);
+    expect((readMesh(renderer).material as ShaderMaterial).uniforms.uHasMap!.value).toBe(0);
   });
 
   it('applies the loaded full-size texture on large screens', async () => {
@@ -41,7 +43,8 @@ describe('CelestialBody', () => {
     );
     await ReactThreeTestRenderer.act(async () => undefined);
     expect(loadTexture).toHaveBeenCalledWith('/full.webp');
-    expect((readMesh(renderer).material as MeshBasicMaterial).map).toBe(loaded);
+    await renderer.advanceFrames(1, 0.016);
+    expect((readMesh(renderer).material as ShaderMaterial).uniforms.uMap!.value).toBe(loaded);
   });
 
   it('requests the small texture on small screens', async () => {
@@ -60,9 +63,11 @@ describe('CelestialBody', () => {
       <CelestialBody {...defaultProps} loadTexture={loadTexture} />,
     );
     await ReactThreeTestRenderer.act(async () => undefined);
-    const material = readMesh(renderer).material as MeshBasicMaterial;
-    expect(material.map).toBeNull();
-    expect(material.color.r).toBeGreaterThan(material.color.b);
+    await renderer.advanceFrames(1, 0.016);
+    const material = readMesh(renderer).material as ShaderMaterial;
+    const tint = material.uniforms.uTint!.value as { r: number; b: number };
+    expect(material.uniforms.uHasMap!.value).toBe(0);
+    expect(tint.r).toBeGreaterThan(tint.b);
   });
 
   it('does not load anything for a body without texture', async () => {
@@ -75,11 +80,11 @@ describe('CelestialBody', () => {
 
   it('shows a focus ring only while focused', async () => {
     const unfocused = await ReactThreeTestRenderer.create(<CelestialBody {...defaultProps} />);
-    expect(unfocused.scene.children).toHaveLength(1);
+    const unfocusedCount = unfocused.scene.children.length;
     const focused = await ReactThreeTestRenderer.create(
       <CelestialBody {...defaultProps} highlight="focused" />,
     );
-    expect(focused.scene.children.length).toBeGreaterThan(1);
+    expect(focused.scene.children.length).toBe(unfocusedCount + 1);
   });
 
   it('reports hover changes and shows a pointer cursor while hovered', async () => {

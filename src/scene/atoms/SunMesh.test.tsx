@@ -3,9 +3,9 @@
 // visitors would be affected; if a missing texture left no material color the Sun would turn black.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
-import type { Mesh, MeshBasicMaterial } from 'three';
+import type { Mesh, ShaderMaterial } from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { FULL_TURN_RADIANS } from '@/lib/rotation';
+import { FULL_TURN_RADIANS, MAX_FRAME_DELTA_SECONDS } from '@/lib/rotation';
 import { SunMesh } from './SunMesh';
 
 async function renderSun(props: Partial<React.ComponentProps<typeof SunMesh>> = {}) {
@@ -14,6 +14,7 @@ async function renderSun(props: Partial<React.ComponentProps<typeof SunMesh>> = 
       radius={2}
       texture={null}
       rotationPeriodSeconds={10}
+      isSurfaceAnimated
       highlight="none"
       highlightEasingRate={10}
       onPointerOver={() => undefined}
@@ -23,7 +24,7 @@ async function renderSun(props: Partial<React.ComponentProps<typeof SunMesh>> = 
     />,
   );
   const mesh = renderer.scene.children[0]!.instance as Mesh;
-  return { renderer, mesh, material: mesh.material as MeshBasicMaterial };
+  return { renderer, mesh, material: mesh.material as ShaderMaterial };
 }
 
 describe('SunMesh', () => {
@@ -51,16 +52,58 @@ describe('SunMesh', () => {
     expect(mesh.rotation.y).toBe(0);
   });
 
-  it('applies the texture map when provided', async () => {
+  it('applies the texture to the surface shader when provided', async () => {
     const texture = new Texture();
-    const { material } = await renderSun({ texture });
-    expect(material.map).toBe(texture);
+    const { renderer, material } = await renderSun({ texture });
+    await renderer.advanceFrames(1, 0.016);
+    expect(material.uniforms.uMap!.value).toBe(texture);
+    expect(material.uniforms.uHasMap!.value).toBe(1);
   });
 
   it('falls back to a warm solid color when there is no texture', async () => {
-    const { material } = await renderSun({ texture: null });
-    expect(material.map).toBeNull();
-    expect(material.color.r).toBeGreaterThan(material.color.b);
+    const { renderer, material } = await renderSun({ texture: null });
+    await renderer.advanceFrames(1, 0.016);
+    expect(material.uniforms.uHasMap!.value).toBe(0);
+    const tint = material.uniforms.uTint!.value as { r: number; b: number };
+    expect(tint.r).toBeGreaterThan(tint.b);
+  });
+
+  it('switches back to the fallback color if the texture goes away', async () => {
+    const { renderer, material } = await renderSun({ texture: new Texture() });
+    await renderer.advanceFrames(1, 0.016);
+    await renderer.update(
+      <SunMesh
+        radius={2}
+        texture={null}
+        rotationPeriodSeconds={10}
+        isSurfaceAnimated
+        highlight="none"
+        highlightEasingRate={10}
+        onPointerOver={() => undefined}
+        onPointerOut={() => undefined}
+        onSelect={() => undefined}
+      />,
+    );
+    await renderer.advanceFrames(1, 0.016);
+    expect(material.uniforms.uHasMap!.value).toBe(0);
+  });
+
+  it('moves the plasma over time when the surface is animated', async () => {
+    const { renderer, material } = await renderSun();
+    await renderer.advanceFrames(10, 0.05);
+    expect(material.uniforms.uTime!.value).toBeCloseTo(0.5, 5);
+  });
+
+  it('keeps the plasma still when the surface animation is off (reduced motion)', async () => {
+    const { renderer, material } = await renderSun({ isSurfaceAnimated: false });
+    await renderer.advanceFrames(10, 0.05);
+    expect(material.uniforms.uTime!.value).toBe(0);
+  });
+
+  it('does not jump the plasma after a huge delta (tab resumed)', async () => {
+    const { renderer, material } = await renderSun();
+    await renderer.advanceFrames(1, 900);
+    expect(material.uniforms.uTime!.value).toBeCloseTo(MAX_FRAME_DELTA_SECONDS, 5);
   });
 
   it('stays at its natural scale with no highlight', async () => {
@@ -87,6 +130,7 @@ describe('SunMesh', () => {
         radius={2}
         texture={null}
         rotationPeriodSeconds={10}
+        isSurfaceAnimated
         highlight="none"
         highlightEasingRate={10}
         onPointerOver={() => undefined}

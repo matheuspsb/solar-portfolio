@@ -33,3 +33,11 @@ export function getFrameloop({
 }: FrameloopInput): 'always' | 'demand' {
   return prefersReducedMotion || !isSceneActive ? 'demand' : 'always';
 }
+
+const TRANSITION_SETTLE_FACTOR = 5;
+
+/** Easing rate for `dampValue` such that a transition is visually settled after `seconds`. */
+export function getTransitionRate(seconds: number): number {
+  const isDurationUsable = Number.isFinite(seconds) && seconds > 0;
+  return isDurationUsable ? TRANSITION_SETTLE_FACTOR / seconds : INSTANT_EASING_RATE;
+}

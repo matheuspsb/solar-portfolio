@@ -5,6 +5,7 @@ import type { TextureLoadFunction } from '@/hooks/use-texture';
 import type { BodyTexture } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
 import { FocusRing } from '../atoms/FocusRing';
+import { SunCorona } from '../atoms/SunCorona';
 import { SunMesh } from '../atoms/SunMesh';
 
 type CelestialBodyProps = {
@@ -12,6 +13,7 @@ type CelestialBodyProps = {
   texture: BodyTexture | null;
   prefersSmallTexture: boolean;
   rotationPeriodSeconds: number | null;
+  isSurfaceAnimated: boolean;
   highlight: Highlight;
   highlightEasingRate: number;
   onHoverChange: (isHovered: boolean) => void;
@@ -29,6 +31,7 @@ export function CelestialBody({
   texture,
   prefersSmallTexture,
   rotationPeriodSeconds,
+  isSurfaceAnimated,
   highlight,
   highlightEasingRate,
   onHoverChange,
@@ -51,12 +54,14 @@ export function CelestialBody({
         radius={radius}
         texture={loadedTexture}
         rotationPeriodSeconds={rotationPeriodSeconds}
+        isSurfaceAnimated={isSurfaceAnimated}
         highlight={highlight}
         highlightEasingRate={highlightEasingRate}
         onPointerOver={() => changeHover(true)}
         onPointerOut={() => changeHover(false)}
         onSelect={onSelect}
       />
+      <SunCorona radius={radius} isAnimated={isSurfaceAnimated} />
       {highlight === 'focused' && <FocusRing bodyRadius={radius} />}
     </>
   );

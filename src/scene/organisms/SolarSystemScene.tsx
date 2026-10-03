@@ -10,6 +10,7 @@ import { getFrameloop, getHighlightEasingRate, getRotationPeriodForMotion } from
 import type { SceneQuality } from '@/lib/scene-quality';
 import { CAMERA_FIELD_OF_VIEW } from '../scene-constants';
 import { CameraDistance } from '../atoms/CameraDistance';
+import { CameraViewOffset } from '../atoms/CameraViewOffset';
 import { SceneLights } from '../atoms/SceneLights';
 import { StarField } from '../atoms/StarField';
 import { CelestialBody } from '../molecules/CelestialBody';
@@ -30,6 +31,8 @@ const SceneEffects = lazy(() =>
 type SolarSystemSceneProps = {
   quality: SceneQuality;
   cameraDistance: number;
+  viewOffsetPixels: number;
+  viewOffsetEasingRate: number;
   prefersReducedMotion: boolean;
   bodies: readonly CelestialBodyConfig[];
   highlightOf: (id: string) => Highlight;
@@ -43,6 +46,8 @@ type SolarSystemSceneProps = {
 export function SolarSystemScene({
   quality,
   cameraDistance,
+  viewOffsetPixels,
+  viewOffsetEasingRate,
   prefersReducedMotion,
   bodies,
   highlightOf,
@@ -74,6 +79,7 @@ export function SolarSystemScene({
     >
       <color attach="background" args={[sceneTokens.backgroundColor]} />
       <CameraDistance distance={cameraDistance} />
+      <CameraViewOffset targetOffsetPixels={viewOffsetPixels} easingRate={viewOffsetEasingRate} />
       <SceneLights />
       <StarField starCount={quality.starCount} />
       {bodies.map((body) => (
@@ -86,6 +92,7 @@ export function SolarSystemScene({
             body.rotationPeriodSeconds,
             prefersReducedMotion,
           )}
+          isSurfaceAnimated={!prefersReducedMotion}
           highlight={highlightOf(body.id)}
           highlightEasingRate={getHighlightEasingRate(prefersReducedMotion)}
           onHoverChange={(isHovered) => onHoverChange(body.id, isHovered)}

@@ -7,6 +7,7 @@ import {
   getFrameloop,
   getHighlightEasingRate,
   getRotationPeriodForMotion,
+  getTransitionRate,
   getTransitionSeconds,
 } from './motion';
 
@@ -65,5 +66,25 @@ describe('getFrameloop', () => {
 
   it('renders on demand when both apply', () => {
     expect(getFrameloop({ prefersReducedMotion: true, isSceneActive: false })).toBe('demand');
+  });
+});
+
+describe('getTransitionRate', () => {
+  it('is faster for shorter transitions', () => {
+    expect(getTransitionRate(0.3)).toBeGreaterThan(getTransitionRate(1.2));
+  });
+
+  it('is instant for a zero-length transition (reduced motion)', () => {
+    expect(getTransitionRate(0)).toBe(INSTANT_EASING_RATE);
+  });
+
+  it.each([-1, Number.NaN])('is instant for invalid duration %s', (seconds) => {
+    expect(getTransitionRate(seconds)).toBe(INSTANT_EASING_RATE);
+  });
+
+  it('is a positive finite rate for a normal transition', () => {
+    const rate = getTransitionRate(0.6);
+    expect(rate).toBeGreaterThan(0);
+    expect(Number.isFinite(rate)).toBe(true);
   });
 });

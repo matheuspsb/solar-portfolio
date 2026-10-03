@@ -39,9 +39,6 @@
   --shadow-panel: 0 24px 80px rgb(0 0 0 / 0.55);
 
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-  --duration-fast: 120ms;
-  --duration-base: 240ms;
-  --duration-slow: 480ms;
 }
 
 :root {
@@ -51,14 +48,59 @@
   --z-panel: 30;
   --size-touch-target: 2.75rem;
   --size-panel-width: 28rem;
+
+  /* Motion durations are plain variables (not @theme) so the reduced-motion override below applies. */
+  --duration-fast: 120ms;
+  --duration-base: 240ms;
+  --duration-slow: 480ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  @theme {
+  :root {
     --duration-fast: 0ms;
     --duration-base: 0ms;
     --duration-slow: 0ms;
   }
+}
+
+@utility duration-fast {
+  transition-duration: var(--duration-fast);
+}
+
+@utility duration-base {
+  transition-duration: var(--duration-base);
+}
+
+@utility duration-slow {
+  transition-duration: var(--duration-slow);
+}
+
+@keyframes panel-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes overlay-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility animate-panel-in {
+  animation: panel-slide-in var(--duration-slow) var(--ease-standard) both;
+}
+
+@utility animate-overlay-in {
+  animation: overlay-fade-in var(--duration-base) var(--ease-standard) both;
 }
 
 @layer base {

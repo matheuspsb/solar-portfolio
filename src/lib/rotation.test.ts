@@ -2,7 +2,12 @@
 // or turn NaN (which would make the mesh vanish). The pure function guards against a tab that
 // stayed in background for minutes (huge delta), zero delta, and corrupted inputs.
 import { describe, expect, it } from 'vitest';
-import { FULL_TURN_RADIANS, MAX_FRAME_DELTA_SECONDS, advanceRotation } from './rotation';
+import {
+  FULL_TURN_RADIANS,
+  MAX_FRAME_DELTA_SECONDS,
+  advanceRotation,
+  clampFrameDelta,
+} from './rotation';
 
 describe('advanceRotation', () => {
   it('advances proportionally to elapsed time', () => {
@@ -68,5 +73,24 @@ describe('advanceRotation', () => {
     const next = advanceRotation({ angle: -1, deltaSeconds: 0, periodSeconds: 10 });
     expect(next).toBeGreaterThanOrEqual(0);
     expect(next).toBeLessThan(FULL_TURN_RADIANS);
+  });
+});
+
+describe('clampFrameDelta', () => {
+  it('passes normal frame deltas through', () => {
+    expect(clampFrameDelta(0.016)).toBe(0.016);
+  });
+
+  it('caps a huge delta (background tab) at the maximum', () => {
+    expect(clampFrameDelta(600)).toBe(MAX_FRAME_DELTA_SECONDS);
+    expect(clampFrameDelta(Number.POSITIVE_INFINITY)).toBe(MAX_FRAME_DELTA_SECONDS);
+  });
+
+  it.each([-1, Number.NaN, Number.NEGATIVE_INFINITY])('treats %s as no time passing', (delta) => {
+    expect(clampFrameDelta(delta)).toBe(0);
+  });
+
+  it('keeps zero as zero', () => {
+    expect(clampFrameDelta(0)).toBe(0);
   });
 });
