@@ -1,11 +1,11 @@
 import { celestialBodies } from '@/content/celestial-bodies';
-import { SolarSystemSceneLoader } from '@/scene/organisms/SolarSystemSceneLoader';
+import { PortfolioExperience } from '@/design-system/organisms/PortfolioExperience/PortfolioExperience';
 
 export default function HomePage() {
   return (
     <main className="fixed inset-0">
       <h1 className="sr-only">Matheus</h1>
-      <SolarSystemSceneLoader bodies={celestialBodies} />
+      <PortfolioExperience bodies={celestialBodies} />
     </main>
   );
 }

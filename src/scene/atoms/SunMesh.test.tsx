@@ -4,13 +4,23 @@
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
 import type { Mesh, MeshBasicMaterial } from 'three';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { FULL_TURN_RADIANS } from '@/lib/rotation';
 import { SunMesh } from './SunMesh';
 
 async function renderSun(props: Partial<React.ComponentProps<typeof SunMesh>> = {}) {
   const renderer = await ReactThreeTestRenderer.create(
-    <SunMesh radius={2} texture={null} rotationPeriodSeconds={10} {...props} />,
+    <SunMesh
+      radius={2}
+      texture={null}
+      rotationPeriodSeconds={10}
+      highlight="none"
+      highlightEasingRate={10}
+      onPointerOver={() => undefined}
+      onPointerOut={() => undefined}
+      onSelect={() => undefined}
+      {...props}
+    />,
   );
   const mesh = renderer.scene.children[0]!.instance as Mesh;
   return { renderer, mesh, material: mesh.material as MeshBasicMaterial };
@@ -51,5 +61,74 @@ describe('SunMesh', () => {
     const { material } = await renderSun({ texture: null });
     expect(material.map).toBeNull();
     expect(material.color.r).toBeGreaterThan(material.color.b);
+  });
+
+  it('stays at its natural scale with no highlight', async () => {
+    const { renderer, mesh } = await renderSun({ highlight: 'none' });
+    await renderer.advanceFrames(10, 0.016);
+    expect(mesh.scale.x).toBeCloseTo(1, 5);
+  });
+
+  it.each(['hovered', 'focused', 'selected'] as const)(
+    'grows slightly when %s and stays smooth, not exploding',
+    async (highlight) => {
+      const { renderer, mesh } = await renderSun({ highlight });
+      await renderer.advanceFrames(120, 0.016);
+      expect(mesh.scale.x).toBeGreaterThan(1.01);
+      expect(mesh.scale.x).toBeLessThan(1.1);
+    },
+  );
+
+  it('returns to its natural scale when the highlight is removed', async () => {
+    const { renderer, mesh } = await renderSun({ highlight: 'hovered' });
+    await renderer.advanceFrames(120, 0.016);
+    await renderer.update(
+      <SunMesh
+        radius={2}
+        texture={null}
+        rotationPeriodSeconds={10}
+        highlight="none"
+        highlightEasingRate={10}
+        onPointerOver={() => undefined}
+        onPointerOut={() => undefined}
+        onSelect={() => undefined}
+      />,
+    );
+    await renderer.advanceFrames(240, 0.016);
+    expect(mesh.scale.x).toBeCloseTo(1, 3);
+  });
+
+  it('applies the highlight instantly with an infinite easing rate (reduced motion)', async () => {
+    const { renderer, mesh } = await renderSun({
+      highlight: 'selected',
+      highlightEasingRate: Number.POSITIVE_INFINITY,
+    });
+    await renderer.advanceFrames(1, 0.016);
+    expect(mesh.scale.x).toBeGreaterThan(1.01);
+  });
+
+  it('notifies pointer over and out', async () => {
+    const onPointerOver = vi.fn();
+    const onPointerOut = vi.fn();
+    const { renderer } = await renderSun({ onPointerOver, onPointerOut });
+    const sun = renderer.scene.children[0]!;
+    await renderer.fireEvent(sun, 'pointerOver');
+    await renderer.fireEvent(sun, 'pointerOut');
+    expect(onPointerOver).toHaveBeenCalledOnce();
+    expect(onPointerOut).toHaveBeenCalledOnce();
+  });
+
+  it('selects on a click', async () => {
+    const onSelect = vi.fn();
+    const { renderer } = await renderSun({ onSelect });
+    await renderer.fireEvent(renderer.scene.children[0]!, 'click', { delta: 0 });
+    expect(onSelect).toHaveBeenCalledOnce();
+  });
+
+  it('does not select when the click was really an orbit drag', async () => {
+    const onSelect = vi.fn();
+    const { renderer } = await renderSun({ onSelect });
+    await renderer.fireEvent(renderer.scene.children[0]!, 'click', { delta: 80 });
+    expect(onSelect).not.toHaveBeenCalled();
   });
 });

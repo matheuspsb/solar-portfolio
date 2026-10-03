@@ -4,6 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
+import type { Highlight } from '@/lib/interaction-state';
 import type { SceneQuality } from '@/lib/scene-quality';
 import { SceneEffects } from '../atoms/SceneEffects';
 import { SceneLights } from '../atoms/SceneLights';
@@ -17,13 +18,23 @@ const CAMERA_FAR = 400;
 const MIN_ZOOM_DISTANCE = 5;
 const MAX_ZOOM_DISTANCE = 22;
 const CONTROLS_DAMPING = 0.08;
+const HIGHLIGHT_EASING_RATE = 10;
 
 type SolarSystemSceneProps = {
   quality: SceneQuality;
   bodies: readonly CelestialBodyConfig[];
+  highlightOf: (id: string) => Highlight;
+  onHoverChange: (id: string, isHovered: boolean) => void;
+  onSelect: (id: string) => void;
 };
 
-export function SolarSystemScene({ quality, bodies }: SolarSystemSceneProps) {
+export function SolarSystemScene({
+  quality,
+  bodies,
+  highlightOf,
+  onHoverChange,
+  onSelect,
+}: SolarSystemSceneProps) {
   return (
     <Canvas
       dpr={[1, quality.maxPixelRatio]}
@@ -45,6 +56,10 @@ export function SolarSystemScene({ quality, bodies }: SolarSystemSceneProps) {
           texture={body.texture}
           prefersSmallTexture={quality.tier === 'low'}
           rotationPeriodSeconds={body.rotationPeriodSeconds}
+          highlight={highlightOf(body.id)}
+          highlightEasingRate={HIGHLIGHT_EASING_RATE}
+          onHoverChange={(isHovered) => onHoverChange(body.id, isHovered)}
+          onSelect={() => onSelect(body.id)}
         />
       ))}
       <SceneEffects />

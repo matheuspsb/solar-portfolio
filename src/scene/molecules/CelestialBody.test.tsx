@@ -9,6 +9,17 @@ import { CelestialBody } from './CelestialBody';
 
 const texture = { url: '/full.webp', smallUrl: '/small.webp' };
 
+const defaultProps = {
+  radius: 2,
+  texture,
+  prefersSmallTexture: false,
+  rotationPeriodSeconds: 10,
+  highlight: 'none',
+  highlightEasingRate: 10,
+  onHoverChange: () => undefined,
+  onSelect: () => undefined,
+} as const;
+
 function readMesh(renderer: Awaited<ReturnType<typeof ReactThreeTestRenderer.create>>) {
   return renderer.scene.children[0]!.instance as Mesh;
 }
@@ -17,13 +28,7 @@ describe('CelestialBody', () => {
   it('renders the sphere immediately, before the texture arrives', async () => {
     const loadTexture = vi.fn(() => new Promise<Texture>(() => undefined));
     const renderer = await ReactThreeTestRenderer.create(
-      <CelestialBody
-        radius={2}
-        texture={texture}
-        prefersSmallTexture={false}
-        rotationPeriodSeconds={10}
-        loadTexture={loadTexture}
-      />,
+      <CelestialBody {...defaultProps} loadTexture={loadTexture} />,
     );
     expect((readMesh(renderer).material as MeshBasicMaterial).map).toBeNull();
   });
@@ -32,13 +37,7 @@ describe('CelestialBody', () => {
     const loaded = new Texture();
     const loadTexture = vi.fn(async () => loaded);
     const renderer = await ReactThreeTestRenderer.create(
-      <CelestialBody
-        radius={2}
-        texture={texture}
-        prefersSmallTexture={false}
-        rotationPeriodSeconds={10}
-        loadTexture={loadTexture}
-      />,
+      <CelestialBody {...defaultProps} loadTexture={loadTexture} />,
     );
     await ReactThreeTestRenderer.act(async () => undefined);
     expect(loadTexture).toHaveBeenCalledWith('/full.webp');
@@ -48,13 +47,7 @@ describe('CelestialBody', () => {
   it('requests the small texture on small screens', async () => {
     const loadTexture = vi.fn(async () => new Texture());
     await ReactThreeTestRenderer.create(
-      <CelestialBody
-        radius={2}
-        texture={texture}
-        prefersSmallTexture
-        rotationPeriodSeconds={10}
-        loadTexture={loadTexture}
-      />,
+      <CelestialBody {...defaultProps} prefersSmallTexture loadTexture={loadTexture} />,
     );
     expect(loadTexture).toHaveBeenCalledWith('/small.webp');
   });
@@ -64,13 +57,7 @@ describe('CelestialBody', () => {
       throw new Error('404');
     });
     const renderer = await ReactThreeTestRenderer.create(
-      <CelestialBody
-        radius={2}
-        texture={texture}
-        prefersSmallTexture={false}
-        rotationPeriodSeconds={10}
-        loadTexture={loadTexture}
-      />,
+      <CelestialBody {...defaultProps} loadTexture={loadTexture} />,
     );
     await ReactThreeTestRenderer.act(async () => undefined);
     const material = readMesh(renderer).material as MeshBasicMaterial;
@@ -81,14 +68,44 @@ describe('CelestialBody', () => {
   it('does not load anything for a body without texture', async () => {
     const loadTexture = vi.fn(async () => new Texture());
     await ReactThreeTestRenderer.create(
-      <CelestialBody
-        radius={2}
-        texture={null}
-        prefersSmallTexture={false}
-        rotationPeriodSeconds={10}
-        loadTexture={loadTexture}
-      />,
+      <CelestialBody {...defaultProps} texture={null} loadTexture={loadTexture} />,
     );
     expect(loadTexture).not.toHaveBeenCalled();
+  });
+
+  it('shows a focus ring only while focused', async () => {
+    const unfocused = await ReactThreeTestRenderer.create(<CelestialBody {...defaultProps} />);
+    expect(unfocused.scene.children).toHaveLength(1);
+    const focused = await ReactThreeTestRenderer.create(
+      <CelestialBody {...defaultProps} highlight="focused" />,
+    );
+    expect(focused.scene.children.length).toBeGreaterThan(1);
+  });
+
+  it('reports hover changes and shows a pointer cursor while hovered', async () => {
+    const onHoverChange = vi.fn();
+    const renderer = await ReactThreeTestRenderer.create(
+      <CelestialBody {...defaultProps} onHoverChange={onHoverChange} />,
+    );
+    const sun = renderer.scene.children[0]!;
+    await ReactThreeTestRenderer.act(async () => {
+      await renderer.fireEvent(sun, 'pointerOver');
+    });
+    expect(onHoverChange).toHaveBeenLastCalledWith(true);
+    expect(document.body.style.cursor).toBe('pointer');
+    await ReactThreeTestRenderer.act(async () => {
+      await renderer.fireEvent(sun, 'pointerOut');
+    });
+    expect(onHoverChange).toHaveBeenLastCalledWith(false);
+    expect(document.body.style.cursor).toBe('auto');
+  });
+
+  it('forwards selection', async () => {
+    const onSelect = vi.fn();
+    const renderer = await ReactThreeTestRenderer.create(
+      <CelestialBody {...defaultProps} onSelect={onSelect} />,
+    );
+    await renderer.fireEvent(renderer.scene.children[0]!, 'click', { delta: 0 });
+    expect(onSelect).toHaveBeenCalledOnce();
   });
 });
