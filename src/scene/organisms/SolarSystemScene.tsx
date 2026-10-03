@@ -2,6 +2,7 @@
 
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
+import { Suspense, lazy } from 'react';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
@@ -9,7 +10,6 @@ import { getFrameloop, getHighlightEasingRate, getRotationPeriodForMotion } from
 import type { SceneQuality } from '@/lib/scene-quality';
 import { CAMERA_FIELD_OF_VIEW } from '../scene-constants';
 import { CameraDistance } from '../atoms/CameraDistance';
-import { SceneEffects } from '../atoms/SceneEffects';
 import { SceneLights } from '../atoms/SceneLights';
 import { StarField } from '../atoms/StarField';
 import { CelestialBody } from '../molecules/CelestialBody';
@@ -21,6 +21,11 @@ const MIN_ZOOM_DISTANCE = 5;
 const MAX_ZOOM_DISTANCE = 22;
 const CONTROLS_DAMPING = 0.08;
 const MAX_DISTANCE_MARGIN = 1.5;
+
+// Post-processing is the heaviest dependency; load it after the Sun is already on screen.
+const SceneEffects = lazy(() =>
+  import('../atoms/SceneEffects').then((module) => ({ default: module.SceneEffects })),
+);
 
 type SolarSystemSceneProps = {
   quality: SceneQuality;
@@ -87,7 +92,9 @@ export function SolarSystemScene({
           onSelect={() => onSelect(body.id)}
         />
       ))}
-      <SceneEffects />
+      <Suspense fallback={null}>
+        <SceneEffects />
+      </Suspense>
       <OrbitControls
         enablePan={false}
         enableDamping={!prefersReducedMotion}

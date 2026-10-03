@@ -8,6 +8,9 @@ const variants = [
 ];
 
 for (const variant of variants) {
-  const info = await sharp(SOURCE).resize({ width: variant.width }).webp({ quality: variant.quality }).toFile(variant.file);
+  const info = await sharp(SOURCE)
+    .resize({ width: variant.width })
+    .webp({ quality: variant.quality })
+    .toFile(variant.file);
   console.log(variant.file, info.width, 'x', info.height, Math.round(info.size / 1024), 'KB');
 }

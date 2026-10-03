@@ -22,5 +22,6 @@ const rows = files
   .sort((first, second) => second.gzip - first.gzip);
 
 const kilobytes = (bytes) => `${(bytes / 1024).toFixed(1)} KB`;
-for (const row of rows.slice(0, 8)) console.log(kilobytes(row.gzip).padStart(10), kilobytes(row.raw).padStart(10), row.path);
+for (const row of rows.slice(0, 8))
+  console.log(kilobytes(row.gzip).padStart(10), kilobytes(row.raw).padStart(10), row.path);
 console.log('TOTAL gzip', kilobytes(rows.reduce((total, row) => total + row.gzip, 0)));

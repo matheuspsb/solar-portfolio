@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
+import { useIdleReady } from '@/hooks/use-idle-ready';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { useViewportSize } from '@/hooks/use-viewport-size';
 import { getFramingDistance } from '@/lib/camera-framing';
@@ -33,6 +34,7 @@ export function SolarSystemSceneLoader({
   onContextRestored,
   isActive,
 }: SolarSystemSceneLoaderProps) {
+  const isIdle = useIdleReady();
   const { width, height } = useViewportSize();
   const prefersReducedMotion = usePrefersReducedMotion();
   const quality = getSceneQuality(width);
@@ -42,6 +44,9 @@ export function SolarSystemSceneLoader({
     aspectRatio: width / height,
     screenFill: BODY_SCREEN_FILL,
   });
+  // The 3D bundle is large: wait until the content has painted and the browser is idle.
+  if (!isIdle) return null;
+
   return (
     <SolarSystemScene
       quality={quality}

@@ -7,7 +7,12 @@ import lighthouse from 'lighthouse';
 const [preset = 'mobile', url = 'http://localhost:3100'] = process.argv.slice(2);
 const chrome = await launch({
   chromePath: chromium.executablePath(),
-  chromeFlags: ['--headless=new', '--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+  chromeFlags: [
+    '--headless=new',
+    '--use-gl=angle',
+    '--use-angle=swiftshader',
+    '--enable-unsafe-swiftshader',
+  ],
 });
 
 const config =
@@ -23,12 +28,24 @@ await chrome.kill();
 
 const { categories, audits } = result.lhr;
 const score = (key) => Math.round(categories[key].score * 100);
-console.log(`[${preset}] performance=${score('performance')} accessibility=${score('accessibility')} best-practices=${score('best-practices')} seo=${score('seo')}`);
-for (const key of ['first-contentful-paint', 'largest-contentful-paint', 'total-blocking-time', 'cumulative-layout-shift', 'speed-index', 'interactive']) {
+console.log(
+  `[${preset}] performance=${score('performance')} accessibility=${score('accessibility')} best-practices=${score('best-practices')} seo=${score('seo')}`,
+);
+for (const key of [
+  'first-contentful-paint',
+  'largest-contentful-paint',
+  'total-blocking-time',
+  'cumulative-layout-shift',
+  'speed-index',
+  'interactive',
+]) {
   console.log(`  ${key}: ${audits[key].displayValue}`);
 }
 
 const failing = Object.values(audits).filter(
-  (audit) => audit.score !== null && audit.score < 0.9 && audit.scoreDisplayMode === 'numeric' || (audit.score === 0 && audit.scoreDisplayMode === 'binary'),
+  (audit) =>
+    (audit.score !== null && audit.score < 0.9 && audit.scoreDisplayMode === 'numeric') ||
+    (audit.score === 0 && audit.scoreDisplayMode === 'binary'),
 );
-for (const audit of failing) console.log(`  FAIL ${audit.id} (${audit.score}) ${audit.displayValue ?? ''}`);
+for (const audit of failing)
+  console.log(`  FAIL ${audit.id} (${audit.score}) ${audit.displayValue ?? ''}`);
