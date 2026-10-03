@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import sharp from 'sharp';
 
 /** Moves the pointer over the Sun and waits for the hover hint (software WebGL can be slow). */
 export async function hoverSun(page: Page) {
@@ -23,4 +24,36 @@ export async function hoverSun(page: Page) {
 export async function clickSun(page: Page) {
   const { centerX, centerY } = await hoverSun(page);
   await page.mouse.click(centerX, centerY);
+}
+
+/** Diameter of the orange disc (the Sun) along the central row/column, relative to the smaller screen side. */
+export async function measureSunFill(image: Buffer): Promise<number> {
+  const { data, info } = await sharp(image).raw().toBuffer({ resolveWithObject: true });
+  const isWarm = (column: number, row: number): boolean => {
+    const offset = (row * info.width + column) * info.channels;
+    return data[offset]! > 140 && data[offset + 1]! > 40 && data[offset + 2]! < 90;
+  };
+  const centerColumn = Math.floor(info.width / 2);
+  const centerRow = Math.floor(info.height / 2);
+
+  // Walk outward from the center so unrelated warm UI (the menu border) is never counted.
+  const measureRun = (
+    isWarmAt: (position: number) => boolean,
+    start: number,
+    length: number,
+  ): number => {
+    let first = start;
+    while (first > 0 && isWarmAt(first - 1)) first -= 1;
+    let last = start;
+    while (last < length - 1 && isWarmAt(last + 1)) last += 1;
+    return last - first;
+  };
+
+  const horizontalSpan = measureRun(
+    (column) => isWarm(column, centerRow),
+    centerColumn,
+    info.width,
+  );
+  const verticalSpan = measureRun((row) => isWarm(centerColumn, row), centerRow, info.height);
+  return Math.max(horizontalSpan, verticalSpan) / Math.min(info.width, info.height);
 }

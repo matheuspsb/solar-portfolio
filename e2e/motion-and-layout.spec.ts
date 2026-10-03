@@ -3,7 +3,7 @@
 // Sun and no sideways scrolling. Failing these would hurt accessibility and first impressions.
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import sharp from 'sharp';
+import { measureSunFill } from './helpers';
 
 async function waitForScene(page: Page) {
   const textureLoaded = page.waitForResponse('**/textures/sun*.webp');
@@ -15,38 +15,6 @@ async function waitForScene(page: Page) {
 
 async function captureCanvas(page: Page): Promise<Buffer> {
   return page.locator('canvas').screenshot();
-}
-
-/** Diameter of the orange disc (the Sun) along the central row/column, relative to the smaller screen side. */
-async function measureSunFill(image: Buffer): Promise<number> {
-  const { data, info } = await sharp(image).raw().toBuffer({ resolveWithObject: true });
-  const isWarm = (column: number, row: number): boolean => {
-    const offset = (row * info.width + column) * info.channels;
-    return data[offset]! > 140 && data[offset + 1]! > 40 && data[offset + 2]! < 90;
-  };
-  const centerColumn = Math.floor(info.width / 2);
-  const centerRow = Math.floor(info.height / 2);
-
-  // Walk outward from the center so unrelated warm UI (the menu border) is never counted.
-  const measureRun = (
-    isWarmAt: (position: number) => boolean,
-    start: number,
-    length: number,
-  ): number => {
-    let first = start;
-    while (first > 0 && isWarmAt(first - 1)) first -= 1;
-    let last = start;
-    while (last < length - 1 && isWarmAt(last + 1)) last += 1;
-    return last - first;
-  };
-
-  const horizontalSpan = measureRun(
-    (column) => isWarm(column, centerRow),
-    centerColumn,
-    info.width,
-  );
-  const verticalSpan = measureRun((row) => isWarm(centerColumn, row), centerRow, info.height);
-  return Math.max(horizontalSpan, verticalSpan) / Math.min(info.width, info.height);
 }
 
 function expectComfortableFill(fill: number) {

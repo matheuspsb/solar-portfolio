@@ -11,6 +11,7 @@ import type { SceneQuality } from '@/lib/scene-quality';
 import { CAMERA_FIELD_OF_VIEW } from '../scene-constants';
 import { CameraDistance } from '../atoms/CameraDistance';
 import { CameraViewOffset } from '../atoms/CameraViewOffset';
+import { KeyboardZoom } from '../atoms/KeyboardZoom';
 import { SceneLights } from '../atoms/SceneLights';
 import { StarField } from '../atoms/StarField';
 import { CelestialBody } from '../molecules/CelestialBody';
@@ -59,6 +60,8 @@ export function SolarSystemScene({
   isActive,
   description,
 }: SolarSystemSceneProps) {
+  const maxZoomDistance = Math.max(MAX_ZOOM_DISTANCE, cameraDistance * MAX_DISTANCE_MARGIN);
+
   return (
     <Canvas
       role="img"
@@ -106,12 +109,17 @@ export function SolarSystemScene({
       <Suspense fallback={null}>
         <SceneEffects />
       </Suspense>
+      <KeyboardZoom
+        minDistance={MIN_ZOOM_DISTANCE}
+        maxDistance={maxZoomDistance}
+        isEnabled={isActive}
+      />
       <OrbitControls
         enablePan={false}
         enableDamping={!prefersReducedMotion}
         dampingFactor={CONTROLS_DAMPING}
         minDistance={MIN_ZOOM_DISTANCE}
-        maxDistance={Math.max(MAX_ZOOM_DISTANCE, cameraDistance * MAX_DISTANCE_MARGIN)}
+        maxDistance={maxZoomDistance}
       />
     </Canvas>
   );
