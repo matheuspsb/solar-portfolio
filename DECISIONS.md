@@ -27,3 +27,12 @@ next 16.3.8 · react/react-dom 19.3.0 · three 0.186.1 · @react-three/fiber 9.8
 - Playwright uses SwiftShader flags so WebGL works in headless Chromium.
 - The foundation smoke tests could not be seen failing "for the right reason" because there was no code to fail
   against; from the next iteration on, tests are run red first.
+
+## Styling: Tailwind CSS v4 (user override)
+
+The user asked mid-session to "use tailwind", overriding the CLAUDE.md default of CSS Modules. Tailwind v4
+(`tailwindcss` + `@tailwindcss/postcss`) is used; design tokens live in the `@theme` block of
+`src/design-system/tokens/tokens.css` (single source of truth; utilities such as `bg-sun-400` derive from it).
+Components use utility classes that reference tokens only: no arbitrary hex/px values in components.
+The "colocated style file" rule becomes "styles are utility classes in the component file".
+Reduced-motion zeroes the duration tokens.
