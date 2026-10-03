@@ -21,6 +21,7 @@ type SolarSystemSceneLoaderProps = {
   onSelect: (id: string) => void;
   onContextLost: () => void;
   onContextRestored: () => void;
+  isActive: boolean;
 };
 
 export function SolarSystemSceneLoader({
@@ -30,6 +31,7 @@ export function SolarSystemSceneLoader({
   onSelect,
   onContextLost,
   onContextRestored,
+  isActive,
 }: SolarSystemSceneLoaderProps) {
   const { width, height } = useViewportSize();
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -51,6 +53,7 @@ export function SolarSystemSceneLoader({
       onSelect={onSelect}
       onContextLost={onContextLost}
       onContextRestored={onContextRestored}
+      isActive={isActive}
     />
   );
 }

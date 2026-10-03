@@ -119,3 +119,23 @@ test('has no horizontal scrolling on very narrow screens', async ({ browser }) =
   expect(menuBox.x + menuBox.width).toBeLessThanOrEqual(320);
   await page.close();
 });
+
+test('stops rendering the idle loop while the panel covers the scene and resumes after', async ({
+  page,
+}) => {
+  await waitForScene(page);
+  await page.getByRole('button', { name: 'Acesso rápido' }).click();
+  await page.getByRole('button', { name: 'Sobre', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Sobre' })).toBeVisible();
+  await page.waitForTimeout(500);
+  const first = await page.screenshot();
+  await page.waitForTimeout(2000);
+  const second = await page.screenshot();
+  expect(first.equals(second)).toBe(true);
+
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(500);
+  const resumedFirst = await captureCanvas(page);
+  await page.waitForTimeout(2000);
+  expect((await captureCanvas(page)).equals(resumedFirst)).toBe(false);
+});

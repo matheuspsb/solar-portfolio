@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   INSTANT_EASING_RATE,
+  getFrameloop,
   getHighlightEasingRate,
   getRotationPeriodForMotion,
   getTransitionSeconds,
@@ -46,5 +47,23 @@ describe('getHighlightEasingRate', () => {
   it('applies changes instantly when reduced motion is preferred', () => {
     expect(getHighlightEasingRate(true)).toBe(INSTANT_EASING_RATE);
     expect(INSTANT_EASING_RATE).toBe(Number.POSITIVE_INFINITY);
+  });
+});
+
+describe('getFrameloop', () => {
+  it('renders continuously while the Sun is visible and motion is allowed', () => {
+    expect(getFrameloop({ prefersReducedMotion: false, isSceneActive: true })).toBe('always');
+  });
+
+  it('renders on demand when reduced motion is preferred (nothing moves by itself)', () => {
+    expect(getFrameloop({ prefersReducedMotion: true, isSceneActive: true })).toBe('demand');
+  });
+
+  it('renders on demand while a panel covers the scene, saving GPU and battery', () => {
+    expect(getFrameloop({ prefersReducedMotion: false, isSceneActive: false })).toBe('demand');
+  });
+
+  it('renders on demand when both apply', () => {
+    expect(getFrameloop({ prefersReducedMotion: true, isSceneActive: false })).toBe('demand');
   });
 });

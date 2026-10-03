@@ -19,3 +19,17 @@ export function getRotationPeriodForMotion(
 export function getHighlightEasingRate(prefersReducedMotion: boolean): number {
   return prefersReducedMotion ? INSTANT_EASING_RATE : HIGHLIGHT_EASING_RATE;
 }
+
+type FrameloopInput = {
+  prefersReducedMotion: boolean;
+  /** False while something (the content panel) covers the scene. */
+  isSceneActive: boolean;
+};
+
+/** 'demand' still redraws on resize, pointer events and prop changes, but stops the idle loop. */
+export function getFrameloop({
+  prefersReducedMotion,
+  isSceneActive,
+}: FrameloopInput): 'always' | 'demand' {
+  return prefersReducedMotion || !isSceneActive ? 'demand' : 'always';
+}

@@ -5,7 +5,7 @@ import { Canvas } from '@react-three/fiber';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
-import { getHighlightEasingRate, getRotationPeriodForMotion } from '@/lib/motion';
+import { getFrameloop, getHighlightEasingRate, getRotationPeriodForMotion } from '@/lib/motion';
 import type { SceneQuality } from '@/lib/scene-quality';
 import { CAMERA_FIELD_OF_VIEW } from '../scene-constants';
 import { CameraDistance } from '../atoms/CameraDistance';
@@ -32,6 +32,7 @@ type SolarSystemSceneProps = {
   onSelect: (id: string) => void;
   onContextLost: () => void;
   onContextRestored: () => void;
+  isActive: boolean;
 };
 
 export function SolarSystemScene({
@@ -44,10 +45,12 @@ export function SolarSystemScene({
   onSelect,
   onContextLost,
   onContextRestored,
+  isActive,
 }: SolarSystemSceneProps) {
   return (
     <Canvas
       dpr={[1, quality.maxPixelRatio]}
+      frameloop={getFrameloop({ prefersReducedMotion, isSceneActive: isActive })}
       camera={{
         position: CAMERA_POSITION,
         fov: CAMERA_FIELD_OF_VIEW,

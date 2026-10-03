@@ -39,3 +39,11 @@ test('loads the full-size Sun texture on desktop and the small one on phones', a
   expect((await phoneTexture).status()).toBe(200);
   await phone.close();
 });
+
+test('serves a favicon so the browser does not log a 404', async ({ page }) => {
+  await page.goto('/');
+  const iconHref = await page.locator('link[rel~="icon"]').first().getAttribute('href');
+  expect(iconHref).toBeTruthy();
+  const response = await page.request.get(iconHref!);
+  expect(response.status()).toBe(200);
+});

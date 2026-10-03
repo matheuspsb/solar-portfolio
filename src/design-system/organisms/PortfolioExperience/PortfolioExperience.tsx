@@ -27,6 +27,8 @@ export type SceneProps = {
   onSelect: (id: string) => void;
   onContextLost: () => void;
   onContextRestored: () => void;
+  /** False while the content panel covers the scene, so it can stop its idle render loop. */
+  isActive: boolean;
 };
 
 type PortfolioExperienceProps = {
@@ -113,6 +115,7 @@ export function PortfolioExperience({
               onSelect={openBody}
               onContextLost={() => setIsContextLost(true)}
               onContextRestored={() => setIsContextLost(false)}
+              isActive={selectedBody === undefined}
             />
           )}
         </SceneErrorBoundary>

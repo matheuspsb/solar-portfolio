@@ -16,9 +16,10 @@ function FakeScene({
   onSelect,
   onContextLost,
   onContextRestored,
+  isActive,
 }: SceneProps) {
   return (
-    <div data-testid="fake-scene">
+    <div data-testid="fake-scene" data-active={String(isActive)}>
       <button tabIndex={-1} onClick={onContextLost}>
         perder contexto
       </button>
@@ -117,6 +118,15 @@ describe('PortfolioExperience', () => {
     expect(screen.getByTestId('fake-scene').closest('[inert]')).not.toBeNull();
     await user.keyboard('{Escape}');
     expect(screen.getByTestId('fake-scene').closest('[inert]')).toBeNull();
+  });
+
+  it('tells the scene to go idle while the panel covers it and to resume afterwards', async () => {
+    const user = setup();
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'true');
+    await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'false');
+    await user.keyboard('{Escape}');
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'true');
   });
 
   it('ignores Escape when the panel is already closed', async () => {
