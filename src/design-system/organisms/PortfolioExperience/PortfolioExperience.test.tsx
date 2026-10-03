@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { celestialBodies } from '@/content/celestial-bodies';
+import { credits } from '@/content/credits';
 import { PortfolioExperience } from './PortfolioExperience';
 import type { SceneProps } from './PortfolioExperience';
 
@@ -17,9 +18,15 @@ function FakeScene({
   onContextLost,
   onContextRestored,
   isActive,
+  description,
 }: SceneProps) {
   return (
-    <div data-testid="fake-scene" data-active={String(isActive)}>
+    <div
+      data-testid="fake-scene"
+      data-active={String(isActive)}
+      role="group"
+      aria-label={description}
+    >
       <button tabIndex={-1} onClick={onContextLost}>
         perder contexto
       </button>
@@ -49,7 +56,13 @@ function setup({
   hasWebGL = true,
 }: { scene?: React.ComponentType<SceneProps>; hasWebGL?: boolean } = {}) {
   render(
-    <PortfolioExperience bodies={celestialBodies} scene={scene} detectWebGL={() => hasWebGL} />,
+    <PortfolioExperience
+      bodies={celestialBodies}
+      credits={credits}
+      sceneDescription="Cena 3D de teste"
+      scene={scene}
+      detectWebGL={() => hasWebGL}
+    />,
   );
   return userEvent.setup();
 }
@@ -127,6 +140,17 @@ describe('PortfolioExperience', () => {
     expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'false');
     await user.keyboard('{Escape}');
     expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'true');
+  });
+
+  it('gives the scene a textual description from the data it was given', () => {
+    setup();
+    expect(screen.getByRole('group', { name: 'Cena 3D de teste' })).toBeInTheDocument();
+  });
+
+  it('shows only the credits it was given', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
+    expect(screen.getAllByRole('link', { name: /CC BY 4\.0/ })).toHaveLength(credits.length);
   });
 
   it('ignores Escape when the panel is already closed', async () => {

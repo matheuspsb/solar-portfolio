@@ -30,6 +30,7 @@ type SolarSystemSceneLoaderProps = {
   onContextLost: () => void;
   onContextRestored: () => void;
   isActive: boolean;
+  description: string;
 };
 
 export function SolarSystemSceneLoader({
@@ -40,6 +41,7 @@ export function SolarSystemSceneLoader({
   onContextLost,
   onContextRestored,
   isActive,
+  description,
 }: SolarSystemSceneLoaderProps) {
   const isIdle = useIdleReady();
   const { width, height } = useViewportSize();
@@ -77,6 +79,7 @@ export function SolarSystemSceneLoader({
       onContextLost={onContextLost}
       onContextRestored={onContextRestored}
       isActive={isActive}
+      description={description}
     />
   );
 }

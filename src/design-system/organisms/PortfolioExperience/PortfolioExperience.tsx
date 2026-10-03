@@ -2,7 +2,6 @@
 
 import { useRef, useState } from 'react';
 import type { ComponentType } from 'react';
-import { credits } from '@/content/credits';
 import { useBodyInteraction } from '@/hooks/use-body-interaction';
 import { useWebGLSupport } from '@/hooks/use-webgl-support';
 import { getBodyAccessibleLabel, getHintLabel } from '@/lib/body-labels';
@@ -12,6 +11,7 @@ import { detectWebGL } from '@/lib/webgl-support';
 import { SceneErrorBoundary } from '@/scene/organisms/SceneErrorBoundary';
 import { SolarSystemSceneLoader } from '@/scene/organisms/SolarSystemSceneLoader';
 import { AttributionNote } from '../../molecules/AttributionNote/AttributionNote';
+import type { Credit } from '../../molecules/AttributionNote/AttributionNote';
 import { BodyHint } from '../../molecules/BodyHint/BodyHint';
 import { SceneKeyboardControls } from '../../molecules/SceneKeyboardControls/SceneKeyboardControls';
 import type { SceneKeyboardControlsHandle } from '../../molecules/SceneKeyboardControls/SceneKeyboardControls';
@@ -29,10 +29,14 @@ export type SceneProps = {
   onContextRestored: () => void;
   /** False while the content panel covers the scene, so it can stop its idle render loop. */
   isActive: boolean;
+  /** Text alternative for the canvas, announced by assistive technology. */
+  description: string;
 };
 
 type PortfolioExperienceProps = {
   bodies: readonly CelestialBodyConfig[];
+  credits: readonly Credit[];
+  sceneDescription: string;
   /** Injectable so the experience can run without WebGL (tests, fallback). */
   scene?: ComponentType<SceneProps>;
   /** Injectable WebGL probe, for tests. */
@@ -51,6 +55,8 @@ function getFallbackMessage(isSceneAvailable: boolean, isContextLost: boolean): 
 
 export function PortfolioExperience({
   bodies,
+  credits,
+  sceneDescription,
   scene: SceneComponent = SolarSystemSceneLoader,
   detectWebGL: probeWebGL = detectWebGL,
 }: PortfolioExperienceProps) {
@@ -116,6 +122,7 @@ export function PortfolioExperience({
               onContextLost={() => setIsContextLost(true)}
               onContextRestored={() => setIsContextLost(false)}
               isActive={selectedBody === undefined}
+              description={sceneDescription}
             />
           )}
         </SceneErrorBoundary>

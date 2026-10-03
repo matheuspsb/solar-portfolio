@@ -41,6 +41,7 @@ type SolarSystemSceneProps = {
   onContextLost: () => void;
   onContextRestored: () => void;
   isActive: boolean;
+  description: string;
 };
 
 export function SolarSystemScene({
@@ -56,9 +57,12 @@ export function SolarSystemScene({
   onContextLost,
   onContextRestored,
   isActive,
+  description,
 }: SolarSystemSceneProps) {
   return (
     <Canvas
+      role="img"
+      aria-label={description}
       dpr={[1, quality.maxPixelRatio]}
       frameloop={getFrameloop({ prefersReducedMotion, isSceneActive: isActive })}
       camera={{

@@ -47,3 +47,11 @@ test('serves a favicon so the browser does not log a 404', async ({ page }) => {
   const response = await page.request.get(iconHref!);
   expect(response.status()).toBe(200);
 });
+
+test('gives the 3D scene a text alternative and the page proper metadata', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('img', { name: /Cena 3D interativa.*Sol/ })).toBeVisible();
+  await expect(page).toHaveTitle(/Matheus/);
+  await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#03040a');
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Matheus/);
+});

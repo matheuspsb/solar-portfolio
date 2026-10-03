@@ -49,3 +49,26 @@
 - Playwright e2e builds and serves production on port 3100 and never reuses an existing server (stop manual servers first, or the port is busy).
 - `scripts/screenshot.mjs <name> [w] [h]` captures a screenshot of the running server into `screenshots/`.
 - three 0.186 + R3F 9.8 logs a Clock deprecation warning; three is pinned to 0.182 (see DECISIONS.md).
+
+## Próxima fase (proposta, não implementada): planetas e órbitas
+
+Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A arquitetura atual já é orientada a dados; o que muda:
+
+1. **Dados.** Estender `CelestialBodyConfig` (`lib/celestial-body.ts`) com `kind: 'star' | 'planet' | 'moon'` e, para corpos em órbita,
+   `orbit: { parentId, radius, periodSeconds, phase, inclination }`. Validar em `validateCelestialBodies`: `parentId` existente, sem ciclos,
+   raio de órbita > raio do pai, período finito > 0. Novos tipos de conteúdo entram em `SectionContent` e ganham um case em `SectionView`.
+   Testes: ids duplicados, órbita sem pai, ciclo pai-filho, lista com planeta sem textura.
+2. **Funções puras.** `lib/orbit.ts` (`getOrbitPosition({ orbit, elapsedSeconds })`, usando o mesmo clamp de delta de `rotation.ts`) e
+   `getOrbitPath(...)` para desenhar o anel. A navegação circular (`getAdjacentId`) e o menu já funcionam com N corpos.
+3. **Cena.** `CelestialBody` passa a escolher a malha por `kind` (hoje só `SunMesh`; criar `PlanetMesh` com material Lambert/Standard,
+   que usa a `SceneLights` já posicionada no Sol) e a ser envolvido por um `OrbitGroup` que aplica a posição orbital em `useFrame`
+   (com `prefersReducedMotion` congelando a órbita). `SunCorona`/bloom ficam só nas estrelas (`kind === 'star'`).
+4. **Câmera.** Reaproveitar `getFramingDistance` para enquadrar o sistema inteiro (raio = maior órbita + margem) e adicionar
+   `CameraFocus` para voar até o corpo selecionado (duração via `getTransitionSeconds`, zero com movimento reduzido), no mesmo estilo de
+   `CameraViewOffset`.
+5. **Interação.** `SceneKeyboardControls` e `QuickAccessMenu` já listam todos os corpos; o `FocusRing` e o `BodyHint` vêm do `CelestialBody`.
+   Para planetas pequenos aumentar a área clicável com uma esfera de raycast invisível (`raycast` só nela) sem alterar o visual.
+6. **Performance.** Rever o tier de qualidade por número de corpos (`lib/scene-quality.ts`), instanciar geometrias iguais
+   (`InstancedMesh` ou `useMemo` explícito) e manter o carregamento lazy de texturas por corpo (`useTexture` já é por URL).
+7. **Testes e2e.** Percorrer todos os corpos com Tab/setas, abrir cada painel, axe com a cena cheia, e checar que órbitas param com
+   movimento reduzido.
