@@ -64,8 +64,9 @@ describe('SunMesh', () => {
     const { renderer, material } = await renderSun({ texture: null });
     await renderer.advanceFrames(1, 0.016);
     expect(material.uniforms.uHasMap!.value).toBe(0);
-    const tint = material.uniforms.uTint!.value as { r: number; b: number };
-    expect(tint.r).toBeGreaterThan(tint.b);
+    const fallback = material.uniforms.uFallbackColor!.value as { r: number; g: number; b: number };
+    expect(fallback.r).toBeGreaterThan(fallback.g);
+    expect(fallback.g).toBeGreaterThan(fallback.b);
   });
 
   it('switches back to the fallback color if the texture goes away', async () => {

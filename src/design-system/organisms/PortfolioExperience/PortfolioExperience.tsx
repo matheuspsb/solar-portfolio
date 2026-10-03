@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import type { ComponentType } from 'react';
 import { useBodyInteraction } from '@/hooks/use-body-interaction';
-import { useWebGLSupport } from '@/hooks/use-webgl-support';
+import { useSceneAvailability } from '@/hooks/use-scene-availability';
+import type { SceneStatus } from '@/hooks/use-scene-availability';
 import { getBodyAccessibleLabel, getHintLabel } from '@/lib/body-labels';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
@@ -48,10 +49,11 @@ const UNAVAILABLE_MESSAGE =
 const CONTEXT_LOST_MESSAGE = 'A cena 3D perdeu o contexto gráfico e está tentando se recuperar.';
 const FALLBACK_TITLE = 'Visualização 3D indisponível';
 
-function getFallbackMessage(isSceneAvailable: boolean, isContextLost: boolean): string | null {
-  if (!isSceneAvailable) return UNAVAILABLE_MESSAGE;
-  return isContextLost ? CONTEXT_LOST_MESSAGE : null;
-}
+const fallbackMessageByStatus: Record<SceneStatus, string | null> = {
+  working: null,
+  contextLost: CONTEXT_LOST_MESSAGE,
+  unavailable: UNAVAILABLE_MESSAGE,
+};
 
 export function PortfolioExperience({
   bodies,
@@ -60,10 +62,7 @@ export function PortfolioExperience({
   scene: SceneComponent = SolarSystemSceneLoader,
   detectWebGL: probeWebGL = detectWebGL,
 }: PortfolioExperienceProps) {
-  const [isContextLost, setIsContextLost] = useState(false);
-  const [hasSceneCrashed, setHasSceneCrashed] = useState(false);
-  const [sceneAttempt, setSceneAttempt] = useState(0);
-  const webGLSupport = useWebGLSupport(probeWebGL);
+  const availability = useSceneAvailability(probeWebGL);
   const keyboardControlsRef = useRef<SceneKeyboardControlsHandle>(null);
   const lastOpenedIdRef = useRef<string | null>(null);
 
@@ -78,23 +77,14 @@ export function PortfolioExperience({
     label: getBodyAccessibleLabel(body),
   }));
   const menuItems = bodies.map((body) => ({ id: body.id, label: body.section.menuLabel }));
-  const isSceneAvailable = webGLSupport !== 'unsupported' && !hasSceneCrashed;
-  const canRetryScene = webGLSupport !== 'unsupported';
-  const fallbackMessage = getFallbackMessage(isSceneAvailable, isContextLost);
+  const fallbackMessage = fallbackMessageByStatus[availability.status];
+  const retryHandler = availability.canRetry ? availability.retry : undefined;
   const selectedBody = bodies.find((body) => body.id === interaction.state.selectedId);
 
   const changeHover = (id: string, isHovered: boolean) => {
     if (isHovered) interaction.hover(id);
     else interaction.unhover(id);
   };
-
-  const retryScene = () => {
-    setHasSceneCrashed(false);
-    setIsContextLost(false);
-    setSceneAttempt((attempt) => attempt + 1);
-  };
-
-  const retryHandler = canRetryScene ? retryScene : undefined;
 
   const openBody = (id: string) => {
     lastOpenedIdRef.current = id;
@@ -112,17 +102,17 @@ export function PortfolioExperience({
       <div inert={selectedBody !== undefined} className="contents">
         <SceneErrorBoundary
           fallback={null}
-          resetKey={sceneAttempt}
-          onError={() => setHasSceneCrashed(true)}
+          resetKey={availability.resetKey}
+          onError={availability.markCrashed}
         >
-          {isSceneAvailable && (
+          {availability.status !== 'unavailable' && (
             <SceneComponent
               bodies={bodies}
               highlightOf={interaction.highlightOf}
               onHoverChange={changeHover}
               onSelect={openBody}
-              onContextLost={() => setIsContextLost(true)}
-              onContextRestored={() => setIsContextLost(false)}
+              onContextLost={availability.markContextLost}
+              onContextRestored={availability.markContextRestored}
               isActive={selectedBody === undefined}
               description={sceneDescription}
             />

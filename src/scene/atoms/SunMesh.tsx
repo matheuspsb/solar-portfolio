@@ -44,7 +44,9 @@ export function SunMesh({
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<ShaderMaterial>(null);
   // Created once: R3F would otherwise swap the uniforms object (and reset time) on every render.
-  const [initialUniforms] = useState(() => createSunSurfaceUniforms(sceneTokens.sunTextureTint));
+  const [initialUniforms] = useState(() =>
+    createSunSurfaceUniforms(sceneTokens.sunTextureTint, sceneTokens.sunCoreColor),
+  );
   const targetScale = getHighlightScale(highlight);
 
   useFrame((_state, deltaSeconds) => {

@@ -65,7 +65,7 @@ describe('CelestialBody', () => {
     await ReactThreeTestRenderer.act(async () => undefined);
     await renderer.advanceFrames(1, 0.016);
     const material = readMesh(renderer).material as ShaderMaterial;
-    const tint = material.uniforms.uTint!.value as { r: number; b: number };
+    const tint = material.uniforms.uFallbackColor!.value as { r: number; b: number };
     expect(material.uniforms.uHasMap!.value).toBe(0);
     expect(tint.r).toBeGreaterThan(tint.b);
   });
