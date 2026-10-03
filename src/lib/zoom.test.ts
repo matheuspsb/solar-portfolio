@@ -2,7 +2,12 @@
 // allowed range (not pass through the Sun or fly into space) and never become NaN, which would
 // blank the whole scene.
 import { describe, expect, it } from 'vitest';
-import { getZoomKeyDirection, getZoomedDistance } from './zoom';
+import {
+  DEFAULT_MAX_ZOOM_DISTANCE,
+  getMaxZoomDistance,
+  getZoomKeyDirection,
+  getZoomedDistance,
+} from './zoom';
 
 const limits = { minDistance: 5, maxDistance: 20 };
 
@@ -64,4 +69,21 @@ describe('getZoomedDistance', () => {
       getZoomedDistance({ current: 10, minDistance: Number.NaN, maxDistance: 5, direction: 'in' }),
     ).toBe(10);
   });
+});
+
+describe('getMaxZoomDistance', () => {
+  it('keeps the default limit when the framing distance is small', () => {
+    expect(getMaxZoomDistance(10)).toBe(DEFAULT_MAX_ZOOM_DISTANCE);
+  });
+
+  it('allows backing off further than the framing distance on tall screens', () => {
+    expect(getMaxZoomDistance(40)).toBeGreaterThan(40);
+  });
+
+  it.each([Number.NaN, -3, 0])(
+    'falls back to the default for invalid framing distance %s',
+    (distance) => {
+      expect(getMaxZoomDistance(distance)).toBe(DEFAULT_MAX_ZOOM_DISTANCE);
+    },
+  );
 });

@@ -8,6 +8,7 @@ import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
 import { getFrameloop, getHighlightEasingRate, getRotationPeriodForMotion } from '@/lib/motion';
 import type { SceneQuality } from '@/lib/scene-quality';
+import { MIN_ZOOM_DISTANCE, getMaxZoomDistance } from '@/lib/zoom';
 import { CAMERA_FIELD_OF_VIEW } from '../scene-constants';
 import { CameraDistance } from '../atoms/CameraDistance';
 import { CameraViewOffset } from '../atoms/CameraViewOffset';
@@ -19,10 +20,7 @@ import { CelestialBody } from '../molecules/CelestialBody';
 const CAMERA_POSITION: [number, number, number] = [0, 1.5, 11];
 const CAMERA_NEAR = 0.1;
 const CAMERA_FAR = 400;
-const MIN_ZOOM_DISTANCE = 5;
-const MAX_ZOOM_DISTANCE = 22;
 const CONTROLS_DAMPING = 0.08;
-const MAX_DISTANCE_MARGIN = 1.5;
 
 // Post-processing is the heaviest dependency; load it after the Sun is already on screen.
 const SceneEffects = lazy(() =>
@@ -60,7 +58,7 @@ export function SolarSystemScene({
   isActive,
   description,
 }: SolarSystemSceneProps) {
-  const maxZoomDistance = Math.max(MAX_ZOOM_DISTANCE, cameraDistance * MAX_DISTANCE_MARGIN);
+  const maxZoomDistance = getMaxZoomDistance(cameraDistance);
 
   return (
     <Canvas

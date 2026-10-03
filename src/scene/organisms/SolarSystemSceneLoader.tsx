@@ -6,10 +6,7 @@ import type { Highlight } from '@/lib/interaction-state';
 import { useIdleReady } from '@/hooks/use-idle-ready';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { useViewportSize } from '@/hooks/use-viewport-size';
-import { getFramingDistance } from '@/lib/camera-framing';
-import { getTransitionRate, getTransitionSeconds } from '@/lib/motion';
-import { getPanelViewOffsetPixels } from '@/lib/panel-offset';
-import { getSceneQuality } from '@/lib/scene-quality';
+import { getSceneSettings } from '@/lib/scene-settings';
 import {
   BODY_SCREEN_FILL,
   CAMERA_FIELD_OF_VIEW,
@@ -44,33 +41,28 @@ export function SolarSystemSceneLoader({
   description,
 }: SolarSystemSceneLoaderProps) {
   const isIdle = useIdleReady();
-  const { width, height } = useViewportSize();
+  const viewport = useViewportSize();
   const prefersReducedMotion = usePrefersReducedMotion();
-  const quality = getSceneQuality(width);
-  const cameraDistance = getFramingDistance({
-    radius: Math.max(...bodies.map((body) => body.radius)),
-    fieldOfViewDegrees: CAMERA_FIELD_OF_VIEW,
-    aspectRatio: width / height,
-    screenFill: BODY_SCREEN_FILL,
-  });
-  const viewOffsetPixels = getPanelViewOffsetPixels({
-    viewportWidth: width,
-    panelWidthPixels: PANEL_WIDTH_PIXELS,
+  const settings = getSceneSettings({
+    bodyRadii: bodies.map((body) => body.radius),
+    viewport,
+    prefersReducedMotion,
     isPanelOpen: !isActive,
+    panelWidthPixels: PANEL_WIDTH_PIXELS,
+    fieldOfViewDegrees: CAMERA_FIELD_OF_VIEW,
+    screenFill: BODY_SCREEN_FILL,
+    panelShiftSeconds: PANEL_SHIFT_TRANSITION_SECONDS,
   });
-  const viewOffsetEasingRate = getTransitionRate(
-    getTransitionSeconds(PANEL_SHIFT_TRANSITION_SECONDS, prefersReducedMotion),
-  );
 
   // The 3D bundle is large: wait until the content has painted and the browser is idle.
   if (!isIdle) return null;
 
   return (
     <SolarSystemScene
-      quality={quality}
-      cameraDistance={cameraDistance}
-      viewOffsetPixels={viewOffsetPixels}
-      viewOffsetEasingRate={viewOffsetEasingRate}
+      quality={settings.quality}
+      cameraDistance={settings.cameraDistance}
+      viewOffsetPixels={settings.viewOffsetPixels}
+      viewOffsetEasingRate={settings.viewOffsetEasingRate}
       prefersReducedMotion={prefersReducedMotion}
       bodies={bodies}
       highlightOf={highlightOf}
