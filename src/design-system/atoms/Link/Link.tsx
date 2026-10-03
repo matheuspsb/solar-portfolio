@@ -13,8 +13,7 @@ export function Link({ external = false, className, children, ...rest }: LinkPro
   return (
     <a className={joinClassNames(baseClasses, className)} {...externalProps} {...rest}>
       {children}
-      {external && ' '}
-      {external && <VisuallyHidden>(abre em nova aba)</VisuallyHidden>}
+      {external && <VisuallyHidden>, abre em nova aba</VisuallyHidden>}
     </a>
   );
 }

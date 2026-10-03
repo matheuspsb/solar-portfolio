@@ -29,5 +29,5 @@ it('announces that an external link opens in a new tab', () => {
       LinkedIn
     </Link>,
   );
-  expect(screen.getByRole('link')).toHaveAccessibleName(/^LinkedIn\s+\(abre em nova aba\)$/);
+  expect(screen.getByRole('link')).toHaveAccessibleName('LinkedIn, abre em nova aba');
 });

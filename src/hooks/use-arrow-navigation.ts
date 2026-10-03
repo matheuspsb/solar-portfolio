@@ -13,6 +13,7 @@ const directionByKey: Partial<Record<string, NavigationDirection>> = {
 export type ArrowNavigation = {
   registerItem: (id: string) => (element: HTMLElement | null) => void;
   handleKeyDown: (event: KeyboardEvent<HTMLElement>, currentId: string) => void;
+  getItem: (id: string) => HTMLElement | null;
 };
 
 /** Moves DOM focus between registered items with the arrow keys, wrapping at the ends. */
@@ -24,13 +25,15 @@ export function useArrowNavigation(ids: readonly string[]): ArrowNavigation {
     else elementsById.current.delete(id);
   };
 
+  const getItem = (id: string) => elementsById.current.get(id) ?? null;
+
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>, currentId: string) => {
     const direction = directionByKey[event.key];
     if (!direction) return;
     event.preventDefault();
     const nextId = getAdjacentId(ids, currentId, direction);
-    if (nextId !== null) elementsById.current.get(nextId)?.focus();
+    if (nextId !== null) getItem(nextId)?.focus();
   };
 
-  return { registerItem, handleKeyDown };
+  return { registerItem, handleKeyDown, getItem };
 }

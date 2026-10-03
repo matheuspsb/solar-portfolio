@@ -8,12 +8,13 @@
 - [x] 5. Base scene: Canvas, camera, OrbitControls, lights, star field (dynamic, client only).
 - [x] 6. Sun: textured (CC BY 4.0, WebP 2048/1024), rotation, bloom. Texture failure falls back to a solid color.
 
+- [x] 7. Interaction: hover (scale + cursor + hint), keyboard focus (hidden buttons + 3D focus ring), selection state.
+- [x] 8. About panel: modal dialog (focus trap, Esc, outside click, focus return, inert background), axe clean, CC BY credit in panel.
+
 ## Next
-- 7. Sun interaction (hover, focus, select by mouse and keyboard).
-- 8. About panel, 9. Quick-access menu, 10. Fallback, 11. Reduced motion/responsive, 12. Performance, 13. Polish.
+- 9. Quick-access menu, 10. Fallback, 11. Reduced motion/responsive, 12. Performance, 13. Polish.
 
 ## Pending reminders
-- Visible CC BY attribution for the Sun texture must appear in the About panel footer (item 8).
 - Reduced motion: `rotationPeriodSeconds` accepts `null`; the hook that feeds it comes in item 11.
 - Polish: bloom is subtle; corona shader and surface movement planned for item 13.
 

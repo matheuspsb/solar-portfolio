@@ -1,5 +1,11 @@
+import { useImperativeHandle } from 'react';
+import type { Ref } from 'react';
 import { useArrowNavigation } from '@/hooks/use-arrow-navigation';
 import { VisuallyHidden } from '../../atoms/VisuallyHidden/VisuallyHidden';
+
+export type SceneKeyboardControlsHandle = {
+  focusItem: (id: string) => HTMLElement | null;
+};
 
 type SceneKeyboardControlsProps = {
   groupLabel: string;
@@ -7,6 +13,7 @@ type SceneKeyboardControlsProps = {
   onItemFocus: (id: string) => void;
   onItemBlur: (id: string) => void;
   onItemActivate: (id: string) => void;
+  ref?: Ref<SceneKeyboardControlsHandle>;
 };
 
 export function SceneKeyboardControls({
@@ -15,8 +22,17 @@ export function SceneKeyboardControls({
   onItemFocus,
   onItemBlur,
   onItemActivate,
+  ref,
 }: SceneKeyboardControlsProps) {
-  const { registerItem, handleKeyDown } = useArrowNavigation(items.map((item) => item.id));
+  const { registerItem, handleKeyDown, getItem } = useArrowNavigation(items.map((item) => item.id));
+
+  useImperativeHandle(ref, () => ({
+    focusItem: (id) => {
+      const element = getItem(id);
+      element?.focus();
+      return element;
+    },
+  }));
 
   if (items.length === 0) return null;
 
