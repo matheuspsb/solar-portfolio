@@ -22,6 +22,7 @@ const eslintConfig = [
       'no-console': 'error',
     },
   },
+  { files: ['scripts/**'], rules: { 'no-console': 'off' } },
 ];
 
 export default eslintConfig;
