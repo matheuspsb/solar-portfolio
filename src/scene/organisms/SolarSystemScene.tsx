@@ -2,11 +2,13 @@
 
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
-import type { ReactNode } from 'react';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
+import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import type { SceneQuality } from '@/lib/scene-quality';
+import { SceneEffects } from '../atoms/SceneEffects';
 import { SceneLights } from '../atoms/SceneLights';
 import { StarField } from '../atoms/StarField';
+import { CelestialBody } from '../molecules/CelestialBody';
 
 const CAMERA_POSITION: [number, number, number] = [0, 1.5, 11];
 const CAMERA_FIELD_OF_VIEW = 50;
@@ -18,10 +20,10 @@ const CONTROLS_DAMPING = 0.08;
 
 type SolarSystemSceneProps = {
   quality: SceneQuality;
-  children?: ReactNode;
+  bodies: readonly CelestialBodyConfig[];
 };
 
-export function SolarSystemScene({ quality, children }: SolarSystemSceneProps) {
+export function SolarSystemScene({ quality, bodies }: SolarSystemSceneProps) {
   return (
     <Canvas
       dpr={[1, quality.maxPixelRatio]}
@@ -36,7 +38,16 @@ export function SolarSystemScene({ quality, children }: SolarSystemSceneProps) {
       <color attach="background" args={[sceneTokens.backgroundColor]} />
       <SceneLights />
       <StarField starCount={quality.starCount} />
-      {children}
+      {bodies.map((body) => (
+        <CelestialBody
+          key={body.id}
+          radius={body.radius}
+          texture={body.texture}
+          prefersSmallTexture={quality.tier === 'low'}
+          rotationPeriodSeconds={body.rotationPeriodSeconds}
+        />
+      ))}
+      <SceneEffects />
       <OrbitControls
         enablePan={false}
         enableDamping

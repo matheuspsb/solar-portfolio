@@ -1,17 +1,17 @@
 import { assertValidCelestialBodies } from '@/lib/celestial-body';
-import type { CelestialBody } from '@/lib/celestial-body';
+import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import { aboutContent } from './about';
 
 const SUN_RADIUS = 2.4;
 const SUN_ROTATION_PERIOD_SECONDS = 180;
 
-const sun: CelestialBody = {
+const sun: CelestialBodyConfig = {
   id: 'sun',
   name: 'Sol',
   kind: 'star',
   radius: SUN_RADIUS,
   rotationPeriodSeconds: SUN_ROTATION_PERIOD_SECONDS,
-  texture: null,
+  texture: { url: '/textures/sun.webp', smallUrl: '/textures/sun-small.webp' },
   section: {
     menuLabel: 'Sobre',
     title: 'Sobre',

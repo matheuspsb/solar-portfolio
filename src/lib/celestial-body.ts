@@ -16,7 +16,7 @@ export type BodyTexture = {
   smallUrl: string;
 };
 
-export type CelestialBody = {
+export type CelestialBodyConfig = {
   id: string;
   name: string;
   kind: 'star';
@@ -37,7 +37,7 @@ const SAFE_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const isBlank = (text: string): boolean => text.trim().length === 0;
 const isPositiveFinite = (value: number): boolean => Number.isFinite(value) && value > 0;
 
-function validateBody(body: CelestialBody, label: string): string[] {
+function validateBody(body: CelestialBodyConfig, label: string): string[] {
   const errors: string[] = [];
   if (isBlank(body.id) || !SAFE_ID_PATTERN.test(body.id)) {
     errors.push(`${label}: id must be a non-empty lowercase slug (got ${JSON.stringify(body.id)})`);
@@ -58,7 +58,7 @@ function validateBody(body: CelestialBody, label: string): string[] {
   return errors;
 }
 
-function findDuplicateIds(bodies: readonly CelestialBody[]): string[] {
+function findDuplicateIds(bodies: readonly CelestialBodyConfig[]): string[] {
   const seen = new Set<string>();
   const duplicates = new Set<string>();
   for (const body of bodies) {
@@ -68,7 +68,7 @@ function findDuplicateIds(bodies: readonly CelestialBody[]): string[] {
   return [...duplicates];
 }
 
-export function validateCelestialBodies(bodies: readonly CelestialBody[]): ValidationResult {
+export function validateCelestialBodies(bodies: readonly CelestialBodyConfig[]): ValidationResult {
   if (bodies.length === 0) {
     return { valid: false, errors: ['configuration needs at least one celestial body'] };
   }
@@ -80,8 +80,8 @@ export function validateCelestialBodies(bodies: readonly CelestialBody[]): Valid
 }
 
 export function assertValidCelestialBodies(
-  bodies: readonly CelestialBody[],
-): readonly CelestialBody[] {
+  bodies: readonly CelestialBodyConfig[],
+): readonly CelestialBodyConfig[] {
   const result = validateCelestialBodies(bodies);
   if (!result.valid) {
     throw new Error(`Invalid celestial body configuration:\n- ${result.errors.join('\n- ')}`);

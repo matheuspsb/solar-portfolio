@@ -3,6 +3,7 @@ export const sceneTokens = {
   backgroundColor: '#03040a',
   starColor: '#dfe6ff',
   sunCoreColor: '#ffb347',
+  sunTextureTint: '#ffd9a8',
   sunGlowColor: '#ff8a1f',
   focusRingColor: '#7cc4ff',
 } as const;

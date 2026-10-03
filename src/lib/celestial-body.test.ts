@@ -3,9 +3,9 @@
 // nameless menu item, so the config is validated before anything uses it.
 import { describe, expect, it } from 'vitest';
 import { assertValidCelestialBodies, validateCelestialBodies } from './celestial-body';
-import type { CelestialBody } from './celestial-body';
+import type { CelestialBodyConfig } from './celestial-body';
 
-function buildBody(overrides: Partial<CelestialBody> = {}): CelestialBody {
+function buildBody(overrides: Partial<CelestialBodyConfig> = {}): CelestialBodyConfig {
   return {
     id: 'sun',
     name: 'Sol',
@@ -30,7 +30,7 @@ function buildBody(overrides: Partial<CelestialBody> = {}): CelestialBody {
   };
 }
 
-function errorsFor(bodies: CelestialBody[]): string[] {
+function errorsFor(bodies: CelestialBodyConfig[]): string[] {
   const result = validateCelestialBodies(bodies);
   return result.valid ? [] : result.errors;
 }

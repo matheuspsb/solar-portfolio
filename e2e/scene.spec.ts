@@ -23,3 +23,19 @@ test('mounts a full-screen WebGL canvas with a clean console', async ({ page }) 
     .toBeCloseTo(viewport.height, -1);
   expect(problems).toEqual([]);
 });
+
+test('loads the full-size Sun texture on desktop and the small one on phones', async ({
+  browser,
+}) => {
+  const desktop = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  const desktopTexture = desktop.waitForResponse('**/textures/sun.webp');
+  await desktop.goto('/');
+  expect((await desktopTexture).status()).toBe(200);
+  await desktop.close();
+
+  const phone = await browser.newPage({ viewport: { width: 375, height: 700 } });
+  const phoneTexture = phone.waitForResponse('**/textures/sun-small.webp');
+  await phone.goto('/');
+  expect((await phoneTexture).status()).toBe(200);
+  await phone.close();
+});

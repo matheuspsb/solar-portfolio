@@ -16,7 +16,7 @@ const eslintConfig = [
   },
   {
     rules: {
-      'id-length': ['error', { min: 2 }],
+      'id-length': ['error', { min: 2, properties: 'never' }],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/ban-ts-comment': 'error',
       'no-console': 'error',
