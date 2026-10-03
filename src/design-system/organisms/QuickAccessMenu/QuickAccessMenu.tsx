@@ -46,6 +46,8 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
     setIsOpen(false);
   };
 
+  const controlledListId = isOpen ? listId : undefined;
+
   const selectItem = (id: string) => {
     closeAndRestoreFocus();
     onSelectItem(id);
@@ -67,7 +69,7 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
         ref={toggleRef}
         variant="floating"
         aria-expanded={isOpen}
-        aria-controls={isOpen ? listId : undefined}
+        aria-controls={controlledListId}
         onClick={() => setIsOpen((wasOpen) => !wasOpen)}
       >
         Acesso rápido

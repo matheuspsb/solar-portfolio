@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import '@/design-system/tokens/tokens.css';
+import { sceneTokens } from '@/design-system/tokens/scene-tokens';
 
 const title = 'Matheus — Software Engineer';
 const description =
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#03040a',
+  themeColor: sceneTokens.backgroundColor,
   colorScheme: 'dark',
 };
 

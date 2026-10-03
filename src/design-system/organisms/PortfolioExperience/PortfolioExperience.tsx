@@ -94,6 +94,8 @@ export function PortfolioExperience({
     setSceneAttempt((attempt) => attempt + 1);
   };
 
+  const retryHandler = canRetryScene ? retryScene : undefined;
+
   const openBody = (id: string) => {
     lastOpenedIdRef.current = id;
     interaction.select(id);
@@ -132,7 +134,7 @@ export function PortfolioExperience({
             message={fallbackMessage}
             items={menuItems}
             onSelectItem={openBody}
-            onRetry={canRetryScene ? retryScene : undefined}
+            onRetry={retryHandler}
           />
         )}
         <SceneKeyboardControls
