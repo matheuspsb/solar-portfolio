@@ -1,0 +1,29 @@
+# Decisions
+
+## Versions (verified on npm / official docs, 2026-10-03)
+
+next 16.3.8 · react/react-dom 19.3.0 · three 0.186.1 · @react-three/fiber 9.8.1 · @react-three/drei 10.7.9 ·
+@react-three/postprocessing 3.1.3 · babel-plugin-react-compiler 1.0.0 · vitest 5.0.3 · @playwright/test 1.63.0 ·
+@react-three/test-renderer 9.1.1 · eslint 9.39 · prettier 3.9 · typescript 5.9.
+
+- **TypeScript 5.9 instead of 7.0:** 7.0 is the native port; the lint/Next toolchain is validated on 5.x. Stable choice.
+- **ESLint 9 instead of 10:** eslint-config-next 16 targets the flat config on ESLint 9.
+- **pnpm 9.15** (available). Node 22.12.
+
+## React 19 and React Compiler
+
+- React Compiler is **stable** (react.dev) and Next.js 16 supports it via `reactCompiler: true` plus
+  `babel-plugin-react-compiler`. Memoization comes from the compiler (build plugin), not from React 19 itself.
+- Enabled globally. Do **not** use `useMemo`/`useCallback`/`React.memo` by default; only with a measured or
+  semantic reason (e.g. stable identity for a library), with a comment.
+- Escape hatch: `'use no memo'` directive per component/hook (compilationMode `annotation` is the opt-in alternative).
+  Any component that needs it for R3F `useFrame` mutations will be documented here.
+- React 19 features: `ref` as a prop (no `forwardRef`) is used by atoms; `use`/Actions/`useOptimistic` have no real
+  problem to solve in this phase (no async data, no forms) so they are not used.
+
+## Tooling
+
+- `id-length` ESLint rule (min 2) enforces the "no one-letter names" rule; `no-console` and `no-explicit-any` are errors.
+- Playwright uses SwiftShader flags so WebGL works in headless Chromium.
+- The foundation smoke tests could not be seen failing "for the right reason" because there was no code to fail
+  against; from the next iteration on, tests are run red first.

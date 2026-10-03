@@ -1,0 +1,7 @@
+// Use case: recruiter opens the site and must see the page. Fails if the build or server is broken.
+import { expect, test } from '@playwright/test';
+
+test('home page renders a heading', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Matheus' })).toBeVisible();
+});
