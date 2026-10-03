@@ -12,7 +12,7 @@ type QuickAccessMenuProps = {
 export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const listId = useId();
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const { registerItem, handleKeyDown, getItem } = useArrowNavigation(items.map((item) => item.id));
   const firstItemId = items[0]?.id;
@@ -40,7 +40,7 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
     toggleRef.current?.focus();
   };
 
-  const closeWhenFocusLeaves = (event: FocusEvent<HTMLDivElement>) => {
+  const closeWhenFocusLeaves = (event: FocusEvent<HTMLElement>) => {
     const nextFocus = event.relatedTarget;
     if (nextFocus instanceof Node && event.currentTarget.contains(nextFocus)) return;
     setIsOpen(false);
@@ -54,7 +54,8 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
   };
 
   return (
-    <div
+    <nav
+      aria-label="Acesso rápido"
       ref={containerRef}
       className="fixed top-4 right-4 z-(--z-chrome) flex flex-col items-end gap-2"
       onBlur={closeWhenFocusLeaves}
@@ -92,6 +93,6 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
           ))}
         </ul>
       )}
-    </div>
+    </nav>
   );
 }

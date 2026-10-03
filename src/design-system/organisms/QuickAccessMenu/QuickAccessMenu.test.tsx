@@ -25,6 +25,11 @@ function setup(overrideItems = items) {
 const getToggle = () => screen.getByRole('button', { name: 'Acesso rápido' });
 
 describe('QuickAccessMenu', () => {
+  it('is exposed as a navigation landmark so screen-reader users can jump to it', () => {
+    setup();
+    expect(screen.getByRole('navigation', { name: 'Acesso rápido' })).toContainElement(getToggle());
+  });
+
   it('starts collapsed, announcing its state', () => {
     setup();
     expect(getToggle()).toHaveAttribute('aria-expanded', 'false');

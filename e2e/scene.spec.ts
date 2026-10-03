@@ -55,3 +55,14 @@ test('gives the 3D scene a text alternative and the page proper metadata', async
   await expect(page.locator('meta[name="theme-color"]')).toHaveAttribute('content', '#03040a');
   await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Matheus/);
 });
+
+test('exposes a sensible accessibility tree: heading, body controls and menu', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('main')).toMatchAriaSnapshot(`
+    - heading "Matheus" [level=1]
+    - group "Corpos celestes":
+      - 'button "Sol: abrir seção Sobre"'
+    - navigation "Acesso rápido":
+      - button "Acesso rápido"
+  `);
+});

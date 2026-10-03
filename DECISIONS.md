@@ -47,3 +47,20 @@ Revisit when R3F moves to `THREE.Timer`.
 
 `SolarSystemSceneLoader` (client) loads `SolarSystemScene` with `next/dynamic({ ssr: false })` and chooses a quality tier
 from the viewport width (`lib/scene-quality`). `StarField` keeps an explicit `useMemo` (stable buffer identity for R3F).
+
+## React Compiler in practice (verified)
+
+- The production chunks contain `useMemoCache`, so the compiler is active for app code, including the R3F components.
+- No `'use no memo'` was needed. `useFrame` callbacks mutate refs/three objects only (`mesh.rotation`, `material.uniforms` through a
+  ref), which the compiler's lint accepts. Mutating a `useState` value inside `useFrame` is flagged (`react-hooks/immutability`), so
+  uniforms are mutated through the material ref instead.
+- The only explicit `useMemo` is in `StarField` (stable buffer identity for R3F; documented in the file).
+- Vitest runs without the compiler plugin; behavior must not depend on memoization.
+
+## Other decisions
+
+- **Scene description lives in data** (`content/scene.ts`) and reaches the canvas as `aria-label` through props, so components hold no copy.
+- **Credits are data** (`content/credits.ts`) and are shown inside the panel (CC BY 4.0 requires visible attribution).
+- **Keyboard zoom** (`+` / `-`) was implemented even though the spec marks it optional; it is disabled while the panel is open and ignores Ctrl/Cmd/Alt combos.
+- **Panel width constant** (`PANEL_WIDTH_PIXELS = 448`) mirrors the `--size-panel-width` CSS token (28rem); it only drives how far the Sun glides aside.
+- **Playwright never reuses a server** (`reuseExistingServer: false`) so e2e always tests a fresh production build.
