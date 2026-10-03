@@ -16,6 +16,8 @@ type SolarSystemSceneLoaderProps = {
   highlightOf: (id: string) => Highlight;
   onHoverChange: (id: string, isHovered: boolean) => void;
   onSelect: (id: string) => void;
+  onContextLost: () => void;
+  onContextRestored: () => void;
 };
 
 export function SolarSystemSceneLoader({
@@ -23,6 +25,8 @@ export function SolarSystemSceneLoader({
   highlightOf,
   onHoverChange,
   onSelect,
+  onContextLost,
+  onContextRestored,
 }: SolarSystemSceneLoaderProps) {
   const quality = getSceneQuality(useViewportWidth());
   return (
@@ -32,6 +36,8 @@ export function SolarSystemSceneLoader({
       highlightOf={highlightOf}
       onHoverChange={onHoverChange}
       onSelect={onSelect}
+      onContextLost={onContextLost}
+      onContextRestored={onContextRestored}
     />
   );
 }

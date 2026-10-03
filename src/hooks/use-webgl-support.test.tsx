@@ -1,0 +1,37 @@
+// Use case: the page is server-rendered and then hydrated. WebGL can only be probed in the
+// browser, so the hook must say "unknown" during server rendering (no hydration mismatch) and the
+// real answer afterwards. A wrong answer would either flash a fallback or hide a working scene.
+import { renderHook } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
+import { describe, expect, it, vi } from 'vitest';
+import { useWebGLSupport } from './use-webgl-support';
+
+function Probe({ detect }: { detect: () => boolean }) {
+  return <p>{useWebGLSupport(detect)}</p>;
+}
+
+describe('useWebGLSupport', () => {
+  it('reports supported when detection succeeds', () => {
+    const { result } = renderHook(() => useWebGLSupport(() => true));
+    expect(result.current).toBe('supported');
+  });
+
+  it('reports unsupported when detection fails', () => {
+    const { result } = renderHook(() => useWebGLSupport(() => false));
+    expect(result.current).toBe('unsupported');
+  });
+
+  it('reports unknown during server rendering without probing the browser', () => {
+    const detect = vi.fn(() => true);
+    expect(renderToString(<Probe detect={detect} />)).toContain('unknown');
+    expect(detect).not.toHaveBeenCalled();
+  });
+
+  it('probes only once per detector even across re-renders', () => {
+    const detect = vi.fn(() => true);
+    const { rerender } = renderHook(() => useWebGLSupport(detect));
+    rerender();
+    rerender();
+    expect(detect).toHaveBeenCalledTimes(1);
+  });
+});

@@ -10,15 +10,17 @@
 
 - [x] 7. Interaction: hover (scale + cursor + hint), keyboard focus (hidden buttons + 3D focus ring), selection state.
 - [x] 8. About panel: modal dialog (focus trap, Esc, outside click, focus return, inert background), axe clean, CC BY credit in panel.
+- [x] 9. Quick-access menu (top-right disclosure, fed by body config, focus returns to its button).
+- [x] 10. Fallback: WebGL detection, error boundary (with retry), context lost/restored notice; content stays reachable.
 
 ## Next
-- 9. Quick-access menu, 10. Fallback, 11. Reduced motion/responsive, 12. Performance, 13. Polish.
+- 11. Reduced motion/responsive, 12. Performance, 13. Polish.
 
 ## Pending reminders
 - Reduced motion: `rotationPeriodSeconds` accepts `null`; the hook that feeds it comes in item 11.
 - Polish: bloom is subtle; corona shader and surface movement planned for item 13.
 
 ## Learnings
-- Playwright e2e builds and serves production on port 3100 (reuses an existing server locally; stop it after manual checks).
+- Playwright e2e builds and serves production on port 3100 and never reuses an existing server (stop manual servers first, or the port is busy).
 - `scripts/screenshot.mjs <name> [w] [h]` captures a screenshot of the running server into `screenshots/`.
 - three 0.186 + R3F 9.8 logs a Clock deprecation warning; three is pinned to 0.182 (see DECISIONS.md).

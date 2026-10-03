@@ -26,6 +26,8 @@ type SolarSystemSceneProps = {
   highlightOf: (id: string) => Highlight;
   onHoverChange: (id: string, isHovered: boolean) => void;
   onSelect: (id: string) => void;
+  onContextLost: () => void;
+  onContextRestored: () => void;
 };
 
 export function SolarSystemScene({
@@ -34,6 +36,8 @@ export function SolarSystemScene({
   highlightOf,
   onHoverChange,
   onSelect,
+  onContextLost,
+  onContextRestored,
 }: SolarSystemSceneProps) {
   return (
     <Canvas
@@ -45,6 +49,14 @@ export function SolarSystemScene({
         far: CAMERA_FAR,
       }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
+      onCreated={({ gl }) => {
+        gl.domElement.addEventListener('webglcontextlost', (event) => {
+          // preventDefault tells the browser we want the context back when it is available.
+          event.preventDefault();
+          onContextLost();
+        });
+        gl.domElement.addEventListener('webglcontextrestored', onContextRestored);
+      }}
     >
       <color attach="background" args={[sceneTokens.backgroundColor]} />
       <SceneLights />

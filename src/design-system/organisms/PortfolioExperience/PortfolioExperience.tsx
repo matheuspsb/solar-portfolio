@@ -1,17 +1,21 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import type { ComponentType } from 'react';
 import { credits } from '@/content/credits';
 import { useBodyInteraction } from '@/hooks/use-body-interaction';
+import { useWebGLSupport } from '@/hooks/use-webgl-support';
 import { getBodyAccessibleLabel, getHintLabel } from '@/lib/body-labels';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
+import { detectWebGL } from '@/lib/webgl-support';
+import { SceneErrorBoundary } from '@/scene/organisms/SceneErrorBoundary';
 import { SolarSystemSceneLoader } from '@/scene/organisms/SolarSystemSceneLoader';
 import { AttributionNote } from '../../molecules/AttributionNote/AttributionNote';
 import { BodyHint } from '../../molecules/BodyHint/BodyHint';
 import { SceneKeyboardControls } from '../../molecules/SceneKeyboardControls/SceneKeyboardControls';
 import type { SceneKeyboardControlsHandle } from '../../molecules/SceneKeyboardControls/SceneKeyboardControls';
+import { SceneFallback } from '../../molecules/SceneFallback/SceneFallback';
 import { SectionView } from '../../molecules/SectionView/SectionView';
 import { ContentPanel } from '../ContentPanel/ContentPanel';
 import { QuickAccessMenu } from '../QuickAccessMenu/QuickAccessMenu';
@@ -21,18 +25,37 @@ export type SceneProps = {
   highlightOf: (id: string) => Highlight;
   onHoverChange: (id: string, isHovered: boolean) => void;
   onSelect: (id: string) => void;
+  onContextLost: () => void;
+  onContextRestored: () => void;
 };
 
 type PortfolioExperienceProps = {
   bodies: readonly CelestialBodyConfig[];
   /** Injectable so the experience can run without WebGL (tests, fallback). */
   scene?: ComponentType<SceneProps>;
+  /** Injectable WebGL probe, for tests. */
+  detectWebGL?: () => boolean;
 };
+
+const UNAVAILABLE_MESSAGE =
+  'Não foi possível exibir a cena 3D neste dispositivo. O conteúdo continua disponível pelo menu de acesso rápido e pelos botões abaixo.';
+const CONTEXT_LOST_MESSAGE = 'A cena 3D perdeu o contexto gráfico e está tentando se recuperar.';
+const FALLBACK_TITLE = 'Visualização 3D indisponível';
+
+function getFallbackMessage(isSceneAvailable: boolean, isContextLost: boolean): string | null {
+  if (!isSceneAvailable) return UNAVAILABLE_MESSAGE;
+  return isContextLost ? CONTEXT_LOST_MESSAGE : null;
+}
 
 export function PortfolioExperience({
   bodies,
   scene: SceneComponent = SolarSystemSceneLoader,
+  detectWebGL: probeWebGL = detectWebGL,
 }: PortfolioExperienceProps) {
+  const [isContextLost, setIsContextLost] = useState(false);
+  const [hasSceneCrashed, setHasSceneCrashed] = useState(false);
+  const [sceneAttempt, setSceneAttempt] = useState(0);
+  const webGLSupport = useWebGLSupport(probeWebGL);
   const keyboardControlsRef = useRef<SceneKeyboardControlsHandle>(null);
   const lastOpenedIdRef = useRef<string | null>(null);
 
@@ -47,11 +70,20 @@ export function PortfolioExperience({
     label: getBodyAccessibleLabel(body),
   }));
   const menuItems = bodies.map((body) => ({ id: body.id, label: body.section.menuLabel }));
+  const isSceneAvailable = webGLSupport !== 'unsupported' && !hasSceneCrashed;
+  const canRetryScene = webGLSupport !== 'unsupported';
+  const fallbackMessage = getFallbackMessage(isSceneAvailable, isContextLost);
   const selectedBody = bodies.find((body) => body.id === interaction.state.selectedId);
 
   const changeHover = (id: string, isHovered: boolean) => {
     if (isHovered) interaction.hover(id);
     else interaction.unhover(id);
+  };
+
+  const retryScene = () => {
+    setHasSceneCrashed(false);
+    setIsContextLost(false);
+    setSceneAttempt((attempt) => attempt + 1);
   };
 
   const openBody = (id: string) => {
@@ -68,12 +100,31 @@ export function PortfolioExperience({
   return (
     <>
       <div inert={selectedBody !== undefined} className="contents">
-        <SceneComponent
-          bodies={bodies}
-          highlightOf={interaction.highlightOf}
-          onHoverChange={changeHover}
-          onSelect={openBody}
-        />
+        <SceneErrorBoundary
+          fallback={null}
+          resetKey={sceneAttempt}
+          onError={() => setHasSceneCrashed(true)}
+        >
+          {isSceneAvailable && (
+            <SceneComponent
+              bodies={bodies}
+              highlightOf={interaction.highlightOf}
+              onHoverChange={changeHover}
+              onSelect={openBody}
+              onContextLost={() => setIsContextLost(true)}
+              onContextRestored={() => setIsContextLost(false)}
+            />
+          )}
+        </SceneErrorBoundary>
+        {fallbackMessage && (
+          <SceneFallback
+            title={FALLBACK_TITLE}
+            message={fallbackMessage}
+            items={menuItems}
+            onSelectItem={openBody}
+            onRetry={canRetryScene ? retryScene : undefined}
+          />
+        )}
         <SceneKeyboardControls
           ref={keyboardControlsRef}
           groupLabel="Corpos celestes"
