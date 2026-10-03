@@ -21,6 +21,9 @@ const CAMERA_POSITION: [number, number, number] = [0, 1.5, 11];
 const CAMERA_NEAR = 0.1;
 const CAMERA_FAR = 400;
 const CONTROLS_DAMPING = 0.08;
+// Keep the camera away from the poles, where an equirectangular texture pinches.
+const MIN_POLAR_ANGLE = Math.PI * 0.2;
+const MAX_POLAR_ANGLE = Math.PI * 0.8;
 
 // Post-processing is the heaviest dependency; load it after the Sun is already on screen.
 const SceneEffects = lazy(() =>
@@ -114,6 +117,8 @@ export function SolarSystemScene({
       />
       <OrbitControls
         enablePan={false}
+        minPolarAngle={MIN_POLAR_ANGLE}
+        maxPolarAngle={MAX_POLAR_ANGLE}
         enableDamping={!prefersReducedMotion}
         dampingFactor={CONTROLS_DAMPING}
         minDistance={MIN_ZOOM_DISTANCE}

@@ -31,11 +31,12 @@ export const sunSurfaceFragmentShader = /* glsl */ `
   varying vec3 vViewDirection;
 
   void main() {
+    // The detail layer repeats an integer number of times so the wrap-around seam stays invisible.
     // Flow only along longitude (like the Sun's differential rotation): scaling or drifting the
     // latitude would fold the texture and smear a visible band across the disc.
     float wobble = 0.003 * sin(vUv.x * 40.0 + uTime * 0.35);
     vec2 slowUv = vec2(vUv.x + uTime * 0.004, vUv.y + wobble);
-    vec2 detailUv = vec2(vUv.x * 1.7 - uTime * 0.0065, vUv.y - wobble);
+    vec2 detailUv = vec2(vUv.x * 2.0 - uTime * 0.0065, vUv.y - wobble);
     vec3 base = mix(uFallbackColor, texture2D(uMap, slowUv).rgb, uHasMap);
     vec3 detail = mix(uFallbackColor, texture2D(uMap, detailUv).rgb, uHasMap);
     vec3 tint = mix(vec3(1.0), uTint, uHasMap);
