@@ -4,7 +4,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { detectWebGL } from './webgl-support';
 
-type FakeCanvas = { getContext: (contextId: string) => object | null };
+type FakeCanvas = {
+  getContext: (contextId: string) => object | null;
+};
 
 const supportingCanvas = (): FakeCanvas => ({ getContext: () => ({}) });
 
@@ -40,5 +42,30 @@ describe('detectWebGL', () => {
     expect(detectWebGL(() => ({ getContext }))).toBe(true);
     expect(getContext).toHaveBeenCalledWith('webgl2');
     expect(getContext).toHaveBeenCalledWith('webgl');
+  });
+
+  it('releases the probe context so it does not count against the browser limit', () => {
+    const loseContext = vi.fn();
+    const context = {
+      getExtension: (name: string) => (name === 'WEBGL_lose_context' ? { loseContext } : null),
+    };
+    expect(detectWebGL(() => ({ getContext: () => context }))).toBe(true);
+    expect(loseContext).toHaveBeenCalledOnce();
+  });
+
+  it('still reports support when the context has no lose-context extension', () => {
+    const context = { getExtension: () => null };
+    expect(detectWebGL(() => ({ getContext: () => context }))).toBe(true);
+  });
+
+  it('still reports support when releasing the context throws', () => {
+    const context = {
+      getExtension: () => ({
+        loseContext: () => {
+          throw new Error('already lost');
+        },
+      }),
+    };
+    expect(detectWebGL(() => ({ getContext: () => context }))).toBe(true);
   });
 });

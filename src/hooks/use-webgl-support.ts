@@ -15,11 +15,20 @@ function probeOnce(detect: () => boolean): boolean {
 
 const subscribeToNothing = () => () => undefined;
 
-/** `unknown` on the server and during hydration; the real probe result in the browser. */
-export function useWebGLSupport(detect: () => boolean = detectWebGL): WebGLSupport {
+/**
+ * `unknown` on the server, during hydration and while `isEnabled` is false (so the probe, which
+ * creates a throwaway WebGL context, can wait until the browser is idle); the real answer otherwise.
+ */
+export function useWebGLSupport(
+  detect: () => boolean = detectWebGL,
+  isEnabled: boolean = true,
+): WebGLSupport {
   return useSyncExternalStore(
     subscribeToNothing,
-    () => (probeOnce(detect) ? 'supported' : 'unsupported'),
+    () => {
+      if (!isEnabled) return 'unknown';
+      return probeOnce(detect) ? 'supported' : 'unsupported';
+    },
     () => 'unknown',
   );
 }

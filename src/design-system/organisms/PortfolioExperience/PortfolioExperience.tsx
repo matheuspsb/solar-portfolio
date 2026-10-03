@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import type { ComponentType } from 'react';
 import { useBodyInteraction } from '@/hooks/use-body-interaction';
+import type { IdleScheduler } from '@/hooks/use-idle-ready';
 import { useSceneAvailability } from '@/hooks/use-scene-availability';
 import type { SceneStatus } from '@/hooks/use-scene-availability';
 import { getBodyAccessibleLabel, getHintLabel } from '@/lib/body-labels';
@@ -42,6 +43,8 @@ type PortfolioExperienceProps = {
   scene?: ComponentType<SceneProps>;
   /** Injectable WebGL probe, for tests. */
   detectWebGL?: () => boolean;
+  /** Injectable idle scheduler (the probe waits for the browser to be idle), for tests. */
+  idleScheduler?: IdleScheduler;
 };
 
 const UNAVAILABLE_MESSAGE =
@@ -61,8 +64,9 @@ export function PortfolioExperience({
   sceneDescription,
   scene: SceneComponent = SolarSystemSceneLoader,
   detectWebGL: probeWebGL = detectWebGL,
+  idleScheduler,
 }: PortfolioExperienceProps) {
-  const availability = useSceneAvailability(probeWebGL);
+  const availability = useSceneAvailability(probeWebGL, idleScheduler);
   const keyboardControlsRef = useRef<SceneKeyboardControlsHandle>(null);
   const lastOpenedIdRef = useRef<string | null>(null);
 
@@ -78,6 +82,7 @@ export function PortfolioExperience({
   }));
   const menuItems = bodies.map((body) => ({ id: body.id, label: body.section.menuLabel }));
   const fallbackMessage = fallbackMessageByStatus[availability.status];
+  const canMountScene = availability.isChecked && availability.status !== 'unavailable';
   const retryHandler = availability.canRetry ? availability.retry : undefined;
   const selectedBody = bodies.find((body) => body.id === interaction.state.selectedId);
 
@@ -105,7 +110,7 @@ export function PortfolioExperience({
           resetKey={availability.resetKey}
           onError={availability.markCrashed}
         >
-          {availability.status !== 'unavailable' && (
+          {canMountScene && (
             <SceneComponent
               bodies={bodies}
               highlightOf={interaction.highlightOf}

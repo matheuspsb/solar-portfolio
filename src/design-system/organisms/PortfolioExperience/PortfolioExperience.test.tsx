@@ -47,6 +47,15 @@ function FakeScene({
   );
 }
 
+/** The probe normally waits for the browser to be idle; tests run it right away. */
+const immediateScheduler = {
+  schedule: (callback: () => void) => {
+    callback();
+    return 0;
+  },
+  cancel: () => undefined,
+};
+
 function ThrowingScene(): never {
   throw new Error('scene failed');
 }
@@ -62,6 +71,7 @@ function setup({
       sceneDescription="Cena 3D de teste"
       scene={scene}
       detectWebGL={() => hasWebGL}
+      idleScheduler={immediateScheduler}
     />,
   );
   return userEvent.setup();

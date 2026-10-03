@@ -11,6 +11,23 @@ function Probe({ detect }: { detect: () => boolean }) {
 }
 
 describe('useWebGLSupport', () => {
+  it('does not probe while disabled and reports unknown', () => {
+    const detect = vi.fn(() => true);
+    const { result } = renderHook(() => useWebGLSupport(detect, false));
+    expect(result.current).toBe('unknown');
+    expect(detect).not.toHaveBeenCalled();
+  });
+
+  it('probes once it gets enabled', () => {
+    const detect = vi.fn(() => false);
+    const { result, rerender } = renderHook(({ isEnabled }) => useWebGLSupport(detect, isEnabled), {
+      initialProps: { isEnabled: false },
+    });
+    rerender({ isEnabled: true });
+    expect(result.current).toBe('unsupported');
+    expect(detect).toHaveBeenCalledTimes(1);
+  });
+
   it('reports supported when detection succeeds', () => {
     const { result } = renderHook(() => useWebGLSupport(() => true));
     expect(result.current).toBe('supported');
