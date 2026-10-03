@@ -14,6 +14,7 @@ import { SceneKeyboardControls } from '../../molecules/SceneKeyboardControls/Sce
 import type { SceneKeyboardControlsHandle } from '../../molecules/SceneKeyboardControls/SceneKeyboardControls';
 import { SectionView } from '../../molecules/SectionView/SectionView';
 import { ContentPanel } from '../ContentPanel/ContentPanel';
+import { QuickAccessMenu } from '../QuickAccessMenu/QuickAccessMenu';
 
 export type SceneProps = {
   bodies: readonly CelestialBodyConfig[];
@@ -45,6 +46,7 @@ export function PortfolioExperience({
     id: body.id,
     label: getBodyAccessibleLabel(body),
   }));
+  const menuItems = bodies.map((body) => ({ id: body.id, label: body.section.menuLabel }));
   const selectedBody = bodies.find((body) => body.id === interaction.state.selectedId);
 
   const changeHover = (id: string, isHovered: boolean) => {
@@ -81,6 +83,7 @@ export function PortfolioExperience({
           onItemActivate={openBody}
         />
         <BodyHint label={getHintLabel(interaction.state, labeledBodies)} />
+        <QuickAccessMenu items={menuItems} onSelectItem={openBody} />
       </div>
       <ContentPanel
         isOpen={selectedBody !== undefined}

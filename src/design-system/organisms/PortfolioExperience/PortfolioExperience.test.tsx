@@ -102,4 +102,34 @@ describe('PortfolioExperience', () => {
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+
+  it('opens the same panel from the quick-access menu and returns focus to the menu button', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Acesso rápido' }));
+    await user.click(screen.getByRole('button', { name: 'Sobre' }));
+    expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'Matheus' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Acesso rápido' })).toHaveFocus();
+  });
+
+  it('opens from the menu entirely by keyboard', async () => {
+    const user = setup();
+    await user.tab();
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Acesso rápido' })).toHaveFocus();
+    await user.keyboard('{Enter}');
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
+  });
+
+  it('can open from the menu, close from the panel, then open again from the scene', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Acesso rápido' }));
+    await user.click(screen.getByRole('button', { name: 'Sobre' }));
+    await user.click(screen.getByRole('button', { name: 'Fechar painel' }));
+    await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
+    expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
+  });
 });

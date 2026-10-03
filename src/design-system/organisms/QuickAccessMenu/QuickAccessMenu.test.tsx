@@ -1,0 +1,141 @@
+// Use case: a recruiter in a hurry (or on a device where the 3D scene is slow) opens the quick
+// access menu in the top-right corner and jumps straight to a section. The menu must be a proper
+// disclosure (button state, Esc, outside click, focus handling) and independent from the scene.
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
+import { QuickAccessMenu } from './QuickAccessMenu';
+
+const items = [
+  { id: 'sun', label: 'Sobre' },
+  { id: 'earth', label: 'Projetos' },
+];
+
+function setup(overrideItems = items) {
+  const onSelectItem = vi.fn();
+  render(
+    <>
+      <button>fora</button>
+      <QuickAccessMenu items={overrideItems} onSelectItem={onSelectItem} />
+    </>,
+  );
+  return { user: userEvent.setup(), onSelectItem };
+}
+
+const getToggle = () => screen.getByRole('button', { name: 'Acesso rápido' });
+
+describe('QuickAccessMenu', () => {
+  it('starts collapsed, announcing its state', () => {
+    setup();
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('button', { name: 'Sobre' })).not.toBeInTheDocument();
+  });
+
+  it('opens with a click and lists one control per item', async () => {
+    const { user } = setup();
+    await user.click(getToggle());
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('button', { name: 'Sobre' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Projetos' })).toBeInTheDocument();
+  });
+
+  it('opens with Enter and Space from the keyboard and focuses the first item', async () => {
+    const { user } = setup();
+    await user.tab();
+    await user.tab();
+    expect(getToggle()).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('button', { name: 'Sobre' })).toHaveFocus();
+    await user.keyboard('{Escape}');
+    await user.keyboard(' ');
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('toggles closed when the toggle is pressed again (rapid double click)', async () => {
+    const { user } = setup();
+    await user.dblClick(getToggle());
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('closes with Escape and returns focus to the toggle', async () => {
+    const { user } = setup();
+    await user.click(getToggle());
+    await user.keyboard('{Escape}');
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
+    expect(getToggle()).toHaveFocus();
+  });
+
+  it('does nothing on Escape while collapsed', async () => {
+    const { user } = setup();
+    await user.keyboard('{Escape}');
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('closes when clicking outside', async () => {
+    const { user } = setup();
+    await user.click(getToggle());
+    await user.click(screen.getByRole('button', { name: 'fora' }));
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('closes when keyboard focus leaves the menu', async () => {
+    const { user } = setup();
+    await user.click(getToggle());
+    await user.tab();
+    await user.tab();
+    await user.tab();
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('reports the chosen item, closes, and parks focus on the toggle', async () => {
+    const { user, onSelectItem } = setup();
+    await user.click(getToggle());
+    await user.click(screen.getByRole('button', { name: 'Projetos' }));
+    expect(onSelectItem).toHaveBeenCalledOnce();
+    expect(onSelectItem).toHaveBeenCalledWith('earth');
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
+    expect(getToggle()).toHaveFocus();
+  });
+
+  it('selects with the keyboard', async () => {
+    const { user, onSelectItem } = setup();
+    await user.click(getToggle());
+    await user.keyboard('{Enter}');
+    expect(onSelectItem).toHaveBeenCalledWith('sun');
+  });
+
+  it('moves between items with the arrow keys, wrapping around', async () => {
+    const { user } = setup();
+    await user.click(getToggle());
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('button', { name: 'Projetos' })).toHaveFocus();
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('button', { name: 'Sobre' })).toHaveFocus();
+    await user.keyboard('{ArrowUp}');
+    expect(screen.getByRole('button', { name: 'Projetos' })).toHaveFocus();
+  });
+
+  it('works with a single item (today: only "Sobre")', async () => {
+    const { user, onSelectItem } = setup([items[0]!]);
+    await user.click(getToggle());
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('button', { name: 'Sobre' })).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(onSelectItem).toHaveBeenCalledWith('sun');
+  });
+
+  it('renders nothing when there are no items', () => {
+    setup([]);
+    expect(screen.queryByRole('button', { name: 'Acesso rápido' })).not.toBeInTheDocument();
+  });
+
+  it('ties the toggle to the list it controls', async () => {
+    const { user } = setup();
+    await user.click(getToggle());
+    const controlledId = getToggle().getAttribute('aria-controls');
+    expect(controlledId).toBeTruthy();
+    expect(document.getElementById(controlledId!)).toContainElement(
+      screen.getByRole('button', { name: 'Sobre' }),
+    );
+  });
+});
