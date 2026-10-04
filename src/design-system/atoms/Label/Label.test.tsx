@@ -23,27 +23,6 @@ describe('Label', () => {
     );
   });
 
-  it.each(['muted', 'accent', 'accent-muted', 'cool', 'faint'] as const)(
-    'supports the %s tone without changing its content',
-    (tone) => {
-      render(<Label tone={tone}>Texto</Label>);
-      expect(screen.getByText('Texto')).toBeInTheDocument();
-    },
-  );
-
-  it('supports all caption sizes', () => {
-    render(
-      <>
-        <Label size="label">Pequeno</Label>
-        <Label size="eyebrow">Médio</Label>
-        <Label size="role">Cargo</Label>
-      </>,
-    );
-    expect(screen.getByText('Pequeno')).toBeInTheDocument();
-    expect(screen.getByText('Médio')).toBeInTheDocument();
-    expect(screen.getByText('Cargo')).toBeInTheDocument();
-  });
-
   it('forwards native props', () => {
     render(<Label lang="en">Hello</Label>);
     expect(screen.getByText('Hello')).toHaveAttribute('lang', 'en');

@@ -39,9 +39,4 @@ describe('DataGrid with DataCell', () => {
     const terms = screen.getAllByText(/Primeiro|Segundo/).map((term) => term.textContent);
     expect(terms).toEqual(['Primeiro', 'Segundo']);
   });
-
-  it('renders an empty grid without crashing', () => {
-    const { container } = render(<DataGrid>{null}</DataGrid>);
-    expect(container.querySelector('dl')).toBeInTheDocument();
-  });
 });

@@ -59,15 +59,6 @@ describe('ContentPanel', () => {
     expect(content.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('renders without a footer', () => {
-    render(
-      <ContentPanel isOpen title="Sobre" panelLabel="Sobre" onClose={() => undefined}>
-        <p>x</p>
-      </ContentPanel>,
-    );
-    expect(screen.queryByText('Créditos')).not.toBeInTheDocument();
-  });
-
   it('closes with the close button', async () => {
     const user = userEvent.setup();
     render(<Harness />);

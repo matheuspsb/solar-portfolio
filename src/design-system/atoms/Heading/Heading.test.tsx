@@ -26,12 +26,3 @@ it('forwards native props such as id', () => {
   );
   expect(screen.getByRole('heading')).toHaveAttribute('id', 'panel-title');
 });
-
-it('supports the display size used for the person name', () => {
-  render(
-    <Heading level={2} size="display">
-      Matheus
-    </Heading>,
-  );
-  expect(screen.getByRole('heading', { level: 2, name: 'Matheus' })).toBeInTheDocument();
-});

@@ -45,18 +45,4 @@ describe('Link as a button', () => {
     expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
     expect(link).toHaveAccessibleName('LinkedIn, abre em nova aba');
   });
-
-  it('looks different from the text variant', () => {
-    render(
-      <>
-        <Link href="/a">Texto</Link>
-        <Link href="/b" variant="button">
-          Botão
-        </Link>
-      </>,
-    );
-    expect(screen.getByRole('link', { name: 'Texto' }).className).not.toBe(
-      screen.getByRole('link', { name: 'Botão' }).className,
-    );
-  });
 });

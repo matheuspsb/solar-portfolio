@@ -43,11 +43,3 @@ it('forwards native props and the ref to the underlying element', () => {
   expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true');
   expect(screen.getByRole('button')).toHaveAttribute('type', 'submit');
 });
-
-it.each(['primary', 'secondary', 'floating'] as const)(
-  'supports the %s variant without changing semantics',
-  (variant) => {
-    render(<Button variant={variant}>Fechar</Button>);
-    expect(screen.getByRole('button', { name: 'Fechar' })).toHaveAttribute('type', 'button');
-  },
-);

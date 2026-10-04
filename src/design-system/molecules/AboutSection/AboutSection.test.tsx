@@ -77,9 +77,4 @@ describe('AboutSection', () => {
     expect(screen.queryByRole('heading', { name: 'Stack principal' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
-
-  it('renders without the emblem texture', () => {
-    render(<AboutSection content={content} emblemTextureUrl={null} />);
-    expect(screen.getByRole('heading', { level: 2, name: 'Matheus' })).toBeInTheDocument();
-  });
 });

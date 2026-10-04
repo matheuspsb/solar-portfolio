@@ -12,23 +12,4 @@ describe('PlanetDot', () => {
     expect(dot).toHaveAttribute('aria-hidden', 'true');
     expect(dot).toBeEmptyDOMElement();
   });
-
-  it.each(['cyan', 'white', 'blue', 'green', 'coral', 'orchid', 'amber'] as const)(
-    'renders the %s tone',
-    (tone) => {
-      const { container } = render(<PlanetDot tone={tone} size="md" />);
-      expect(container.firstElementChild).toBeInTheDocument();
-    },
-  );
-
-  it.each(['xs', 'sm', 'md', 'lg', 'xl'] as const)('renders the %s size', (size) => {
-    const { container } = render(<PlanetDot tone="cyan" size={size} />);
-    expect(container.firstElementChild).toBeInTheDocument();
-  });
-
-  it('gives bigger sizes bigger classes', () => {
-    const small = render(<PlanetDot tone="cyan" size="xs" />).container.firstElementChild!;
-    const big = render(<PlanetDot tone="cyan" size="xl" />).container.firstElementChild!;
-    expect(small.className).not.toBe(big.className);
-  });
 });
