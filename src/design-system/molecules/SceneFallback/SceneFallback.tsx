@@ -19,7 +19,7 @@ export function SceneFallback({
 }: SceneFallbackProps) {
   return (
     <div className="absolute inset-0 flex items-center justify-center p-6">
-      <div className="flex max-w-md flex-col items-center gap-4 rounded-lg border border-border bg-surface p-6 text-center shadow-glow">
+      <div className="flex max-w-md flex-col items-center gap-4 rounded-lg border border-line bg-surface p-6 text-center shadow-glow">
         <Heading level={2} size="xl">
           {title}
         </Heading>

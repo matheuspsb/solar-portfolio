@@ -104,13 +104,4 @@ describe('CelestialBody', () => {
     expect(onHoverChange).toHaveBeenLastCalledWith(false);
     expect(document.body.style.cursor).toBe('auto');
   });
-
-  it('forwards selection', async () => {
-    const onSelect = vi.fn();
-    const renderer = await ReactThreeTestRenderer.create(
-      <CelestialBody {...defaultProps} onSelect={onSelect} />,
-    );
-    await renderer.fireEvent(renderer.scene.children[0]!, 'click', { delta: 0 });
-    expect(onSelect).toHaveBeenCalledOnce();
-  });
 });

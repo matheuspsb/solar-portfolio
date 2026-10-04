@@ -35,6 +35,7 @@
   --color-ember-300: #ffd59e;
   --color-ember-400: #f2b56b;
   --color-ember-600: #b08a5c;
+  --color-ember-700: #b0631f;
   --color-on-ember: #170e04;
   --color-nebula-300: #9fb4e8;
   --color-focus-ring: #7cc4ff;
@@ -44,7 +45,6 @@
   --color-planet-white: #e8e6ef;
   --color-planet-blue: #6f9cf0;
   --color-planet-green: #8fd694;
-  --color-planet-coral: #f07f6a;
   --color-planet-orchid: #d58ff0;
   --color-planet-amber: #f2b56b;
 
@@ -53,18 +53,11 @@
   --color-emblem-mid: #c9561d;
   --color-emblem-dark: #6e260b;
 
-  /* The 3D scene's Sun (kept in sync with `sceneTokens`) */
-  --color-sun-400: #ffb347;
-  --color-sun-500: #ff8a1f;
-
   --font-sans: var(--font-bricolage), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.25rem;
   --text-xl: 1.75rem;
-  --text-2xl: clamp(2rem, 6vw, 3rem);
   --text-display: 2.125rem;
   --text-display--line-height: 1;
   --text-stat: 1.875rem;
@@ -78,28 +71,30 @@
 
   --tracking-label: 0.16em;
   --tracking-role: 0.06em;
+  --tracking-code: 0.1em;
   --tracking-name: -0.02em;
 
-  --radius-sm: 0.375rem;
-  --radius-md: 0.75rem;
   --radius-block: 0.625rem;
   --radius-lg: 1.25rem;
   --radius-pill: 999px;
+  --radius-ellipse: 50%;
 
   --shadow-glow: 0 0 40px rgb(255 138 31 / 0.25);
   --shadow-panel: 0 24px 80px rgb(0 0 0 / 0.55);
   --shadow-dot: 0 0 10px currentColor;
   --shadow-planet: 0 0 8px color-mix(in srgb, currentColor 40%, transparent);
+  --shadow-planet-strong: 0 0 14px currentColor;
+  --shadow-planet-toggle: 0 0 12px color-mix(in srgb, currentColor 53%, transparent);
   --shadow-emblem: 0 0 22px rgb(224 112 42 / 0.53);
 
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-panel: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-orbit-ring: cubic-bezier(0.2, 1, 0.3, 1);
+  --ease-orbit-item: cubic-bezier(0.2, 1.25, 0.4, 1);
 }
 
 :root {
-  --z-scene: 0;
   --z-chrome: 10;
-  --z-overlay: 20;
   --z-panel: 30;
   --size-touch-target: 2.75rem;
   --size-panel-width: 28.25rem;
@@ -186,6 +181,59 @@
 
   @media (prefers-reduced-motion: reduce) {
     animation: none;
+  }
+}
+
+/*
+ * Quick-access menu choreography. Tailwind v4 animates `translate`, `scale` and `rotate` as their own
+ * properties (not `transform`), so the transitions list them. With reduced motion, everything
+ * becomes a plain fade.
+ */
+@utility transition-orbit-ring {
+  transition:
+    opacity 400ms var(--ease-standard),
+    scale 600ms var(--ease-orbit-ring);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: opacity 200ms var(--ease-standard);
+  }
+}
+
+@utility transition-orbit-glow {
+  transition: opacity 500ms var(--ease-standard);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: opacity 200ms var(--ease-standard);
+  }
+}
+
+@utility transition-orbit-tilt {
+  transition: rotate 600ms var(--ease-orbit-ring);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+@utility transition-orbit-item-open {
+  transition:
+    opacity 300ms var(--ease-standard) var(--orbit-delay, 0s),
+    translate 700ms var(--ease-orbit-item) var(--orbit-delay, 0s),
+    scale 700ms var(--ease-orbit-item) var(--orbit-delay, 0s);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: opacity 200ms var(--ease-standard);
+  }
+}
+
+@utility transition-orbit-item-close {
+  transition:
+    opacity 200ms var(--ease-standard),
+    translate 300ms var(--ease-standard),
+    scale 300ms var(--ease-standard);
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: opacity 200ms var(--ease-standard);
   }
 }
 

@@ -6,7 +6,7 @@ import { useWebGLSupport } from './use-webgl-support';
 
 export type SceneStatus = 'working' | 'contextLost' | 'unavailable';
 
-export type SceneAvailability = {
+type SceneAvailability = {
   status: SceneStatus;
   /** False until the WebGL probe has run (it waits for the browser to be idle). */
   isChecked: boolean;

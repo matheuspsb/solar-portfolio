@@ -89,3 +89,49 @@ was copied. It was translated into the project's architecture:
 - **Panel width** is 452px (token `--size-panel-width: 28.25rem`); `PANEL_WIDTH_PIXELS` mirrors it and a test keeps them equal.
 - **Gotcha:** a color token and a font-size token with the same name collide in Tailwind (`text-chip` resolved to the color and
   silently dropped the size); sizes use `tag`, not `chip`.
+
+## Quick-access menu redesign (handoff option 2b, "Órbita")
+
+Again a visual reference only (`design/Acesso Rapido.dc.html`); the markup, inline styles and its React-in-a-string logic were not used.
+
+- **Behavior unchanged, look and choreography replaced.** Open/close, `Esc`, outside click, focus-first-item, arrow navigation, focus
+  return to the toggle and the "open the panel from here" flow are the same code paths; the existing behavior tests still pass untouched.
+- **Atomic split.** `OrbitMenuToggle` (pill button with a ringed planet whose ring flips when open, `PlanetToggleIcon`) and
+  `OrbitMenuItem` (label card + glowing planet) are molecules; `PlanetDot` gained an `orbit` size and `Label` a `code` size.
+  `QuickAccessMenu` is the organism that wires them. The old `MenuItem` molecule was deleted.
+- **Geometry is pure and tested.** `lib/orbit-layout.ts`: `getOrbitPositions` (one item at 138 degrees; N items spread 100-170 degrees on a
+  200px radius), `getOrbitDelaySeconds` (0.1 s + 0.08 s per item), `formatObjectCode` ("OBJ-001"). The component only turns the numbers into
+  CSS variables (`--orbit-x/y/delay`) that Tailwind utilities consume.
+- **Data, not markup.** `section.menuTone` (planet color) joins `menuLabel`; the `OBJ-00N` code is derived from the item's position.
+  `StackTone` was renamed `PlanetTone` because stack items and menu destinations share the palette.
+- **Choreography lives in tokens.** `ease-orbit-ring`, `ease-orbit-item`, `shadow-planet-strong|toggle`, `ember-700`, `tracking-code` plus
+  `transition-orbit-*` utilities in `tokens.css`. Tailwind v4 animates `translate`, `scale` and `rotate` as separate properties, so the
+  transitions list those instead of `transform`. With `prefers-reduced-motion` every transition collapses to a 200 ms fade (verified in e2e).
+- **Always mounted, but closed means gone for assistive tech.** To animate the exit the destinations stay in the DOM; while collapsed the
+  list is `inert` and `aria-hidden`, so they are not focusable or announced. The toggle precedes them in the DOM, so Tab goes button ->
+  destinations. The catalog code is `aria-hidden`, so the accessible name is just "Sobre".
+- **Known limit:** with many destinations the arc (100-170 degrees) can push left-most labels off narrow phones; fix when a second
+  destination exists (shrink the radius by viewport or switch to a vertical stack on small screens).
+- **Fonts:** JetBrains Mono is `preload: false` (only small captions use it); Bricolage Grotesque stays preloaded.
+
+## Cleanup audit (unused code, duplicated helpers, weak tests)
+
+Done with `knip`, a few throwaway scripts (exports referenced only by themselves/tests, CSS tokens never used as a class, every class
+name in the components checked against the compiled CSS) and a read of all test titles. Findings and fixes:
+
+- **Real bug found:** `BodyHint` and the `SceneFallback` card still used tokens removed during the palette migration
+  (`border-border-strong`, `text-text-primary`, `border-border`). Tailwind drops unknown classes silently, so the hint lost its border
+  color and the fallback card got a `currentColor` border. Both now use the new tokens. Lesson: after renaming tokens, check every class
+  against the build output, not only the types.
+- **Unused variants/props removed:** `Button` `floating`; `Heading` sizes `md|lg|2xl`; `Text` `as` and the `primary` tone (it is now a plain
+  `<p>`); `Label` tones `accent-muted|cool` and `as="div"`; `VisuallyHidden` `as` h1/h2/h3/p; the `coral` planet tone.
+- **Unused tokens removed:** `sun-400/500` (the scene reads `sceneTokens`, the CSS copies only fed a sync test), `radius-sm|md`,
+  `z-scene|z-overlay`, `ember-600`, `text-base|lg|2xl`. `scene-tokens.test` now syncs only the colors that exist on both sides.
+- **Needless exports** turned private (types only used inside their file, `loadTextureWithThree`); `postcss` dropped from devDependencies
+  (Next/Tailwind bring it); undocumented one-off scripts deleted (`screenshot-focus|menu|panel`, `lighthouse-details`).
+- **Test hooks in production markup removed:** `data-orbit`, `data-planet`, `data-rule` existed only so tests could count elements.
+- **Tests deleted (505 -> 489):** one that could never fail
+  (`toHaveTextContent('')` matches anything), tests of Tailwind class names or of element counts, a constant-shape check, a duplicate of
+  another test (`forwards selection`), "renders a span by default" style checks, and the trivial hex-format check.
+- **Kept on purpose:** the sync tests that read `tokens.css` (they catch silent drift), the contract tests of atoms (ref/props forwarding),
+  and the edge-case tests of pure functions.

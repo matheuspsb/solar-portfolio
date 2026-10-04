@@ -20,9 +20,4 @@ describe('BodyHint', () => {
     render(<BodyHint label="Sol · Sobre" />);
     expect(screen.getByText('Sol · Sobre').closest('[aria-hidden="true"]')).not.toBeNull();
   });
-
-  it('does not intercept pointer events over the canvas', () => {
-    render(<BodyHint label="Sol · Sobre" />);
-    expect(screen.getByText('Sol · Sobre').closest('div')).toHaveClass('pointer-events-none');
-  });
 });

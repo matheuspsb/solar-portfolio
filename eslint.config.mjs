@@ -12,6 +12,7 @@ const eslintConfig = [
       'screenshots/**',
       'playwright-report/**',
       'test-results/**',
+      'design/**',
     ],
   },
   {

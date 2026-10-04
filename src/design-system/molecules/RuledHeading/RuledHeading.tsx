@@ -13,7 +13,7 @@ export function RuledHeading({ level, title, trailing }: RuledHeadingProps) {
   return (
     <div className="flex items-center gap-2.5">
       <Label as={headingByLevel[level]}>{title}</Label>
-      <span data-rule aria-hidden="true" className="h-px flex-1 bg-line" />
+      <span aria-hidden="true" className="h-px flex-1 bg-line" />
       {trailing && <Label tone="faint">{trailing}</Label>}
     </div>
   );

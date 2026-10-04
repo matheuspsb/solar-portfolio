@@ -1,11 +1,11 @@
-/** Visual identity of a stack item's "planet"; maps to the `planet-*` color tokens. */
-export type StackTone = 'cyan' | 'white' | 'blue' | 'green' | 'coral' | 'orchid' | 'amber';
+/** Color of a little "planet" (stack items, menu destinations); maps to the `planet-*` color tokens. */
+export type PlanetTone = 'cyan' | 'white' | 'blue' | 'green' | 'orchid' | 'amber';
 
 export type PlanetSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 export type StackItem = {
   name: string;
-  tone: StackTone;
+  tone: PlanetTone;
   size: PlanetSize;
 };
 
@@ -37,6 +37,8 @@ export type CelestialBodyConfig = {
   texture: BodyTexture | null;
   section: {
     menuLabel: string;
+    /** Color of this destination's planet in the quick-access menu. */
+    menuTone: PlanetTone;
     title: string;
     /** Small caption in the panel header, e.g. "Sobre · Objeto 001". */
     panelLabel: string;
@@ -44,7 +46,7 @@ export type CelestialBodyConfig = {
   };
 };
 
-export type ValidationResult = { valid: true } | { valid: false; errors: string[] };
+type ValidationResult = { valid: true } | { valid: false; errors: string[] };
 
 const SAFE_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 

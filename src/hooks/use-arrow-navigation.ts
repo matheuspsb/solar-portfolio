@@ -10,7 +10,7 @@ const directionByKey: Partial<Record<string, NavigationDirection>> = {
   ArrowUp: 'previous',
 };
 
-export type ArrowNavigation = {
+type ArrowNavigation = {
   registerItem: (id: string) => (element: HTMLElement | null) => void;
   handleKeyDown: (event: KeyboardEvent<HTMLElement>, currentId: string) => void;
   getItem: (id: string) => HTMLElement | null;

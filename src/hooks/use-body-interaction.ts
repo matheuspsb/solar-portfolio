@@ -2,7 +2,7 @@ import { useReducer } from 'react';
 import { getHighlight, initialInteractionState, interactionReducer } from '@/lib/interaction-state';
 import type { Highlight, InteractionState } from '@/lib/interaction-state';
 
-export type BodyInteraction = {
+type BodyInteraction = {
   state: InteractionState;
   hover: (id: string) => void;
   unhover: (id: string) => void;

@@ -1,6 +1,6 @@
 import { FULL_TURN_RADIANS } from './rotation';
 
-export type RandomSource = () => number;
+type RandomSource = () => number;
 
 const MULBERRY_INCREMENT = 0x6d2b79f5;
 const UINT32_RANGE = 4294967296;

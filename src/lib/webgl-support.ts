@@ -8,7 +8,7 @@ type ContextProvider = {
   getContext: (contextId: string) => ProbeContext | null;
 };
 
-export type CanvasFactory = () => ContextProvider;
+type CanvasFactory = () => ContextProvider;
 
 const defaultCanvasFactory: CanvasFactory = () => {
   const canvas = document.createElement('canvas');

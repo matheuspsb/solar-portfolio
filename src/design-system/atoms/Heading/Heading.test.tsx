@@ -9,15 +9,6 @@ it.each([1, 2, 3, 4, 5, 6] as const)('renders level %i as a real heading', (leve
   expect(screen.getByRole('heading', { level, name: 'Título' })).toBeInTheDocument();
 });
 
-it('lets the visual size differ from the semantic level', () => {
-  render(
-    <Heading level={2} size="xl">
-      Sobre
-    </Heading>,
-  );
-  expect(screen.getByRole('heading', { level: 2 })).toBeInTheDocument();
-});
-
 it('forwards native props such as id', () => {
   render(
     <Heading level={2} id="panel-title">

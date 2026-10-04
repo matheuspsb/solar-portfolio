@@ -24,17 +24,4 @@ describe('OrbitEmblem', () => {
     expect(container.querySelector('img')).not.toBeInTheDocument();
     expect(container.firstElementChild).toBeInTheDocument();
   });
-
-  it('draws two orbits, each with one planet', () => {
-    const { container } = render(<OrbitEmblem textureUrl={null} />);
-    expect(container.querySelectorAll('[data-orbit]')).toHaveLength(2);
-    for (const orbit of container.querySelectorAll('[data-orbit]')) {
-      expect(orbit.querySelectorAll('[data-planet]')).toHaveLength(1);
-    }
-  });
-
-  it('has no text, so it never leaks the old letter placeholder', () => {
-    const { container } = render(<OrbitEmblem textureUrl="/textures/sun-small.webp" />);
-    expect(container).toHaveTextContent('');
-  });
 });

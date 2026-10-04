@@ -14,6 +14,7 @@ const sun: CelestialBodyConfig = {
   texture: { url: '/textures/sun.webp', smallUrl: '/textures/sun-small.webp' },
   section: {
     menuLabel: 'Sobre',
+    menuTone: 'amber',
     title: 'Sobre',
     panelLabel: 'Sobre · Objeto 001',
     content: aboutContent,

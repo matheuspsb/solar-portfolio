@@ -51,7 +51,7 @@ export const sunSurfaceFragmentShader = /* glsl */ `
   }
 `;
 
-export type SunSurfaceUniforms = {
+type SunSurfaceUniforms = {
   uMap: IUniform<Texture | null>;
   uHasMap: IUniform<number>;
   uTint: IUniform<Color>;

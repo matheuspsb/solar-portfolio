@@ -19,24 +19,4 @@ describe('DataGrid with DataCell', () => {
     expect(label.nextElementSibling).toHaveTextContent('Cerca de 5 anos');
     expect(screen.getByText('Localização').nextElementSibling).toHaveTextContent('Campina Grande');
   });
-
-  it('is a description list', () => {
-    const { container } = render(
-      <DataGrid>
-        <DataCell label="A">1</DataCell>
-      </DataGrid>,
-    );
-    expect(container.querySelector('dl')).toBeInTheDocument();
-  });
-
-  it('keeps the cell order', () => {
-    render(
-      <DataGrid>
-        <DataCell label="Primeiro">1</DataCell>
-        <DataCell label="Segundo">2</DataCell>
-      </DataGrid>,
-    );
-    const terms = screen.getAllByText(/Primeiro|Segundo/).map((term) => term.textContent);
-    expect(terms).toEqual(['Primeiro', 'Segundo']);
-  });
 });

@@ -1,4 +1,4 @@
-export type QualityTier = 'low' | 'medium' | 'high';
+type QualityTier = 'low' | 'medium' | 'high';
 
 export type SceneQuality = {
   tier: QualityTier;

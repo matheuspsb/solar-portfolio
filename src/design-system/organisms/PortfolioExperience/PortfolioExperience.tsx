@@ -80,7 +80,11 @@ export function PortfolioExperience({
     id: body.id,
     label: getBodyAccessibleLabel(body),
   }));
-  const menuItems = bodies.map((body) => ({ id: body.id, label: body.section.menuLabel }));
+  const menuItems = bodies.map((body) => ({
+    id: body.id,
+    label: body.section.menuLabel,
+    tone: body.section.menuTone,
+  }));
   const fallbackMessage = fallbackMessageByStatus[availability.status];
   const canMountScene = availability.isChecked && availability.status !== 'unavailable';
   const retryHandler = availability.canRetry ? availability.retry : undefined;

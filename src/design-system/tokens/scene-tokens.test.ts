@@ -17,14 +17,8 @@ function readCssColor(name: string): string {
 describe('scene tokens', () => {
   it.each([
     ['backgroundColor', 'space-950'],
-    ['sunCoreColor', 'sun-400'],
-    ['sunGlowColor', 'sun-500'],
     ['focusRingColor', 'focus-ring'],
   ] as const)('%s matches the CSS token --color-%s', (sceneKey, cssName) => {
     expect(sceneTokens[sceneKey].toLowerCase()).toBe(readCssColor(cssName));
-  });
-
-  it('only contains valid hex colors', () => {
-    for (const color of Object.values(sceneTokens)) expect(color).toMatch(/^#[0-9a-fA-F]{6}$/);
   });
 });

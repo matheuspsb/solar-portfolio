@@ -8,7 +8,7 @@ export type MediaQueryListLike = {
   removeEventListener: (eventName: 'change', listener: () => void) => void;
 };
 
-export type MediaQueryProvider = (query: string) => MediaQueryListLike | null;
+type MediaQueryProvider = (query: string) => MediaQueryListLike | null;
 
 const defaultProvider: MediaQueryProvider = (query) =>
   typeof window.matchMedia === 'function' ? window.matchMedia(query) : null;

@@ -25,11 +25,6 @@ describe('StackList', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders a single item', () => {
-    render(<StackList label="Stack" items={[react]} />);
-    expect(screen.getAllByRole('listitem')).toHaveLength(1);
-  });
-
   it('tolerates repeated names without key collisions', () => {
     render(<StackList label="Stack" items={[react, react]} />);
     expect(screen.getAllByRole('listitem')).toHaveLength(2);

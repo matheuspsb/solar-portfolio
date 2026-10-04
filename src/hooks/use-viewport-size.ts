@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-export type ViewportSize = {
+type ViewportSize = {
   width: number;
   height: number;
 };

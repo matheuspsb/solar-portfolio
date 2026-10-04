@@ -4,7 +4,7 @@ export type InteractionState = {
   selectedId: string | null;
 };
 
-export type InteractionAction =
+type InteractionAction =
   | { type: 'hover'; id: string }
   | { type: 'unhover'; id: string }
   | { type: 'focus'; id: string }

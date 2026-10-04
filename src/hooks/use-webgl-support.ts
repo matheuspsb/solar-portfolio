@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { detectWebGL } from '@/lib/webgl-support';
 
-export type WebGLSupport = 'unknown' | 'supported' | 'unsupported';
+type WebGLSupport = 'unknown' | 'supported' | 'unsupported';
 
 const resultByDetector = new WeakMap<() => boolean, boolean>();
 

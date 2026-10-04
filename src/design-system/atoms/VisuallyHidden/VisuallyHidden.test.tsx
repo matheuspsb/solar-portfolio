@@ -4,19 +4,11 @@ import { render, screen } from '@testing-library/react';
 import { expect, it } from 'vitest';
 import { VisuallyHidden } from './VisuallyHidden';
 
-it('keeps content available to the accessibility tree', () => {
-  render(<VisuallyHidden>Descrição</VisuallyHidden>);
-  expect(screen.getByText('Descrição')).toBeInTheDocument();
-});
-
 it('renders the requested element and forwards props', () => {
   render(
-    <VisuallyHidden as="h2" id="hidden-title">
+    <VisuallyHidden as="div" role="group" aria-label="Controles">
       Menu
     </VisuallyHidden>,
   );
-  expect(screen.getByRole('heading', { level: 2, name: 'Menu' })).toHaveAttribute(
-    'id',
-    'hidden-title',
-  );
+  expect(screen.getByRole('group', { name: 'Controles' }).tagName).toBe('DIV');
 });

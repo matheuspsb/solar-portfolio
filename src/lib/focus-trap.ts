@@ -5,8 +5,7 @@ type TabTargetInput = {
   isShift: boolean;
 };
 
-export type TabTarget =
-  { action: 'native' } | { action: 'focus'; index: number } | { action: 'block' };
+type TabTarget = { action: 'native' } | { action: 'focus'; index: number } | { action: 'block' };
 
 export function getTabTarget({ count, activeIndex, isShift }: TabTargetInput): TabTarget {
   if (!(count > 0)) return { action: 'block' };

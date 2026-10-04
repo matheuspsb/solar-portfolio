@@ -4,7 +4,7 @@ import type { Texture } from 'three';
 
 export type TextureLoadFunction = (url: string) => Promise<Texture>;
 
-export type TextureState = {
+type TextureState = {
   texture: Texture | null;
   status: 'idle' | 'loading' | 'loaded' | 'error';
 };
@@ -13,7 +13,7 @@ type SettledTextureState = TextureState & { url: string };
 
 const MAX_ANISOTROPY = 8;
 
-export const loadTextureWithThree: TextureLoadFunction = async (url) => {
+const loadTextureWithThree: TextureLoadFunction = async (url) => {
   const texture = await new TextureLoader().loadAsync(url);
   texture.colorSpace = SRGBColorSpace;
   texture.anisotropy = MAX_ANISOTROPY;

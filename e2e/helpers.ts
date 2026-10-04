@@ -59,3 +59,18 @@ export async function measureSunFill(image: Buffer): Promise<number> {
   const verticalSpan = measureRun((row) => isWarm(centerColumn, row), centerRow, info.height);
   return Math.max(horizontalSpan, verticalSpan) / Math.min(info.width, info.height);
 }
+
+/**
+ * Waits for CSS transitions and finite animations to finish (axe measures colors mid-fade otherwise).
+ * Infinite animations, such as the decorative orbits, are skipped because they never finish.
+ */
+export async function waitForFiniteAnimations(page: Page) {
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
+        .map((animation) => animation.finished),
+    ),
+  );
+}

@@ -8,7 +8,7 @@ describe('StackChip', () => {
   it('shows the technology name', () => {
     render(
       <ul>
-        <StackChip name="TanStack Query" tone="coral" size="sm" />
+        <StackChip name="TanStack Query" tone="orchid" size="sm" />
       </ul>,
     );
     expect(screen.getByRole('listitem')).toHaveTextContent('TanStack Query');

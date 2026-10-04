@@ -1,13 +1,33 @@
 import { useEffect, useEffectEvent, useId, useRef, useState } from 'react';
-import type { FocusEvent } from 'react';
+import type { CSSProperties, FocusEvent } from 'react';
 import { useArrowNavigation } from '@/hooks/use-arrow-navigation';
-import { Button } from '../../atoms/Button/Button';
-import { MenuItem } from '../../molecules/MenuItem/MenuItem';
+import type { PlanetTone } from '@/lib/celestial-body';
+import { joinClassNames } from '@/lib/join-class-names';
+import { formatObjectCode, getOrbitDelaySeconds, getOrbitPositions } from '@/lib/orbit-layout';
+import { OrbitMenuItem } from '../../molecules/OrbitMenuItem/OrbitMenuItem';
+import { OrbitMenuToggle } from '../../molecules/OrbitMenuToggle/OrbitMenuToggle';
+
+const ORBIT_RADIUS_PIXELS = 200;
 
 type QuickAccessMenuProps = {
-  items: ReadonlyArray<{ id: string; label: string }>;
+  items: ReadonlyArray<{ id: string; label: string; tone: PlanetTone }>;
   onSelectItem: (id: string) => void;
 };
+
+type OrbitItemStyle = CSSProperties & {
+  '--orbit-x': string;
+  '--orbit-y': string;
+  '--orbit-delay': string;
+};
+
+const ringClasses =
+  'transition-orbit-ring absolute rounded-full border border-dashed border-ember-400/33';
+const glowClasses =
+  'transition-orbit-glow absolute -top-32.5 -left-32.5 size-65 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-ember-400)_12%,transparent),transparent_65%)]';
+const itemOpenClasses =
+  'translate-x-(--orbit-x) translate-y-(--orbit-y) scale-100 opacity-100 transition-orbit-item-open';
+const itemClosedClasses =
+  'pointer-events-none translate-x-0 translate-y-0 scale-30 opacity-0 transition-orbit-item-close';
 
 export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,6 +55,18 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
 
   if (items.length === 0) return null;
 
+  const positions = getOrbitPositions({ count: items.length, radius: ORBIT_RADIUS_PIXELS });
+  const ringDiameter = ORBIT_RADIUS_PIXELS * 2;
+  const ringStyle: CSSProperties = {
+    width: ringDiameter,
+    height: ringDiameter,
+    top: -ORBIT_RADIUS_PIXELS,
+    left: -ORBIT_RADIUS_PIXELS,
+  };
+  const ringState = isOpen ? 'scale-100 opacity-100' : 'scale-20 opacity-0';
+  const glowState = isOpen ? 'opacity-100' : 'opacity-0';
+  const itemState = isOpen ? itemOpenClasses : itemClosedClasses;
+
   const closeAndRestoreFocus = () => {
     setIsOpen(false);
     toggleRef.current?.focus();
@@ -46,8 +78,6 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
     setIsOpen(false);
   };
 
-  const controlledListId = isOpen ? listId : undefined;
-
   const selectItem = (id: string) => {
     closeAndRestoreFocus();
     onSelectItem(id);
@@ -57,7 +87,7 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
     <nav
       aria-label="Acesso rápido"
       ref={containerRef}
-      className="fixed top-4 right-4 z-(--z-chrome) flex flex-col items-end gap-2"
+      className="fixed top-5 right-5 z-(--z-chrome)"
       onBlur={closeWhenFocusLeaves}
       onKeyDown={(event) => {
         if (event.key === 'Escape' && isOpen) {
@@ -66,33 +96,49 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
         }
       }}
     >
-      <Button
+      <OrbitMenuToggle
         ref={toggleRef}
-        variant="floating"
-        aria-expanded={isOpen}
-        aria-controls={controlledListId}
+        label="Acesso rápido"
+        isOpen={isOpen}
+        controlsId={listId}
         onClick={() => setIsOpen((wasOpen) => !wasOpen)}
-      >
-        Acesso rápido
-      </Button>
-      {isOpen && (
-        <ul
-          id={listId}
-          className="m-0 flex min-w-48 list-none flex-col gap-1 rounded-lg border border-border bg-surface p-2 shadow-panel backdrop-blur-md"
-        >
-          {items.map((item) => (
-            <li key={item.id}>
-              <MenuItem
-                ref={registerItem(item.id)}
-                onKeyDown={(event) => handleKeyDown(event, item.id)}
-                onClick={() => selectItem(item.id)}
+      />
+      {/* After the button in the DOM so Tab goes button -> destinations. The anchor sits at the
+          planet's center: the ring, the glow and every destination hang from it. */}
+      <div className="pointer-events-none absolute top-5.5 right-5.5 size-0">
+        <div aria-hidden="true" className={joinClassNames(glowClasses, glowState)} />
+        <div
+          aria-hidden="true"
+          className={joinClassNames(ringClasses, ringState)}
+          style={ringStyle}
+        />
+        <ul id={listId} className="m-0 list-none p-0" inert={!isOpen} aria-hidden={!isOpen}>
+          {items.map((item, index) => {
+            const position = positions[index] ?? { x: 0, y: 0 };
+            const style: OrbitItemStyle = {
+              '--orbit-x': `${position.x}px`,
+              '--orbit-y': `${position.y}px`,
+              '--orbit-delay': `${getOrbitDelaySeconds(index)}s`,
+            };
+            return (
+              <li
+                key={item.id}
+                className={joinClassNames('pointer-events-auto absolute top-0 left-0', itemState)}
+                style={style}
               >
-                {item.label}
-              </MenuItem>
-            </li>
-          ))}
+                <OrbitMenuItem
+                  ref={registerItem(item.id)}
+                  label={item.label}
+                  code={formatObjectCode(index)}
+                  tone={item.tone}
+                  onKeyDown={(event) => handleKeyDown(event, item.id)}
+                  onClick={() => selectItem(item.id)}
+                />
+              </li>
+            );
+          })}
         </ul>
-      )}
+      </div>
     </nav>
   );
 }

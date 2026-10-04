@@ -20,9 +20,4 @@ describe('RuledHeading', () => {
     const { container } = render(<RuledHeading level={3} title="Stack principal" />);
     expect(container).toHaveTextContent(/^Stack principal$/);
   });
-
-  it('draws the rule as a hidden decoration', () => {
-    const { container } = render(<RuledHeading level={3} title="Stack" />);
-    expect(container.querySelector('[data-rule]')).toHaveAttribute('aria-hidden', 'true');
-  });
 });

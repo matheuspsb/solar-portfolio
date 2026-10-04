@@ -7,11 +7,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { QuickAccessMenu } from './QuickAccessMenu';
 
 const items = [
-  { id: 'sun', label: 'Sobre' },
-  { id: 'earth', label: 'Projetos' },
-];
+  { id: 'sun', label: 'Sobre', tone: 'amber' },
+  { id: 'earth', label: 'Projetos', tone: 'cyan' },
+] as const;
 
-function setup(overrideItems = items) {
+function setup(overrideItems: React.ComponentProps<typeof QuickAccessMenu>['items'] = items) {
   const onSelectItem = vi.fn();
   render(
     <>
@@ -34,6 +34,21 @@ describe('QuickAccessMenu', () => {
     setup();
     expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByRole('button', { name: 'Sobre' })).not.toBeInTheDocument();
+  });
+
+  it('keeps the destinations out of reach while collapsed (not focusable, not announced)', () => {
+    setup();
+    const list = screen.getByRole('list', { hidden: true });
+    expect(list).toHaveAttribute('inert');
+    expect(list).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('makes the destinations reachable once expanded', async () => {
+    const { user } = setup();
+    await user.click(getToggle());
+    const list = screen.getByRole('list');
+    expect(list).not.toHaveAttribute('inert');
+    expect(list).not.toHaveAttribute('aria-hidden', 'true');
   });
 
   it('opens with a click and lists one control per item', async () => {

@@ -15,7 +15,7 @@ type SceneSettingsInput = {
   panelShiftSeconds: number;
 };
 
-export type SceneSettings = {
+type SceneSettings = {
   quality: SceneQuality;
   cameraDistance: number;
   viewOffsetPixels: number;

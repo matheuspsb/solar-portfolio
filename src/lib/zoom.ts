@@ -1,4 +1,4 @@
-export type ZoomDirection = 'in' | 'out';
+type ZoomDirection = 'in' | 'out';
 
 const ZOOM_STEP_FACTOR = 1.15;
 const MAX_ZOOM_MARGIN = 1.5;

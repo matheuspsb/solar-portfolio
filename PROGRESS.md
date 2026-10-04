@@ -20,16 +20,26 @@
 
 - 13. Visual polish (corona, surface movement, camera/panel transitions).
 
+## Design handoffs applied (uncommitted by request: the user commits each part)
+
+- **Panel "Sobre" (1a + LinkedIn pill from 1b):** done; see DECISIONS.md. Stack changed to React, Next.js, TypeScript, Node.js, PostgreSQL, React Native.
+- **Quick-access menu (2b, orbital):** done; see DECISIONS.md. Validation after the redesign: lint, typecheck, 505 unit tests, 37 e2e (incl. axe with the
+  menu expanded and the panel open, reduced-motion checks, on-screen position at 1280 and 375 px), production build.
+- Low-value tests (render-only, class comparisons, copy pinning) were removed on request: 474 -> 505 tests after adding the new ones.
+- **Cleanup audit** (unused variants/tokens/exports/scripts/tests, one real styling bug fixed): see DECISIONS.md. Final: 489 unit tests, 37 e2e, lint/typecheck/build green.
+
 ## Performance metrics (production build, Lighthouse 13 in headless Chromium with SwiftShader software WebGL)
 
-| Step                                                    | Mobile perf | Desktop perf | Mobile TBT   | Desktop TBT | A11y | Best practices | SEO |
-| ------------------------------------------------------- | ----------- | ------------ | ------------ | ----------- | ---- | -------------- | --- |
-| Baseline (before item 12)                               | 70          | 74           | 2110-2440 ms | 690 ms      | 100  | 96             | 100 |
-| + favicon, source maps, demand frameloop                | 70          | 74           | 1910 ms      | 710 ms      | 100  | 100            | 100 |
-| + lazy post-processing chunk                            | 71-72       | -            | 1600-1810 ms | -           | 100  | 100            | 100 |
-| + scene mount deferred to idle (`useIdleReady`)         | 72-79       | 79           | 860-1770 ms  | 480 ms      | 100  | 100            | 100 |
-| + WebGL probe deferred to idle and its context released | 76-79       | **95**       | 850-1100 ms  | 180 ms      | 100  | 100            | 100 |
+| Step                                                                                    | Mobile perf | Desktop perf | Mobile TBT   | Desktop TBT | A11y | Best practices | SEO |
+| --------------------------------------------------------------------------------------- | ----------- | ------------ | ------------ | ----------- | ---- | -------------- | --- |
+| Baseline (before item 12)                                                               | 70          | 74           | 2110-2440 ms | 690 ms      | 100  | 96             | 100 |
+| + favicon, source maps, demand frameloop                                                | 70          | 74           | 1910 ms      | 710 ms      | 100  | 100            | 100 |
+| + lazy post-processing chunk                                                            | 71-72       | -            | 1600-1810 ms | -           | 100  | 100            | 100 |
+| + scene mount deferred to idle (`useIdleReady`)                                         | 72-79       | 79           | 860-1770 ms  | 480 ms      | 100  | 100            | 100 |
+| + WebGL probe deferred to idle and its context released                                 | 76-79       | **95**       | 850-1100 ms  | 180 ms      | 100  | 100            | 100 |
+| + panel and orbital-menu redesign (fonts via `next/font`, JetBrains Mono not preloaded) | 76          | 94           | 930-960 ms   | 190 ms      | 100  | 100            | 100 |
 
+- After the redesign LCP moved from ~2.2 s to ~2.5 s on mobile (the LCP element is the menu button text; 8 KB of render-blocking CSS and the web font are on its path). Bundle total 465 KB gzip.
 - Bundle (gzip, all chunks): ~446 KB total; the three/R3F chunk (~229 KB) loads lazily, after content and menu are visible.
   Content, menu and panel render server-side before any 3D code runs (CLS = 0).
 - Desktop reaches the >90 target (95). Mobile stays at 76-79 **in this environment**: Lighthouse runs on a CPU-emulated GPU (SwiftShader) with 4x CPU throttle;

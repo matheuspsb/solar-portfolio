@@ -32,7 +32,7 @@ src/
   design-system/
     tokens/               tokens (Tailwind v4 @theme + variáveis) e valores usados pela cena
     atoms/                Button, IconButton, Heading, Text, Label, Link, PlanetDot, icons, VisuallyHidden
-    molecules/            MenuItem, PanelHeader, OrbitEmblem, DataGrid, RuledHeading, StackList, AboutSection, SceneKeyboardControls, BodyHint, SceneFallback...
+    molecules/            OrbitMenuToggle, OrbitMenuItem, PanelHeader, OrbitEmblem, DataGrid, RuledHeading, StackList, AboutSection, SceneKeyboardControls, BodyHint, SceneFallback...
     organisms/            ContentPanel, QuickAccessMenu, PortfolioExperience (orquestra tudo)
   scene/
     atoms/                SunMesh, SunCorona, StarField, SceneLights, SceneEffects, FocusRing, CameraDistance, CameraViewOffset
@@ -53,6 +53,7 @@ Decisões de projeto:
   com padrão, então os testes não usam mocks globais.
 - **Conteúdo antes da cena.** HTML do menu/painel é renderizado no servidor; o bundle 3D (~230 KB gzip) carrega depois, quando o
   navegador está ocioso, e o pós-processamento em um chunk ainda mais tardio.
+- **Menu orbital.** Os destinos do "Acesso rápido" entram em órbita em um arco (`lib/orbit-layout.ts`, puro e testado); fechado, ficam `inert` e `aria-hidden`; com movimento reduzido viram só um fade.
 - **Acessibilidade.** Cada corpo tem um botão real (invisível) para teclado e leitores de tela; o foco aparece como anel 3D; o
   painel é um diálogo modal com trap de foco, `Esc`, clique fora e devolução de foco; o canvas tem alternativa textual; axe
   passa nos e2e (fechado, aberto, menu expandido e fallback).

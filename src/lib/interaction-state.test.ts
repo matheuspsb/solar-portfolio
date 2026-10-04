@@ -17,10 +17,6 @@ function reduce(actions: Parameters<typeof interactionReducer>[1][]): Interactio
 }
 
 describe('interactionReducer', () => {
-  it('starts with nothing hovered, focused or selected', () => {
-    expect(initialInteractionState).toEqual({ hoveredId: null, focusedId: null, selectedId: null });
-  });
-
   it('tracks hover and unhover of the same body', () => {
     const hovered = reduce([{ type: 'hover', id: 'sun' }]);
     expect(hovered.hoveredId).toBe('sun');

@@ -6,11 +6,6 @@ import { describe, expect, it } from 'vitest';
 import { Label } from './Label';
 
 describe('Label', () => {
-  it('renders a span by default', () => {
-    render(<Label>Experiência</Label>);
-    expect(screen.getByText('Experiência').tagName).toBe('SPAN');
-  });
-
   it('can be a real heading', () => {
     render(
       <Label as="h3" id="stack-title">

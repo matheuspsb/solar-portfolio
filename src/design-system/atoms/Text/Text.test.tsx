@@ -1,20 +1,15 @@
-// Use case: body copy renders in the requested element with native props forwarded. If it
-// ignored `as`, lists or labels would end up with the wrong semantics.
+// Use case: body copy is a real paragraph and forwards native props (role, lang, id), so callers
+// such as the fallback notice can turn it into a live region without wrapping it again.
 import { render, screen } from '@testing-library/react';
 import { expect, it } from 'vitest';
 import { Text } from './Text';
 
-it('renders a paragraph by default', () => {
+it('renders a paragraph', () => {
   render(<Text>Olá</Text>);
   expect(screen.getByText('Olá').tagName).toBe('P');
 });
 
-it('renders the requested element', () => {
-  render(<Text as="span">Olá</Text>);
-  expect(screen.getByText('Olá').tagName).toBe('SPAN');
-});
-
-it('forwards native props', () => {
-  render(<Text lang="en">Hello</Text>);
-  expect(screen.getByText('Hello')).toHaveAttribute('lang', 'en');
+it('forwards native props such as role', () => {
+  render(<Text role="status">Aviso</Text>);
+  expect(screen.getByRole('status')).toHaveTextContent('Aviso');
 });

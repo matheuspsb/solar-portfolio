@@ -39,7 +39,7 @@ export const sunCoronaFragmentShader = /* glsl */ `
   }
 `;
 
-export type SunCoronaUniforms = {
+type SunCoronaUniforms = {
   uColor: IUniform<Color>;
   uTime: IUniform<number>;
   uIntensity: IUniform<number>;

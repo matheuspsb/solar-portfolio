@@ -3,7 +3,7 @@
 // assistive-tech users, so axe runs with the panel closed and open.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { clickSun } from './helpers';
+import { clickSun, waitForFiniteAnimations } from './helpers';
 
 test('opens the About panel with the keyboard and restores focus on Escape', async ({ page }) => {
   await page.goto('/');
@@ -62,15 +62,8 @@ test('has no detectable accessibility violations, closed and open', async ({ pag
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'Sobre' })).toBeVisible();
   // Contrast is measured on the final colors, so let the slide-in/fade-in finish first.
-  // Only finite animations can finish: the decorative orbits spin forever by design.
-  await page.evaluate(() =>
-    Promise.all(
-      document
-        .getAnimations()
-        .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
-        .map((animation) => animation.finished),
-    ),
-  );
+  // Contrast is measured on the final colors, so let the slide-in and fades finish first.
+  await waitForFiniteAnimations(page);
   const openResults = await new AxeBuilder({ page }).analyze();
   expect(openResults.violations).toEqual([]);
 });
