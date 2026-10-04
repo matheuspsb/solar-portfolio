@@ -15,6 +15,8 @@ import {
 const SPHERE_SEGMENTS = 96;
 
 type SunMeshProps = {
+  /** Lets the camera find this body by name. */
+  name: string;
   radius: number;
   texture: Texture | null;
   /** `null` disables automatic rotation (reduced motion). */
@@ -30,6 +32,7 @@ type SunMeshProps = {
 };
 
 export function SunMesh({
+  name,
   radius,
   texture,
   rotationPeriodSeconds,
@@ -60,6 +63,7 @@ export function SunMesh({
   return (
     <mesh
       ref={meshRef}
+      name={name}
       onPointerOver={handlePointerOver}
       onPointerOut={onPointerOut}
       onClick={handleClick}

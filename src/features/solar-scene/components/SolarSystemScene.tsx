@@ -9,8 +9,10 @@ import type { Highlight } from '@/lib/interaction-state';
 import { getFrameloop, getHighlightEasingRate, getRotationPeriodForMotion } from '../lib/motion';
 import type { SceneQuality } from '../lib/scene-quality';
 import { MIN_ZOOM_DISTANCE, getMaxZoomDistance } from '../lib/zoom';
-import { CAMERA_FIELD_OF_VIEW } from '../constants';
+import { CAMERA_FIELD_OF_VIEW, CAMERA_FOCUS_SIDE_OFFSET_RADIANS } from '../constants';
+import type { SceneProps } from '../types';
 import { CameraDistance } from './CameraDistance';
+import { CameraFocus } from './CameraFocus';
 import { CameraViewOffset } from './CameraViewOffset';
 import { KeyboardZoom } from './KeyboardZoom';
 import { SceneLights } from './SceneLights';
@@ -19,6 +21,7 @@ import { CelestialBody } from './CelestialBody';
 
 // Slightly above the orbital plane so orbits read as ellipses instead of edge-on lines.
 const CAMERA_POSITION: [number, number, number] = [0, 4, 9.5];
+const HOME_AZIMUTH = Math.atan2(CAMERA_POSITION[2], CAMERA_POSITION[0]);
 const CAMERA_NEAR = 0.1;
 const CAMERA_FAR = 400;
 const CONTROLS_DAMPING = 0.08;
@@ -36,6 +39,8 @@ type SolarSystemSceneProps = {
   cameraDistance: number;
   viewOffsetPixels: number;
   viewOffsetEasingRate: number;
+  cameraFocusEasingRate: number;
+  cameraTarget: SceneProps['cameraTarget'];
   prefersReducedMotion: boolean;
   bodies: readonly CelestialBodyConfig[];
   highlightOf: (id: string) => Highlight;
@@ -52,6 +57,8 @@ export function SolarSystemScene({
   cameraDistance,
   viewOffsetPixels,
   viewOffsetEasingRate,
+  cameraFocusEasingRate,
+  cameraTarget,
   prefersReducedMotion,
   bodies,
   highlightOf,
@@ -69,7 +76,7 @@ export function SolarSystemScene({
       role="img"
       aria-label={description}
       dpr={[1, quality.maxPixelRatio]}
-      frameloop={getFrameloop({ prefersReducedMotion, isSceneActive: isActive })}
+      frameloop={getFrameloop(prefersReducedMotion)}
       camera={{
         position: CAMERA_POSITION,
         fov: CAMERA_FIELD_OF_VIEW,
@@ -88,12 +95,20 @@ export function SolarSystemScene({
     >
       <color attach="background" args={[sceneTokens.backgroundColor]} />
       <CameraDistance distance={cameraDistance} />
+      <CameraFocus
+        targetId={cameraTarget.id}
+        nonce={cameraTarget.nonce}
+        easingRate={cameraFocusEasingRate}
+        homeAzimuth={HOME_AZIMUTH}
+        sideOffset={CAMERA_FOCUS_SIDE_OFFSET_RADIANS}
+      />
       <CameraViewOffset targetOffsetPixels={viewOffsetPixels} easingRate={viewOffsetEasingRate} />
       <SceneLights />
       <StarField starCount={quality.starCount} />
       {bodies.map((body) => (
         <CelestialBody
           key={body.id}
+          id={body.id}
           kind={body.kind}
           orbit={body.orbit}
           radius={body.radius}
@@ -119,6 +134,7 @@ export function SolarSystemScene({
         isEnabled={isActive}
       />
       <OrbitControls
+        makeDefault
         enablePan={false}
         minPolarAngle={MIN_POLAR_ANGLE}
         maxPolarAngle={MAX_POLAR_ANGLE}

@@ -52,20 +52,12 @@ describe('getHighlightEasingRate', () => {
 });
 
 describe('getFrameloop', () => {
-  it('renders continuously while the Sun is visible and motion is allowed', () => {
-    expect(getFrameloop({ prefersReducedMotion: false, isSceneActive: true })).toBe('always');
+  it('renders continuously while motion is allowed, even with a panel open (planets keep orbiting)', () => {
+    expect(getFrameloop(false)).toBe('always');
   });
 
   it('renders on demand when reduced motion is preferred (nothing moves by itself)', () => {
-    expect(getFrameloop({ prefersReducedMotion: true, isSceneActive: true })).toBe('demand');
-  });
-
-  it('renders on demand while a panel covers the scene, saving GPU and battery', () => {
-    expect(getFrameloop({ prefersReducedMotion: false, isSceneActive: false })).toBe('demand');
-  });
-
-  it('renders on demand when both apply', () => {
-    expect(getFrameloop({ prefersReducedMotion: true, isSceneActive: false })).toBe('demand');
+    expect(getFrameloop(true)).toBe('demand');
   });
 });
 

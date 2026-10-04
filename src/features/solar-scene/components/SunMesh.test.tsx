@@ -11,6 +11,7 @@ import { SunMesh } from './SunMesh';
 async function renderSun(props: Partial<React.ComponentProps<typeof SunMesh>> = {}) {
   const renderer = await ReactThreeTestRenderer.create(
     <SunMesh
+      name="body-test"
       radius={2}
       texture={null}
       rotationPeriodSeconds={10}
@@ -74,6 +75,7 @@ describe('SunMesh', () => {
     await renderer.advanceFrames(1, 0.016);
     await renderer.update(
       <SunMesh
+        name="body-test"
         radius={2}
         texture={null}
         rotationPeriodSeconds={10}
@@ -128,6 +130,7 @@ describe('SunMesh', () => {
     await renderer.advanceFrames(120, 0.016);
     await renderer.update(
       <SunMesh
+        name="body-test"
         radius={2}
         texture={null}
         rotationPeriodSeconds={10}

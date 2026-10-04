@@ -14,6 +14,7 @@ const base = {
   fieldOfViewDegrees: 50,
   screenFill: 0.55,
   panelShiftSeconds: 0.7,
+  cameraFocusSeconds: 1,
 };
 
 describe('getSceneSettings', () => {
@@ -66,6 +67,15 @@ describe('getSceneSettings', () => {
     expect(Number.isFinite(normal)).toBe(true);
     expect(normal).toBeGreaterThan(0);
     expect(getSceneSettings({ ...base, prefersReducedMotion: true }).viewOffsetEasingRate).toBe(
+      INSTANT_EASING_RATE,
+    );
+  });
+
+  it('swings the camera at a finite rate normally and instantly with reduced motion', () => {
+    const normal = getSceneSettings(base).cameraFocusEasingRate;
+    expect(Number.isFinite(normal)).toBe(true);
+    expect(normal).toBeGreaterThan(0);
+    expect(getSceneSettings({ ...base, prefersReducedMotion: true }).cameraFocusEasingRate).toBe(
       INSTANT_EASING_RATE,
     );
   });

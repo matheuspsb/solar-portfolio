@@ -13,6 +13,7 @@ type SceneSettingsInput = {
   fieldOfViewDegrees: number;
   screenFill: number;
   panelShiftSeconds: number;
+  cameraFocusSeconds: number;
 };
 
 type SceneSettings = {
@@ -20,6 +21,7 @@ type SceneSettings = {
   cameraDistance: number;
   viewOffsetPixels: number;
   viewOffsetEasingRate: number;
+  cameraFocusEasingRate: number;
 };
 
 /** Everything the scene derives from screen size, bodies and visitor preferences. */
@@ -40,6 +42,9 @@ export function getSceneSettings(input: SceneSettingsInput): SceneSettings {
     }),
     viewOffsetEasingRate: getTransitionRate(
       getTransitionSeconds(input.panelShiftSeconds, input.prefersReducedMotion),
+    ),
+    cameraFocusEasingRate: getTransitionRate(
+      getTransitionSeconds(input.cameraFocusSeconds, input.prefersReducedMotion),
     ),
   };
 }

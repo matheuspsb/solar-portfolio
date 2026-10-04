@@ -10,6 +10,7 @@ import { CelestialBody } from './CelestialBody';
 const texture = { url: '/full.webp', smallUrl: '/small.webp' };
 
 const defaultProps = {
+  id: 'sun',
   kind: 'star',
   orbit: null,
   radius: 2,
@@ -110,6 +111,7 @@ describe('CelestialBody', () => {
   describe('planets', () => {
     const planetProps = {
       ...defaultProps,
+      id: 'mercury',
       kind: 'planet',
       radius: 0.5,
       orbit: { radius: 5, periodSeconds: 10, phaseRadians: 0 },

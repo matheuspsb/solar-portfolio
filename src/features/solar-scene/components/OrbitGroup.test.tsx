@@ -10,7 +10,7 @@ const orbit = { radius: 5, periodSeconds: 10, phaseRadians: 0 };
 
 async function renderOrbit(props: Partial<React.ComponentProps<typeof OrbitGroup>> = {}) {
   const renderer = await ReactThreeTestRenderer.create(
-    <OrbitGroup orbit={orbit} isAnimated {...props}>
+    <OrbitGroup name="body-test" orbit={orbit} isAnimated {...props}>
       <mesh name="passenger" />
     </OrbitGroup>,
   );

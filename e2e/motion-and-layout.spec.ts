@@ -82,25 +82,17 @@ test('has no horizontal scrolling on very narrow screens', async ({ browser }) =
   await page.close();
 });
 
-test('stops rendering the idle loop while the panel covers the scene and resumes after', async ({
-  page,
-}) => {
+test('keeps the planets orbiting while the content panel is open', async ({ page }) => {
   await waitForScene(page);
   await page.getByRole('button', { name: 'Acesso rápido' }).click();
   await page.getByRole('button', { name: 'Sobre', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Sobre' })).toBeVisible();
   // Let the slide-in and the Sun's glide aside finish before sampling.
   await page.waitForTimeout(1500);
-  // Only the scene side: the panel's decorative orbits keep spinning on purpose.
+  // Only the scene side: the panel's decorative orbits spin on their own anyway.
   const sceneSide = { x: 0, y: 0, width: 700, height: 800 };
   const first = await page.screenshot({ clip: sceneSide });
   await page.waitForTimeout(2000);
   const second = await page.screenshot({ clip: sceneSide });
-  expect(first.equals(second)).toBe(true);
-
-  await page.keyboard.press('Escape');
-  await page.waitForTimeout(500);
-  const resumedFirst = await captureCanvas(page);
-  await page.waitForTimeout(2000);
-  expect((await captureCanvas(page)).equals(resumedFirst)).toBe(false);
+  expect(first.equals(second)).toBe(false);
 });

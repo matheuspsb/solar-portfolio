@@ -11,6 +11,7 @@ import { getSceneSettings } from '../lib/scene-settings';
 import {
   SYSTEM_SCREEN_FILL,
   CAMERA_FIELD_OF_VIEW,
+  CAMERA_FOCUS_TRANSITION_SECONDS,
   PANEL_SHIFT_TRANSITION_SECONDS,
   PANEL_WIDTH_PIXELS,
 } from '../constants';
@@ -28,6 +29,7 @@ export function SolarSystemSceneLoader({
   onContextLost,
   onContextRestored,
   isActive,
+  cameraTarget,
   description,
 }: SceneProps) {
   const isIdle = useIdleReady();
@@ -42,6 +44,7 @@ export function SolarSystemSceneLoader({
     fieldOfViewDegrees: CAMERA_FIELD_OF_VIEW,
     screenFill: SYSTEM_SCREEN_FILL,
     panelShiftSeconds: PANEL_SHIFT_TRANSITION_SECONDS,
+    cameraFocusSeconds: CAMERA_FOCUS_TRANSITION_SECONDS,
   });
 
   // The 3D bundle is large: wait until the content has painted and the browser is idle.
@@ -53,6 +56,8 @@ export function SolarSystemSceneLoader({
       cameraDistance={settings.cameraDistance}
       viewOffsetPixels={settings.viewOffsetPixels}
       viewOffsetEasingRate={settings.viewOffsetEasingRate}
+      cameraFocusEasingRate={settings.cameraFocusEasingRate}
+      cameraTarget={cameraTarget}
       prefersReducedMotion={prefersReducedMotion}
       bodies={bodies}
       highlightOf={highlightOf}

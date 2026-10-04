@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { BodyKind, BodyTexture, Orbit } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
 import { useTexture } from '../hooks/use-texture';
+import { getBodySceneName } from '../lib/body-scene-name';
 import type { TextureLoadFunction } from '../hooks/use-texture';
 import { FocusRing } from './FocusRing';
 import { OrbitGroup } from './OrbitGroup';
@@ -12,6 +13,7 @@ import { SunCorona } from './SunCorona';
 import { SunMesh } from './SunMesh';
 
 type CelestialBodyProps = {
+  id: string;
   kind: BodyKind;
   /** Where a planet travels; stars stay at the center (`null`). */
   orbit: Orbit | null;
@@ -35,6 +37,7 @@ function pickTextureUrl(texture: BodyTexture | null, prefersSmallTexture: boolea
 }
 
 export function CelestialBody({
+  id,
   kind,
   orbit,
   radius,
@@ -57,6 +60,7 @@ export function CelestialBody({
     setIsPointerOver(isHovered);
     onHoverChange(isHovered);
   };
+  const name = getBodySceneName(id);
   const focusRing = highlight === 'focused' && <FocusRing bodyRadius={radius} />;
   const interaction = {
     highlight,
@@ -70,7 +74,7 @@ export function CelestialBody({
     return (
       <>
         <OrbitPath radius={orbit.radius} />
-        <OrbitGroup orbit={orbit} isAnimated={isAnimated}>
+        <OrbitGroup name={name} orbit={orbit} isAnimated={isAnimated}>
           <PlanetMesh
             radius={radius}
             texture={loadedTexture}
@@ -86,6 +90,7 @@ export function CelestialBody({
   return (
     <>
       <SunMesh
+        name={name}
         radius={radius}
         texture={loadedTexture}
         rotationPeriodSeconds={rotationPeriodSeconds}

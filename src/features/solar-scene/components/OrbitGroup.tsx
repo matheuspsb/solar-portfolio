@@ -7,6 +7,8 @@ import { getOrbitPosition } from '../lib/orbit';
 import { advanceRotation } from '../lib/rotation';
 
 type OrbitGroupProps = {
+  /** Lets the camera find this body by name. */
+  name: string;
   orbit: Orbit;
   /** False freezes the planet at its starting phase (reduced motion). */
   isAnimated: boolean;
@@ -14,7 +16,7 @@ type OrbitGroupProps = {
 };
 
 /** Carries its children along a circular orbit around the origin, at a frame-rate independent pace. */
-export function OrbitGroup({ orbit, isAnimated, children }: OrbitGroupProps) {
+export function OrbitGroup({ name, orbit, isAnimated, children }: OrbitGroupProps) {
   const groupRef = useRef<Group>(null);
   const angleRef = useRef(orbit.phaseRadians);
   const start = getOrbitPosition({ radius: orbit.radius, angle: orbit.phaseRadians });
@@ -32,7 +34,7 @@ export function OrbitGroup({ orbit, isAnimated, children }: OrbitGroupProps) {
   });
 
   return (
-    <group ref={groupRef} position={[start.x, 0, start.z]}>
+    <group ref={groupRef} name={name} position={[start.x, 0, start.z]}>
       {children}
     </group>
   );
