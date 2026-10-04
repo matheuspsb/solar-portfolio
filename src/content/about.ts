@@ -3,7 +3,7 @@ import type { AboutContent } from '@/lib/celestial-body';
 export const aboutContent: AboutContent = {
   type: 'about',
   name: 'Matheus',
-  role: 'Software Engineer, foco em frontend',
+  role: 'Software Engineer',
   summary:
     'Engenheiro de software com foco em frontend e cerca de 5 anos de experiência construindo interfaces web.',
   facts: [
