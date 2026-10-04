@@ -116,8 +116,8 @@ describe('PortfolioExperience', () => {
   it('shows the texture attribution inside the panel', async () => {
     const user = setup();
     await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
-    expect(screen.getByRole('link', { name: /Solar System Scope/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /CC BY 4\.0/ })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /Solar System Scope/ }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: /CC BY 4\.0/ }).length).toBeGreaterThan(0);
   });
 
   it('shows the hint on hover and hides it while the panel is open', async () => {
@@ -182,12 +182,39 @@ describe('PortfolioExperience', () => {
 
   it('opens from the menu entirely by keyboard', async () => {
     const user = setup();
+    // One Tab stop per celestial body (Sun, Mercury), then the menu button.
+    await user.tab();
     await user.tab();
     await user.tab();
     expect(screen.getByRole('button', { name: 'Acesso rápido' })).toHaveFocus();
     await user.keyboard('{Enter}');
     await user.keyboard('{Enter}');
     expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
+  });
+
+  it('opens the Contact section from the second body with the keyboard', async () => {
+    const user = setup();
+    await user.tab();
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('button', { name: 'Mercúrio: abrir seção Contato' })).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('dialog', { name: 'Contato' })).toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('button', { name: 'Mercúrio: abrir seção Contato' })).toHaveFocus();
+  });
+
+  it('opens the Contact section from the quick-access menu and not the About one', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Acesso rápido' }));
+    await user.click(screen.getByRole('button', { name: 'Contato' }));
+    expect(screen.getByRole('dialog', { name: 'Contato' })).toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'Sobre' })).not.toBeInTheDocument();
+  });
+
+  it('opens the Contact section when Mercury is clicked in the scene', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('img', { name: /Mercúrio \(cena\)/ }));
+    expect(screen.getByRole('dialog', { name: 'Contato' })).toBeInTheDocument();
   });
 
   it('can open from the menu, close from the panel, then open again from the scene', async () => {

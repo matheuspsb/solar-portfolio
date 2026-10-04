@@ -3,7 +3,7 @@
 // Sun and no sideways scrolling. Failing these would hurt accessibility and first impressions.
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { measureSunFill } from './helpers';
+import { expectComfortableFill, measureSunFill } from './helpers';
 
 async function waitForScene(page: Page) {
   const textureLoaded = page.waitForResponse('**/textures/sun*.webp');
@@ -15,12 +15,6 @@ async function waitForScene(page: Page) {
 
 async function captureCanvas(page: Page): Promise<Buffer> {
   return page.locator('canvas').screenshot();
-}
-
-function expectComfortableFill(fill: number) {
-  // Framing targets ~55% of the limiting dimension; allow for bloom and highlight scale.
-  expect(fill).toBeGreaterThan(0.4);
-  expect(fill).toBeLessThan(0.7);
 }
 
 test('the Sun rotates by default', async ({ page }) => {

@@ -17,7 +17,8 @@ import { SceneLights } from './SceneLights';
 import { StarField } from './StarField';
 import { CelestialBody } from './CelestialBody';
 
-const CAMERA_POSITION: [number, number, number] = [0, 1.5, 11];
+// Slightly above the orbital plane so orbits read as ellipses instead of edge-on lines.
+const CAMERA_POSITION: [number, number, number] = [0, 4, 9.5];
 const CAMERA_NEAR = 0.1;
 const CAMERA_FAR = 400;
 const CONTROLS_DAMPING = 0.08;
@@ -93,6 +94,8 @@ export function SolarSystemScene({
       {bodies.map((body) => (
         <CelestialBody
           key={body.id}
+          kind={body.kind}
+          orbit={body.orbit}
           radius={body.radius}
           texture={body.texture}
           prefersSmallTexture={quality.tier === 'low'}
@@ -100,7 +103,7 @@ export function SolarSystemScene({
             body.rotationPeriodSeconds,
             prefersReducedMotion,
           )}
-          isSurfaceAnimated={!prefersReducedMotion}
+          isAnimated={!prefersReducedMotion}
           highlight={highlightOf(body.id)}
           highlightEasingRate={getHighlightEasingRate(prefersReducedMotion)}
           onHoverChange={(isHovered) => onHoverChange(body.id, isHovered)}

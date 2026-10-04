@@ -1,5 +1,6 @@
 import type { SectionContent } from '@/lib/celestial-body';
 import { AboutSection } from './about/AboutSection';
+import { ContactSection } from './contact/ContactSection';
 
 type SectionViewProps = {
   content: SectionContent;
@@ -12,5 +13,7 @@ export function SectionView({ content, emblemTextureUrl }: SectionViewProps) {
   switch (content.type) {
     case 'about':
       return <AboutSection content={content} emblemTextureUrl={emblemTextureUrl} />;
+    case 'contact':
+      return <ContactSection content={content} />;
   }
 }

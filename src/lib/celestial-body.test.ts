@@ -12,6 +12,7 @@ function buildBody(overrides: Partial<CelestialBodyConfig> = {}): CelestialBodyC
     kind: 'star',
     radius: 2,
     rotationPeriodSeconds: 120,
+    orbit: null,
     texture: { url: '/textures/sun.webp', smallUrl: '/textures/sun-small.webp' },
     section: {
       menuLabel: 'Sobre',
@@ -33,6 +34,17 @@ function buildBody(overrides: Partial<CelestialBodyConfig> = {}): CelestialBodyC
   };
 }
 
+function buildPlanet(overrides: Partial<CelestialBodyConfig> = {}): CelestialBodyConfig {
+  return buildBody({
+    id: 'mercury',
+    name: 'Mercúrio',
+    kind: 'planet',
+    radius: 0.5,
+    orbit: { radius: 5, periodSeconds: 60, phaseRadians: 1 },
+    ...overrides,
+  });
+}
+
 function errorsFor(bodies: CelestialBodyConfig[]): string[] {
   const result = validateCelestialBodies(bodies);
   return result.valid ? [] : result.errors;
@@ -43,8 +55,9 @@ describe('validateCelestialBodies', () => {
     expect(validateCelestialBodies([buildBody()])).toEqual({ valid: true });
   });
 
-  it('accepts several bodies with distinct ids', () => {
-    expect(validateCelestialBodies([buildBody(), buildBody({ id: 'earth' })]).valid).toBe(true);
+  it('accepts a star with planets that have distinct ids', () => {
+    const bodies = [buildBody(), buildPlanet(), buildPlanet({ id: 'venus' })];
+    expect(validateCelestialBodies(bodies).valid).toBe(true);
   });
 
   it('accepts a body without a texture (procedural fallback)', () => {
@@ -56,7 +69,7 @@ describe('validateCelestialBodies', () => {
   });
 
   it('rejects duplicated ids and names the id', () => {
-    const errors = errorsFor([buildBody(), buildBody()]);
+    const errors = errorsFor([buildBody(), buildPlanet({ id: 'sun' })]);
     expect(errors).toEqual([expect.stringContaining('"sun"')]);
     expect(errors[0]).toContain('duplicate');
   });
@@ -106,6 +119,54 @@ describe('validateCelestialBodies', () => {
   it('reports every problem, not only the first', () => {
     const errors = errorsFor([buildBody({ radius: 0, name: '' })]);
     expect(errors).toHaveLength(2);
+  });
+});
+
+describe('orbits', () => {
+  it('rejects a planet without an orbit', () => {
+    expect(errorsFor([buildBody(), buildPlanet({ orbit: null })])).toEqual([
+      expect.stringContaining('orbit'),
+    ]);
+  });
+
+  it('rejects a star that has an orbit', () => {
+    const star = buildBody({ orbit: { radius: 5, periodSeconds: 60, phaseRadians: 0 } });
+    expect(errorsFor([star])).toEqual([expect.stringContaining('orbit')]);
+  });
+
+  it('rejects a planet whose orbit passes through the star', () => {
+    const planet = buildPlanet({ orbit: { radius: 2.2, periodSeconds: 60, phaseRadians: 0 } });
+    expect(errorsFor([buildBody(), planet])).toEqual([expect.stringContaining('star')]);
+  });
+
+  it.each([0, -3, Number.NaN, Number.POSITIVE_INFINITY])('rejects orbit radius %s', (radius) => {
+    const planet = buildPlanet({ orbit: { radius, periodSeconds: 60, phaseRadians: 0 } });
+    expect(errorsFor([buildBody(), planet]).join(' ')).toContain('orbit.radius');
+  });
+
+  it.each([0, -3, Number.NaN, Number.POSITIVE_INFINITY])(
+    'rejects orbit period %s',
+    (periodSeconds) => {
+      const planet = buildPlanet({ orbit: { radius: 5, periodSeconds, phaseRadians: 0 } });
+      expect(errorsFor([buildBody(), planet]).join(' ')).toContain('orbit.periodSeconds');
+    },
+  );
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY])('rejects orbit phase %s', (phaseRadians) => {
+    const planet = buildPlanet({ orbit: { radius: 5, periodSeconds: 60, phaseRadians } });
+    expect(errorsFor([buildBody(), planet]).join(' ')).toContain('orbit.phaseRadians');
+  });
+
+  it('accepts a negative or large phase (any starting angle is fine)', () => {
+    const planet = buildPlanet({ orbit: { radius: 5, periodSeconds: 60, phaseRadians: -9 } });
+    expect(validateCelestialBodies([buildBody(), planet]).valid).toBe(true);
+  });
+
+  it('requires exactly one star at the center', () => {
+    expect(errorsFor([buildPlanet()]).join(' ')).toContain('exactly one star');
+    expect(errorsFor([buildBody(), buildBody({ id: 'sirius' })]).join(' ')).toContain(
+      'exactly one star',
+    );
   });
 });
 

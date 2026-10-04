@@ -28,6 +28,9 @@
 - Low-value tests (render-only, class comparisons, copy pinning) were removed on request: 474 -> 505 tests after adding the new ones.
 - **Cleanup audit** (unused variants/tokens/exports/scripts/tests, one real styling bug fixed): see DECISIONS.md. Final: 489 unit tests, 37 e2e, lint/typecheck/build green.
 - **Folder restructure** to features + shared kernel with lint-enforced boundaries (DECISIONS.md); 122 files moved, no behavior change: 489 unit tests, 37 e2e, build green.
+- **Phase 2 started: Mercury ("Contato")**: data model with orbits and validation, `OrbitGroup`/`OrbitPath`/`PlanetMesh`, system framing, Contact section,
+  responsive menu arc, Mercury texture and credits. See DECISIONS.md. 560 unit tests, 41 e2e (keyboard, menu, hover/click on Mercury, axe on the
+  Contact panel, narrow-phone menu). Still to do: camera fly-to, more planets (Projetos, Experiencia), moons.
 
 ## Performance metrics (production build, Lighthouse 13 in headless Chromium with SwiftShader software WebGL)
 
@@ -40,7 +43,8 @@
 | + WebGL probe deferred to idle and its context released                                 | 76-79       | **95**       | 850-1100 ms  | 180 ms      | 100  | 100            | 100 |
 | + panel and orbital-menu redesign (fonts via `next/font`, JetBrains Mono not preloaded) | 76          | 94           | 930-960 ms   | 190 ms      | 100  | 100            | 100 |
 
-- After the redesign LCP moved from ~2.2 s to ~2.5 s on mobile (the LCP element is the menu button text; 8 KB of render-blocking CSS and the web font are on its path). Bundle total 465 KB gzip.
+- After the redesign LCP moved from ~2.2 s to ~2.5 s on mobile (the LCP element is the menu button text; 8 KB of render-blocking CSS and the web font are on its path). Bundle total 465 KB gzip.| + Mercury (second texture, orbit, Lambert planet) | 70-71 | 83-94 (noisy) | 1500-1700 ms | 200-380 ms | 100 | 100 | 100 |
+
 - Bundle (gzip, all chunks): ~446 KB total; the three/R3F chunk (~229 KB) loads lazily, after content and menu are visible.
   Content, menu and panel render server-side before any 3D code runs (CLS = 0).
 - Desktop reaches the >90 target (95). Mobile stays at 76-79 **in this environment**: Lighthouse runs on a CPU-emulated GPU (SwiftShader) with 4x CPU throttle;

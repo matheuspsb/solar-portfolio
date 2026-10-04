@@ -1,7 +1,7 @@
 // Use case: the Sun texture can fail (offline CDN, 404, blocked request). The visitor must still
 // get a glowing Sun and a working page; a missing texture must not blank or crash the scene.
 import { expect, test } from '@playwright/test';
-import { measureSunFill } from './helpers';
+import { expectComfortableFill, measureSunFill } from './helpers';
 
 test('shows a warm solid Sun and keeps working when the texture request fails', async ({
   page,
@@ -14,9 +14,7 @@ test('shows a warm solid Sun and keeps working when the texture request fails', 
   await expect(page.locator('canvas')).toBeVisible();
   await page.waitForTimeout(2500);
 
-  const fill = measureSunFill(await page.locator('canvas').screenshot());
-  expect(await fill).toBeGreaterThan(0.4);
-  expect(await fill).toBeLessThan(0.7);
+  expectComfortableFill(await measureSunFill(await page.locator('canvas').screenshot()));
 
   await page.getByRole('button', { name: 'Acesso rápido' }).click();
   await page.getByRole('button', { name: 'Sobre', exact: true }).click();

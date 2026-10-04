@@ -1,9 +1,17 @@
 import { assertValidCelestialBodies } from '@/lib/celestial-body';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import { aboutContent } from './about';
+import { contactContent } from './contact';
 
 const SUN_RADIUS = 2.4;
 const SUN_ROTATION_PERIOD_SECONDS = 180;
+
+const MERCURY_RADIUS = 0.55;
+const MERCURY_ROTATION_PERIOD_SECONDS = 90;
+// A stylized orbit: much slower than the real 88 days, and far enough to clear the corona.
+const MERCURY_ORBIT_RADIUS = 4.6;
+const MERCURY_ORBIT_PERIOD_SECONDS = 70;
+const MERCURY_ORBIT_PHASE_RADIANS = 0.9;
 
 const sun: CelestialBodyConfig = {
   id: 'sun',
@@ -11,6 +19,7 @@ const sun: CelestialBodyConfig = {
   kind: 'star',
   radius: SUN_RADIUS,
   rotationPeriodSeconds: SUN_ROTATION_PERIOD_SECONDS,
+  orbit: null,
   texture: { url: '/textures/sun.webp', smallUrl: '/textures/sun-small.webp' },
   section: {
     menuLabel: 'Sobre',
@@ -21,5 +30,26 @@ const sun: CelestialBodyConfig = {
   },
 };
 
+const mercury: CelestialBodyConfig = {
+  id: 'mercury',
+  name: 'Mercúrio',
+  kind: 'planet',
+  radius: MERCURY_RADIUS,
+  rotationPeriodSeconds: MERCURY_ROTATION_PERIOD_SECONDS,
+  orbit: {
+    radius: MERCURY_ORBIT_RADIUS,
+    periodSeconds: MERCURY_ORBIT_PERIOD_SECONDS,
+    phaseRadians: MERCURY_ORBIT_PHASE_RADIANS,
+  },
+  texture: { url: '/textures/mercury.webp', smallUrl: '/textures/mercury-small.webp' },
+  section: {
+    menuLabel: 'Contato',
+    menuTone: 'periwinkle',
+    title: 'Contato',
+    panelLabel: 'Contato · Objeto 002',
+    content: contactContent,
+  },
+};
+
 /** Adding a planet means adding an item here; no component changes. */
-export const celestialBodies = assertValidCelestialBodies([sun]);
+export const celestialBodies = assertValidCelestialBodies([sun, mercury]);

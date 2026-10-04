@@ -1,7 +1,7 @@
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
 
-const AMBIENT_INTENSITY = 0.08;
-const SUN_LIGHT_INTENSITY = 900;
+const AMBIENT_INTENSITY = 0.22;
+const SUN_LIGHT_INTENSITY = 70;
 const SUN_LIGHT_DISTANCE = 0;
 const SUN_LIGHT_DECAY = 2;
 

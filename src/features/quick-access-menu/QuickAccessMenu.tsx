@@ -1,13 +1,17 @@
 import { useEffect, useEffectEvent, useId, useRef, useState } from 'react';
 import type { CSSProperties, FocusEvent } from 'react';
 import { useArrowNavigation } from '@/hooks/use-arrow-navigation';
+import { useViewportSize } from '@/hooks/use-viewport-size';
 import type { PlanetTone } from '@/lib/celestial-body';
 import { joinClassNames } from '@/lib/join-class-names';
-import { formatObjectCode, getOrbitDelaySeconds, getOrbitPositions } from './orbit-layout';
+import {
+  formatObjectCode,
+  getOrbitDelaySeconds,
+  getOrbitPositions,
+  getOrbitRadius,
+} from './orbit-layout';
 import { OrbitMenuItem } from './OrbitMenuItem';
 import { OrbitMenuToggle } from './OrbitMenuToggle';
-
-const ORBIT_RADIUS_PIXELS = 200;
 
 type QuickAccessMenuProps = {
   items: ReadonlyArray<{ id: string; label: string; tone: PlanetTone }>;
@@ -31,6 +35,7 @@ const itemClosedClasses =
 
 export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { width: viewportWidth } = useViewportSize();
   const listId = useId();
   const containerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -55,13 +60,14 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
 
   if (items.length === 0) return null;
 
-  const positions = getOrbitPositions({ count: items.length, radius: ORBIT_RADIUS_PIXELS });
-  const ringDiameter = ORBIT_RADIUS_PIXELS * 2;
+  const orbitRadius = getOrbitRadius(viewportWidth);
+  const positions = getOrbitPositions({ count: items.length, radius: orbitRadius });
+  const ringDiameter = orbitRadius * 2;
   const ringStyle: CSSProperties = {
     width: ringDiameter,
     height: ringDiameter,
-    top: -ORBIT_RADIUS_PIXELS,
-    left: -ORBIT_RADIUS_PIXELS,
+    top: -orbitRadius,
+    left: -orbitRadius,
   };
   const ringState = isOpen ? 'scale-100 opacity-100' : 'scale-20 opacity-0';
   const glowState = isOpen ? 'opacity-100' : 'opacity-0';

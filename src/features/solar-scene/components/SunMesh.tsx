@@ -1,12 +1,11 @@
 import { useFrame } from '@react-three/fiber';
-import type { ThreeEvent } from '@react-three/fiber';
 import { useRef, useState } from 'react';
 import type { Mesh, ShaderMaterial, Texture } from 'three';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
-import { dampValue } from '../lib/damp';
-import { getHighlightScale, isClickGesture } from '@/lib/interaction-state';
 import type { Highlight } from '@/lib/interaction-state';
-import { advanceRotation, clampFrameDelta } from '../lib/rotation';
+import { useBodyMotion } from '../hooks/use-body-motion';
+import { useBodyPointerHandlers } from '../hooks/use-body-pointer-handlers';
+import { clampFrameDelta } from '../lib/rotation';
 import {
   createSunSurfaceUniforms,
   sunSurfaceFragmentShader,
@@ -47,42 +46,16 @@ export function SunMesh({
   const [initialUniforms] = useState(() =>
     createSunSurfaceUniforms(sceneTokens.sunTextureTint, sceneTokens.sunCoreColor),
   );
-  const targetScale = getHighlightScale(highlight);
+  useBodyMotion({ bodyRef: meshRef, rotationPeriodSeconds, highlight, highlightEasingRate });
+  const { handlePointerOver, handleClick } = useBodyPointerHandlers({ onPointerOver, onSelect });
 
   useFrame((_state, deltaSeconds) => {
-    const mesh = meshRef.current;
     const material = materialRef.current;
-    if (!mesh || !material) return;
-    if (rotationPeriodSeconds !== null) {
-      mesh.rotation.y = advanceRotation({
-        angle: mesh.rotation.y,
-        deltaSeconds,
-        periodSeconds: rotationPeriodSeconds,
-      });
-    }
+    if (!material) return;
     if (isSurfaceAnimated) material.uniforms.uTime!.value += clampFrameDelta(deltaSeconds);
     material.uniforms.uMap!.value = texture;
     material.uniforms.uHasMap!.value = texture ? 1 : 0;
-    mesh.scale.setScalar(
-      dampValue({
-        current: mesh.scale.x,
-        target: targetScale,
-        rate: highlightEasingRate,
-        deltaSeconds,
-      }),
-    );
   });
-
-  const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
-    event.stopPropagation();
-    onPointerOver();
-  };
-
-  const handleClick = (event: ThreeEvent<MouseEvent>) => {
-    if (!isClickGesture(event.delta)) return;
-    event.stopPropagation();
-    onSelect();
-  };
 
   return (
     <mesh

@@ -168,3 +168,30 @@ abstract only when genuinely reused).
 - Stayed shared: `lib/{celestial-body, credit, interaction-state, circular-navigation, join-class-names}`, `hooks/{use-arrow-navigation, use-idle-ready}`,
   `design-system/{tokens, atoms}`, `content/`. The `Credit` type moved out of a component into `lib/credit.ts` (data was importing a UI file).
 - CLAUDE.md section 5.4 was updated to describe this layout (the earlier atoms/molecules/organisms tree no longer applies to features).
+
+## Phase 2, first planet: Mercury = "Contato"
+
+- **Why Mercury:** the messenger of the gods, the closest planet to the Sun (contact should be within reach) and the fastest orbit
+  ("I answer quickly"); the handoff already called the contact link "transmissão".
+- **Data model (`lib/celestial-body.ts`):** `kind: 'star' | 'planet'` and `orbit: { radius, periodSeconds, phaseRadians } | null`
+  (a circular orbit around the star at the center; no `parentId`/moons/inclination yet, YAGNI). `validateCelestialBodies` now also requires
+  exactly one star, no orbit for stars, an orbit for planets, positive finite radius/period, a finite phase, and an orbit that clears the
+  star. `SectionContent` gained `ContactContent` (`headline`, `summary`, `channels`); `PlanetTone` gained `periwinkle` (the handoff's Contato color).
+- **Scene (`features/solar-scene`):** `OrbitGroup` moves its children with `advanceRotation` (same frame-rate independent, clamped math as
+  the Sun's spin) and `getOrbitPosition` (pure); `OrbitPath` is a faint flat ring that ignores pointer events; `PlanetMesh` is a
+  `MeshLambertMaterial` sphere (diffuse is enough for a rough rocky planet and compiles a cheaper shader than PBR) lit by the Sun's point
+  light, plus an invisible click target of at least 0.9 units so a tiny moving planet is easy to hit. The Sun and the planet share
+  `useBodyMotion` (spin + highlight scale) and `useBodyPointerHandlers` (hover/click, orbit drags ignored). `CelestialBody` dispatches on `kind`.
+- **Framing:** the camera now frames the whole system (`getBodyExtent` = orbit radius + body radius, `SYSTEM_SCREEN_FILL = 0.8`), so the Sun is
+  smaller than before (about 37% of the height instead of 55%). The camera sits slightly above the orbital plane (`[0, 4, 9.5]`) so orbits
+  read as ellipses. e2e Sun-size bounds were widened accordingly (0.25 to 0.5).
+- **Reduced motion:** the orbit does not advance (Mercury rests at its phase), the planet does not spin; e2e verifies the canvas is static.
+- **Menu with two destinations:** `getOrbitRadius(viewportWidth)` shrinks the arc on narrow phones (320 px gets 140 instead of 200) so the
+  left-most label stays on screen (tested for 320 to 390 px); `use-viewport-size` was promoted to shared `hooks/` because the menu and the
+  scene both use it. This closes the known limit recorded for the orbital menu.
+- **Texture:** `2k_mercury.jpg` from Solar System Scope (same page, author and CC BY 4.0 as the Sun), converted to `mercury.webp` (1024 px) and
+  `mercury-small.webp` (512 px); credited in `CREDITS.md` and in the panel footer (`content/credits.ts`).
+- **Contact copy is a placeholder:** "Vamos conversar?" and the one-line summary are proposed text, and the only channel is the LinkedIn link
+  that was already approved. E-mail, GitHub etc. were not added because they were not provided; add them to `content/contact.ts`.
+- **Not done yet from the Phase 2 proposal:** flying the camera to the selected body (`CameraFocus`); moons/`parentId`; more planets.
+  Cost measured: mobile Lighthouse moved from 76 to about 71 (software WebGL, one more texture and shader), desktop from 94 to 83-94 (noisy).

@@ -6,7 +6,7 @@ import { INSTANT_EASING_RATE } from './motion';
 import { getSceneSettings } from './scene-settings';
 
 const base = {
-  bodyRadii: [2.4],
+  bodyExtents: [2.4],
   viewport: { width: 1280, height: 800 },
   prefersReducedMotion: false,
   isPanelOpen: false,
@@ -33,14 +33,14 @@ describe('getSceneSettings', () => {
     expect(portrait).toBeGreaterThan(landscape);
   });
 
-  it('frames the largest body', () => {
-    const small = getSceneSettings({ ...base, bodyRadii: [1] }).cameraDistance;
-    const mixed = getSceneSettings({ ...base, bodyRadii: [1, 3] }).cameraDistance;
+  it('frames the body that reaches farthest from the center', () => {
+    const small = getSceneSettings({ ...base, bodyExtents: [1] }).cameraDistance;
+    const mixed = getSceneSettings({ ...base, bodyExtents: [1, 3] }).cameraDistance;
     expect(mixed).toBeGreaterThan(small);
   });
 
   it('still returns a usable distance with no bodies', () => {
-    const { cameraDistance } = getSceneSettings({ ...base, bodyRadii: [] });
+    const { cameraDistance } = getSceneSettings({ ...base, bodyExtents: [] });
     expect(Number.isFinite(cameraDistance)).toBe(true);
     expect(cameraDistance).toBeGreaterThan(0);
   });

@@ -3,18 +3,20 @@
 // would be missing or black exactly when the network is flaky.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
-import type { Mesh, ShaderMaterial } from 'three';
+import type { Group, Mesh, MeshLambertMaterial, ShaderMaterial } from 'three';
 import { describe, expect, it, vi } from 'vitest';
 import { CelestialBody } from './CelestialBody';
 
 const texture = { url: '/full.webp', smallUrl: '/small.webp' };
 
 const defaultProps = {
+  kind: 'star',
+  orbit: null,
   radius: 2,
   texture,
   prefersSmallTexture: false,
   rotationPeriodSeconds: 10,
-  isSurfaceAnimated: true,
+  isAnimated: true,
   highlight: 'none',
   highlightEasingRate: 10,
   onHoverChange: () => undefined,
@@ -103,5 +105,107 @@ describe('CelestialBody', () => {
     });
     expect(onHoverChange).toHaveBeenLastCalledWith(false);
     expect(document.body.style.cursor).toBe('auto');
+  });
+
+  describe('planets', () => {
+    const planetProps = {
+      ...defaultProps,
+      kind: 'planet',
+      radius: 0.5,
+      orbit: { radius: 5, periodSeconds: 10, phaseRadians: 0 },
+    } as const;
+
+    const readOrbitGroup = (renderer: Awaited<ReturnType<typeof ReactThreeTestRenderer.create>>) =>
+      renderer.scene.findAll((node) => node.type === 'Group' && node.children.length > 0)[0]!;
+
+    it('draws the orbit path and places the planet on its orbit', async () => {
+      const renderer = await ReactThreeTestRenderer.create(
+        <CelestialBody {...planetProps} loadTexture={async () => new Texture()} />,
+      );
+      const rings = renderer.scene.findAll(
+        (node) => node.type === 'Mesh' && node.instance.rotation.x < -1,
+      );
+      expect(rings).toHaveLength(1);
+      const group = readOrbitGroup(renderer).instance as Group;
+      expect(Math.hypot(group.position.x, group.position.z)).toBeCloseTo(5, 5);
+    });
+
+    it('keeps the planet on a lit (Lambert) material and loads its texture', async () => {
+      const loaded = new Texture();
+      const loadTexture = vi.fn(async () => loaded);
+      const renderer = await ReactThreeTestRenderer.create(
+        <CelestialBody {...planetProps} loadTexture={loadTexture} />,
+      );
+      await ReactThreeTestRenderer.act(async () => undefined);
+      expect(loadTexture).toHaveBeenCalledWith('/full.webp');
+      const planet = renderer.scene.findAll(
+        (node) =>
+          node.type === 'Mesh' && 'isMeshLambertMaterial' in (node.instance as Mesh).material,
+      )[0]!;
+      expect(((planet.instance as Mesh).material as MeshLambertMaterial).map).toBe(loaded);
+    });
+
+    it('moves along the orbit over time', async () => {
+      const renderer = await ReactThreeTestRenderer.create(
+        <CelestialBody {...planetProps} loadTexture={async () => new Texture()} />,
+      );
+      const group = readOrbitGroup(renderer).instance as Group;
+      const before = group.position.clone();
+      await renderer.advanceFrames(10, 0.1);
+      expect(group.position.distanceTo(before)).toBeGreaterThan(0.5);
+    });
+
+    it('stays still on its orbit when rotation and motion are reduced', async () => {
+      const renderer = await ReactThreeTestRenderer.create(
+        <CelestialBody
+          {...planetProps}
+          rotationPeriodSeconds={null}
+          isAnimated={false}
+          loadTexture={async () => new Texture()}
+        />,
+      );
+      const group = readOrbitGroup(renderer).instance as Group;
+      const before = group.position.clone();
+      await renderer.advanceFrames(10, 0.1);
+      expect(group.position.distanceTo(before)).toBe(0);
+    });
+
+    it('shows a focus ring only while focused', async () => {
+      const unfocused = await ReactThreeTestRenderer.create(
+        <CelestialBody {...planetProps} loadTexture={async () => new Texture()} />,
+      );
+      const focused = await ReactThreeTestRenderer.create(
+        <CelestialBody
+          {...planetProps}
+          highlight="focused"
+          loadTexture={async () => new Texture()}
+        />,
+      );
+      expect(readOrbitGroup(focused).children.length).toBe(
+        readOrbitGroup(unfocused).children.length + 1,
+      );
+    });
+
+    it('opens its section when the click target is clicked', async () => {
+      const onSelect = vi.fn();
+      const renderer = await ReactThreeTestRenderer.create(
+        <CelestialBody
+          {...planetProps}
+          onSelect={onSelect}
+          loadTexture={async () => new Texture()}
+        />,
+      );
+      const isInvisibleHitTarget = (node: { type: string; instance: unknown }) => {
+        if (node.type !== 'Mesh') return false;
+        const material = (node.instance as Mesh).material as {
+          transparent: boolean;
+          opacity: number;
+        };
+        return material.transparent === true && material.opacity === 0;
+      };
+      const hitTarget = renderer.scene.findAll(isInvisibleHitTarget)[0]!;
+      await renderer.fireEvent(hitTarget, 'click', { delta: 0 });
+      expect(onSelect).toHaveBeenCalledOnce();
+    });
   });
 });

@@ -48,6 +48,8 @@ e nada importa de `app/`.
 
 Decisões de projeto:
 
+- **Planetas são dados.** Mercúrio (a seção "Contato") é só um item em `content/celestial-bodies.ts` com `kind: 'planet'` e uma `orbit`; a cena
+  desenha a órbita, o planeta e o enquadramento a partir disso.
 - **Corpos celestes são dados.** `content/celestial-bodies.ts` é uma lista tipada e validada (`lib/celestial-body.ts`). Cena, menu e
   painel leem dessa lista; adicionar um planeta é adicionar um item (e, se for o caso, um tipo de conteúdo em `SectionView`).
 - **Lógica fora do JSX.** Regras e matemática estão em `lib/` (testadas com casos de borda: `NaN`, `Infinity`, delta enorme...);

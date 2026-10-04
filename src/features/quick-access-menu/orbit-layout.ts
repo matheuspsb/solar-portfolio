@@ -5,6 +5,10 @@ const FIRST_DELAY_SECONDS = 0.1;
 const DELAY_STEP_SECONDS = 0.08;
 const DEGREES_PER_HALF_TURN = 180;
 const MIN_CODE_DIGITS = 3;
+const MAX_RADIUS_PIXELS = 200;
+const MIN_RADIUS_PIXELS = 120;
+/** Room kept for the anchor's distance from the edge, the label card and a safety margin. */
+const HORIZONTAL_RESERVE_PIXELS = 180;
 
 type OrbitPositionsInput = {
   count: number;
@@ -50,4 +54,11 @@ export function getOrbitDelaySeconds(index: number): number {
 export function formatObjectCode(index: number): string {
   const safeIndex = Number.isFinite(index) && index > 0 ? Math.floor(index) : 0;
   return `OBJ-${String(safeIndex + 1).padStart(MIN_CODE_DIGITS, '0')}`;
+}
+
+/** The arc radius for a viewport: full size when there is room, smaller on narrow phones. */
+export function getOrbitRadius(viewportWidth: number): number {
+  if (Number.isNaN(viewportWidth)) return MIN_RADIUS_PIXELS;
+  const available = viewportWidth - HORIZONTAL_RESERVE_PIXELS;
+  return Math.min(MAX_RADIUS_PIXELS, Math.max(MIN_RADIUS_PIXELS, available));
 }

@@ -74,3 +74,24 @@ export async function waitForFiniteAnimations(page: Page) {
     ),
   );
 }
+
+/** Sweeps the pointer over the area where Mercury sits at rest (reduced motion) until its hint shows. */
+export async function hoverMercury(page: Page) {
+  const box = (await page.locator('canvas').boundingBox())!;
+  await expect(async () => {
+    for (let offsetY = 0.5; offsetY <= 0.85; offsetY += 0.05) {
+      for (let offsetX = 0.45; offsetX <= 0.8; offsetX += 0.05) {
+        await page.mouse.move(box.x + box.width * offsetX, box.y + box.height * offsetY);
+        if (await page.getByText('Mercúrio · Contato').isVisible()) return;
+      }
+    }
+    throw new Error('Mercury was not found under the pointer');
+  }).toPass({ timeout: 30_000 });
+}
+
+export function expectComfortableFill(fill: number) {
+  // The system (Sun plus Mercury's orbit) fills ~80% of the limiting dimension and the Sun is
+  // about 45% of that; allow for bloom and highlight scale.
+  expect(fill).toBeGreaterThan(0.25);
+  expect(fill).toBeLessThan(0.5);
+}

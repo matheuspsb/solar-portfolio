@@ -5,7 +5,7 @@ import { getSceneQuality } from './scene-quality';
 import type { SceneQuality } from './scene-quality';
 
 type SceneSettingsInput = {
-  bodyRadii: readonly number[];
+  bodyExtents: readonly number[];
   viewport: { width: number; height: number };
   prefersReducedMotion: boolean;
   isPanelOpen: boolean;
@@ -28,7 +28,7 @@ export function getSceneSettings(input: SceneSettingsInput): SceneSettings {
   return {
     quality: getSceneQuality(width),
     cameraDistance: getFramingDistance({
-      radius: Math.max(...input.bodyRadii),
+      radius: Math.max(...input.bodyExtents),
       fieldOfViewDegrees: input.fieldOfViewDegrees,
       aspectRatio: width / height,
       screenFill: input.screenFill,
