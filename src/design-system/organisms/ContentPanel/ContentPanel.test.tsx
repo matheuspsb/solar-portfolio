@@ -22,6 +22,8 @@ function Harness({
       <ContentPanel
         isOpen={isOpen}
         title="Sobre"
+        panelLabel="Sobre · Objeto 001"
+        footer={<p>Créditos</p>}
         onClose={() => setIsOpen(false)}
         getFallbackFocus={getFallbackFocus}
       >
@@ -45,7 +47,25 @@ describe('ContentPanel', () => {
     const dialog = screen.getByRole('dialog', { name: 'Sobre' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveFocus();
-    expect(screen.getByRole('heading', { level: 2, name: 'Sobre' })).toBeInTheDocument();
+    expect(screen.getByText('Sobre · Objeto 001')).toBeInTheDocument();
+  });
+
+  it('shows the footer content after the main content', async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    await user.click(screen.getByRole('button', { name: 'Abrir' }));
+    const content = screen.getByText('Conteúdo');
+    const footer = screen.getByText('Créditos');
+    expect(content.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('renders without a footer', () => {
+    render(
+      <ContentPanel isOpen title="Sobre" panelLabel="Sobre" onClose={() => undefined}>
+        <p>x</p>
+      </ContentPanel>,
+    );
+    expect(screen.queryByText('Créditos')).not.toBeInTheDocument();
   });
 
   it('closes with the close button', async () => {
@@ -70,7 +90,7 @@ describe('ContentPanel', () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     render(
-      <ContentPanel isOpen={false} title="Sobre" onClose={onClose}>
+      <ContentPanel isOpen={false} title="Sobre" panelLabel="Sobre · Objeto 001" onClose={onClose}>
         <p>x</p>
       </ContentPanel>,
     );
@@ -125,7 +145,12 @@ describe('ContentPanel', () => {
     render(
       <>
         <button>Fora</button>
-        <ContentPanel isOpen title="Sobre" onClose={() => undefined}>
+        <ContentPanel
+          isOpen
+          title="Sobre"
+          panelLabel="Sobre · Objeto 001"
+          onClose={() => undefined}
+        >
           <p>x</p>
         </ContentPanel>
       </>,
@@ -144,6 +169,7 @@ describe('ContentPanel', () => {
       <ContentPanel
         isOpen={false}
         title="Sobre"
+        panelLabel="Sobre · Objeto 001"
         onClose={() => undefined}
         getFallbackFocus={getFallbackFocus}
       >
@@ -155,6 +181,7 @@ describe('ContentPanel', () => {
       <ContentPanel
         isOpen
         title="Sobre"
+        panelLabel="Sobre · Objeto 001"
         onClose={() => undefined}
         getFallbackFocus={getFallbackFocus}
       >
@@ -165,6 +192,7 @@ describe('ContentPanel', () => {
       <ContentPanel
         isOpen={false}
         title="Sobre"
+        panelLabel="Sobre · Objeto 001"
         onClose={() => undefined}
         getFallbackFocus={getFallbackFocus}
       >
@@ -181,7 +209,12 @@ describe('ContentPanel', () => {
       return (
         <>
           {!isOpen && <button onClick={() => setIsOpen(true)}>Abrir</button>}
-          <ContentPanel isOpen={isOpen} title="Sobre" onClose={() => setIsOpen(false)}>
+          <ContentPanel
+            isOpen={isOpen}
+            title="Sobre"
+            panelLabel="Sobre · Objeto 001"
+            onClose={() => setIsOpen(false)}
+          >
             <p>x</p>
           </ContentPanel>
         </>

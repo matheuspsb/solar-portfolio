@@ -97,9 +97,11 @@ test('stops rendering the idle loop while the panel covers the scene and resumes
   await expect(page.getByRole('dialog', { name: 'Sobre' })).toBeVisible();
   // Let the slide-in and the Sun's glide aside finish before sampling.
   await page.waitForTimeout(1500);
-  const first = await page.screenshot();
+  // Only the scene side: the panel's decorative orbits keep spinning on purpose.
+  const sceneSide = { x: 0, y: 0, width: 700, height: 800 };
+  const first = await page.screenshot({ clip: sceneSide });
   await page.waitForTimeout(2000);
-  const second = await page.screenshot();
+  const second = await page.screenshot({ clip: sceneSide });
   expect(first.equals(second)).toBe(true);
 
   await page.keyboard.press('Escape');

@@ -6,10 +6,22 @@ export const aboutContent: AboutContent = {
   role: 'Software Engineer',
   summary:
     'Engenheiro de software com foco em frontend e cerca de 5 anos de experiência construindo interfaces web.',
-  facts: [
-    { label: 'Experiência', value: 'Cerca de 5 anos em desenvolvimento frontend' },
-    { label: 'Localização', value: 'Campina Grande, Paraíba, Brasil' },
+  experience: {
+    value: '5',
+    unit: 'anos',
+    description: 'construindo projetos incríveis',
+  },
+  location: {
+    name: 'Campina Grande, BR',
+    coordinates: '7°13′S · 35°52′W',
+  },
+  stack: [
+    { name: 'React', tone: 'cyan', size: 'lg' },
+    { name: 'Next.js', tone: 'white', size: 'md' },
+    { name: 'TypeScript', tone: 'blue', size: 'xl' },
+    { name: 'Node.js', tone: 'green', size: 'sm' },
+    { name: 'PostgreSQL', tone: 'orchid', size: 'xs' },
+    { name: 'React Native', tone: 'amber', size: 'md' },
   ],
-  stack: ['React', 'Next.js', 'TypeScript', 'TanStack Query', 'React Hook Form', 'Storybook'],
   links: [{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/matheuspaulosouza' }],
 };

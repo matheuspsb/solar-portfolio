@@ -6,7 +6,7 @@ type IconButtonProps = Omit<ComponentProps<'button'>, 'aria-label'> & {
 };
 
 const baseClasses =
-  'inline-flex size-(--size-touch-target) cursor-pointer items-center justify-center rounded-pill border border-border bg-surface p-0 text-text-primary backdrop-blur-sm transition-colors duration-fast ease-standard hover:border-border-strong hover:bg-surface-hover';
+  'inline-flex size-9.5 cursor-pointer items-center justify-center rounded-pill border border-line-control bg-transparent p-0 text-ink-control transition-colors duration-fast ease-standard hover:border-ember-400 hover:text-ember-400';
 
 export function IconButton({
   label,
@@ -22,7 +22,7 @@ export function IconButton({
       className={joinClassNames(baseClasses, className)}
       {...rest}
     >
-      <span aria-hidden="true" className="inline-flex size-5 [&>svg]:size-full">
+      <span aria-hidden="true" className="inline-flex size-4.5 [&>svg]:size-full">
         {children}
       </span>
     </button>

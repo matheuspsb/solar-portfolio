@@ -9,11 +9,11 @@ const baseClasses =
   'inline-flex min-h-(--size-touch-target) cursor-pointer items-center justify-center gap-2 rounded-pill border px-5 py-2 font-semibold transition-colors duration-fast ease-standard disabled:cursor-not-allowed disabled:opacity-50';
 
 const variantClasses = {
-  primary: 'border-transparent bg-sun-400 text-on-accent hover:enabled:bg-sun-300',
+  primary: 'border-transparent bg-ember-400 text-on-ember hover:enabled:bg-ember-200',
   secondary:
-    'border-border bg-transparent text-text-primary hover:enabled:border-border-strong hover:enabled:bg-surface-hover',
+    'border-line-control bg-transparent text-ink-100 hover:enabled:border-ember-400 hover:enabled:bg-surface-hover',
   floating:
-    'border-border-strong bg-surface text-text-primary backdrop-blur-sm hover:enabled:bg-surface-hover',
+    'border-line-control bg-surface text-ink-100 backdrop-blur-sm hover:enabled:border-ember-400 hover:enabled:bg-surface-hover',
 } as const;
 
 export function Button({ variant = 'primary', type = 'button', className, ...rest }: ButtonProps) {

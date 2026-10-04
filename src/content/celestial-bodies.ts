@@ -15,6 +15,7 @@ const sun: CelestialBodyConfig = {
   section: {
     menuLabel: 'Sobre',
     title: 'Sobre',
+    panelLabel: 'Sobre · Objeto 001',
     content: aboutContent,
   },
 };

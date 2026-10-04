@@ -146,13 +146,17 @@ export function PortfolioExperience({
       <ContentPanel
         isOpen={selectedBody !== undefined}
         title={selectedBody?.section.title ?? ''}
+        panelLabel={selectedBody?.section.panelLabel ?? ''}
         onClose={interaction.deselect}
         getFallbackFocus={focusLastOpenedBody}
+        footer={<AttributionNote credits={credits} />}
       >
-        {selectedBody && <SectionView content={selectedBody.section.content} />}
-        <div className="mt-8 border-t border-border pt-4">
-          <AttributionNote credits={credits} />
-        </div>
+        {selectedBody && (
+          <SectionView
+            content={selectedBody.section.content}
+            emblemTextureUrl={selectedBody.texture?.smallUrl ?? null}
+          />
+        )}
       </ContentPanel>
     </>
   );

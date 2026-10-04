@@ -1,28 +1,24 @@
-import { Heading } from '../../atoms/Heading/Heading';
+import { CloseIcon } from '../../atoms/icons/CloseIcon';
 import { IconButton } from '../../atoms/IconButton/IconButton';
+import { Label } from '../../atoms/Label/Label';
 
 type PanelHeaderProps = {
-  titleId: string;
-  title: string;
+  label: string;
   onClose: () => void;
 };
 
-export function PanelHeader({ titleId, title, onClose }: PanelHeaderProps) {
+export function PanelHeader({ label, onClose }: PanelHeaderProps) {
   return (
-    <header className="flex items-center justify-between gap-4 border-b border-border px-6 py-4">
-      <Heading level={2} size="xl" id={titleId}>
-        {title}
-      </Heading>
+    <header className="flex items-center justify-between gap-4 border-b border-line-faint px-7 py-5">
+      <div className="flex items-center gap-2.5">
+        <span
+          aria-hidden="true"
+          className="size-2 rounded-full bg-ember-400 text-ember-400 shadow-dot"
+        />
+        <Label size="eyebrow">{label}</Label>
+      </div>
       <IconButton label="Fechar painel" onClick={onClose}>
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        >
-          <path d="M6 6l12 12M18 6L6 18" />
-        </svg>
+        <CloseIcon />
       </IconButton>
     </header>
   );

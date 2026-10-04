@@ -15,14 +15,16 @@ function buildBody(overrides: Partial<CelestialBodyConfig> = {}): CelestialBodyC
     texture: { url: '/textures/sun.webp', smallUrl: '/textures/sun-small.webp' },
     section: {
       menuLabel: 'Sobre',
-      title: 'Sobre mim',
+      title: 'Sobre',
+      panelLabel: 'Sobre · Objeto 001',
       content: {
         type: 'about',
         name: 'Matheus',
         role: 'Software Engineer',
         summary: 'Resumo',
-        facts: [{ label: 'Local', value: 'Brasil' }],
-        stack: ['React'],
+        experience: { value: '~5', unit: 'órbitas', description: 'anos em frontend' },
+        location: { name: 'Brasil', coordinates: '0° · 0°' },
+        stack: [{ name: 'React', tone: 'cyan', size: 'lg' }],
         links: [{ label: 'LinkedIn', href: 'https://linkedin.com/in/x' }],
       },
     },
@@ -92,6 +94,12 @@ describe('validateCelestialBodies', () => {
     const body = buildBody();
     body.section = { ...body.section, menuLabel: '' };
     expect(errorsFor([body])).toEqual([expect.stringContaining('menuLabel')]);
+  });
+
+  it('rejects a blank panel label', () => {
+    const body = buildBody();
+    body.section = { ...body.section, panelLabel: ' ' };
+    expect(errorsFor([body])).toEqual([expect.stringContaining('panelLabel')]);
   });
 
   it('reports every problem, not only the first', () => {

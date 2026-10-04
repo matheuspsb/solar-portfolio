@@ -1,7 +1,7 @@
 // Use case: a recruiter clicks the LinkedIn link. External links must open safely (no
 // window.opener leak) and tell screen-reader users that they open a new tab.
 import { render, screen } from '@testing-library/react';
-import { expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { Link } from './Link';
 
 it('renders an internal link without new-tab behavior', () => {
@@ -30,4 +30,33 @@ it('announces that an external link opens in a new tab', () => {
     </Link>,
   );
   expect(screen.getByRole('link')).toHaveAccessibleName('LinkedIn, abre em nova aba');
+});
+
+describe('Link as a button', () => {
+  it('keeps link semantics and external safety with the button look', () => {
+    render(
+      <Link href="https://linkedin.com/in/x" external variant="button">
+        LinkedIn
+      </Link>,
+    );
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', 'https://linkedin.com/in/x');
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
+    expect(link).toHaveAccessibleName('LinkedIn, abre em nova aba');
+  });
+
+  it('looks different from the text variant', () => {
+    render(
+      <>
+        <Link href="/a">Texto</Link>
+        <Link href="/b" variant="button">
+          Botão
+        </Link>
+      </>,
+    );
+    expect(screen.getByRole('link', { name: 'Texto' }).className).not.toBe(
+      screen.getByRole('link', { name: 'Botão' }).className,
+    );
+  });
 });

@@ -1,24 +1,30 @@
-import { useId, useRef } from 'react';
+import { useRef } from 'react';
 import type { ReactNode } from 'react';
 import { useModalFocus } from '@/hooks/use-modal-focus';
 import { PanelHeader } from '../../molecules/PanelHeader/PanelHeader';
 
 type ContentPanelProps = {
   isOpen: boolean;
+  /** Accessible name of the dialog. */
   title: string;
+  /** Caption shown in the header, e.g. "Sobre · Objeto 001". */
+  panelLabel: string;
   onClose: () => void;
   getFallbackFocus?: () => HTMLElement | null;
+  /** Pinned to the bottom of the panel (credits, legal notes). */
+  footer?: ReactNode;
   children: ReactNode;
 };
 
 export function ContentPanel({
   isOpen,
   title,
+  panelLabel,
   onClose,
   getFallbackFocus,
+  footer,
   children,
 }: ContentPanelProps) {
-  const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   useModalFocus({ isOpen, containerRef: panelRef, onEscape: onClose, getFallbackFocus });
 
@@ -36,12 +42,15 @@ export function ContentPanel({
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
+        aria-label={title}
         tabIndex={-1}
-        className="animate-panel-in relative flex h-full w-full flex-col border-l border-border bg-space-900/95 text-text-primary shadow-panel backdrop-blur-md outline-none sm:w-(--size-panel-width)"
+        className="animate-panel-in relative flex h-full w-full flex-col overflow-hidden border-l border-line bg-linear-to-b from-panel-start to-panel-end text-ink-100 shadow-panel outline-none sm:w-(--size-panel-width)"
       >
-        <PanelHeader titleId={titleId} title={title} onClose={onClose} />
-        <div className="flex-1 overflow-y-auto px-6 py-5">{children}</div>
+        <PanelHeader label={panelLabel} onClose={onClose} />
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-7">
+          <div className="pb-6">{children}</div>
+          {footer && <div className="mt-auto border-t border-line-faint pt-4">{footer}</div>}
+        </div>
       </div>
     </div>
   );

@@ -91,7 +91,7 @@ describe('PortfolioExperience', () => {
     expect(sunButton).toHaveFocus();
     await user.keyboard('{Enter}');
     expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: 'Matheus' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Matheus' })).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(sunButton).toHaveFocus();
@@ -174,7 +174,7 @@ describe('PortfolioExperience', () => {
     await user.click(screen.getByRole('button', { name: 'Acesso rápido' }));
     await user.click(screen.getByRole('button', { name: 'Sobre' }));
     expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 3, name: 'Matheus' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Matheus' })).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Acesso rápido' })).toHaveFocus();

@@ -1,59 +1,77 @@
 import type { AboutContent } from '@/lib/celestial-body';
+import { formatBodyCount } from '@/lib/format-count';
+import { ArrowUpRightIcon } from '../../atoms/icons/ArrowUpRightIcon';
 import { Heading } from '../../atoms/Heading/Heading';
+import { Label } from '../../atoms/Label/Label';
 import { Link } from '../../atoms/Link/Link';
 import { Text } from '../../atoms/Text/Text';
+import { DataCell } from '../DataGrid/DataCell';
+import { DataGrid } from '../DataGrid/DataGrid';
+import { OrbitEmblem } from '../OrbitEmblem/OrbitEmblem';
+import { RuledHeading } from '../RuledHeading/RuledHeading';
 import { StackList } from '../StackList/StackList';
 
 const STACK_LABEL = 'Stack principal';
 
 type AboutSectionProps = {
   content: AboutContent;
+  /** Sun texture for the little orbiting emblem; `null` draws a gradient Sun. */
+  emblemTextureUrl: string | null;
 };
 
-export function AboutSection({ content }: AboutSectionProps) {
-  const hasFacts = content.facts.length > 0;
+export function AboutSection({ content, emblemTextureUrl }: AboutSectionProps) {
   const hasStack = content.stack.length > 0;
   const hasLinks = content.links.length > 0;
+  const stackCount = formatBodyCount(content.stack.length);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <Heading level={3} size="xl">
-          {content.name}
-        </Heading>
-        <Text tone="secondary">{content.role}</Text>
+    <div className="flex flex-col gap-6.5">
+      <div className="flex items-center gap-5">
+        <OrbitEmblem textureUrl={emblemTextureUrl} />
+        <div className="flex min-w-0 flex-col gap-1">
+          <Heading level={2} size="display">
+            {content.name}
+          </Heading>
+          <Label as="p" tone="accent" size="role">
+            {content.role}
+          </Label>
+        </div>
       </div>
 
-      <Text>{content.summary}</Text>
+      <Text tone="secondary">{content.summary}</Text>
 
-      {hasFacts && (
-        <dl className="m-0 flex flex-col gap-3">
-          {content.facts.map((fact) => (
-            <div key={fact.label} className="flex flex-col">
-              <dt className="text-sm font-semibold tracking-wide text-sun-300 uppercase">
-                {fact.label}
-              </dt>
-              <dd className="m-0 text-text-primary">{fact.value}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
+      <DataGrid>
+        <DataCell label="Experiência">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-stat font-bold text-ember-400">{content.experience.value}</span>
+            <span className="text-sm text-ink-200">{content.experience.unit}</span>
+          </div>
+          <Text size="caption" tone="muted">
+            {content.experience.description}
+          </Text>
+        </DataCell>
+        <DataCell label="Localização">
+          <span className="text-body leading-snug font-medium">{content.location.name}</span>
+          <span className="font-mono text-eyebrow text-nebula-300">
+            {content.location.coordinates}
+          </span>
+        </DataCell>
+      </DataGrid>
 
       {hasStack && (
         <section className="flex flex-col gap-3">
-          <Heading level={3} size="md">
-            {STACK_LABEL}
-          </Heading>
+          <RuledHeading level={3} title={STACK_LABEL} trailing={stackCount} />
           <StackList label={STACK_LABEL} items={content.stack} />
         </section>
       )}
 
       {hasLinks && (
-        <ul className="m-0 flex list-none flex-col gap-2 p-0">
+        <ul className="m-0 flex list-none flex-col items-start gap-2 p-0">
           {content.links.map((link) => (
             <li key={link.href}>
-              <Link href={link.href} external>
+              <Link href={link.href} external variant="button">
                 {link.label}
+                <ArrowUpRightIcon className="size-4" />
               </Link>
             </li>
           ))}

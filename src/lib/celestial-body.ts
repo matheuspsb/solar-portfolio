@@ -1,10 +1,22 @@
+/** Visual identity of a stack item's "planet"; maps to the `planet-*` color tokens. */
+export type StackTone = 'cyan' | 'white' | 'blue' | 'green' | 'coral' | 'orchid' | 'amber';
+
+export type PlanetSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+export type StackItem = {
+  name: string;
+  tone: StackTone;
+  size: PlanetSize;
+};
+
 export type AboutContent = {
   type: 'about';
   name: string;
   role: string;
   summary: string;
-  facts: ReadonlyArray<{ label: string; value: string }>;
-  stack: readonly string[];
+  experience: { value: string; unit: string; description: string };
+  location: { name: string; coordinates: string };
+  stack: readonly StackItem[];
   links: ReadonlyArray<{ label: string; href: string }>;
 };
 
@@ -26,6 +38,8 @@ export type CelestialBodyConfig = {
   section: {
     menuLabel: string;
     title: string;
+    /** Small caption in the panel header, e.g. "Sobre · Objeto 001". */
+    panelLabel: string;
     content: SectionContent;
   };
 };
@@ -55,6 +69,8 @@ function validateBody(body: CelestialBodyConfig, label: string): string[] {
     errors.push(`${label}: texture urls must not be blank`);
   }
   if (isBlank(body.section.menuLabel)) errors.push(`${label}: section menuLabel must not be blank`);
+  if (isBlank(body.section.panelLabel))
+    errors.push(`${label}: section panelLabel must not be blank`);
   return errors;
 }
 

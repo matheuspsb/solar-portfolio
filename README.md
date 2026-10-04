@@ -31,8 +31,8 @@ src/
   content/                dados: corpos celestes, painel "Sobre", créditos, descrição da cena
   design-system/
     tokens/               tokens (Tailwind v4 @theme + variáveis) e valores usados pela cena
-    atoms/                Button, IconButton, Heading, Text, Link, VisuallyHidden
-    molecules/            MenuItem, PanelHeader, StackList, AboutSection, SceneKeyboardControls, BodyHint, SceneFallback...
+    atoms/                Button, IconButton, Heading, Text, Label, Link, PlanetDot, icons, VisuallyHidden
+    molecules/            MenuItem, PanelHeader, OrbitEmblem, DataGrid, RuledHeading, StackList, AboutSection, SceneKeyboardControls, BodyHint, SceneFallback...
     organisms/            ContentPanel, QuickAccessMenu, PortfolioExperience (orquestra tudo)
   scene/
     atoms/                SunMesh, SunCorona, StarField, SceneLights, SceneEffects, FocusRing, CameraDistance, CameraViewOffset
