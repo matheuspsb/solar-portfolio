@@ -93,6 +93,8 @@ Cada iteração pega **um** item pequeno do backlog e passa pelas quatro etapas.
   - viewport muito estreita, redimensionamento, rotação de tela;
   - abrir o painel pelo menu e fechar pela cena, e vice-versa.
 - Teste **comportamento observável**, não detalhes de implementação. Consulte por papel e nome acessível (`getByRole`), não por classe CSS ou `data-testid` quando houver alternativa.
+- Não teste o que o navegador ou uma biblioteca já garante (átomo que só repassa props a `<input>`, digitar em campo nativo, ref que o formulário
+  já exercita). Se o comportamento já é provado por um teste de nível mais alto, apague o teste de baixo nível redundante.
 - Proibido: teste que só verifica que "renderiza sem quebrar", snapshot gigante sem intenção, asserção sobre mock que você mesmo configurou, teste escrito só para subir cobertura.
 
 ### 4.2 Desenvolve
@@ -176,7 +178,12 @@ src/
   `design-system/` quando **duas ou mais** features passam a usar. Apagar uma feature deve ser apagar uma pasta.
 - **Dependências em um sentido só:** código compartilhado (`lib`, `hooks`, `design-system`, `content`) não importa de `features/` nem de `app/`;
   uma feature não importa de outra nem de `app/`; só `features/portfolio` (composição) usa as demais, e apenas pelo `index.ts` público de cada uma.
-  Isso é imposto por `no-restricted-imports` no ESLint.
+  Isso é imposto por `no-restricted-imports` no ESLint (vale também para `services/`).
+- **Onde cada coisa nova mora (antes de criar um arquivo, responda):** (1) quem usa? Uma feature só: dentro dela. Duas ou mais: `lib/` (função pura,
+  tipo, schema), `hooks/` ou `design-system/`. (2) É integração externa (e-mail, API, banco)? Interface e implementação em `services/`, chamada
+  só por `app/` (Server Action ou rota) e injetada nas features por props; features nunca importam `services/`. (3) Schema compartilhado entre
+  navegador e servidor fica em `lib/`. (4) Componente usado por duas seções da mesma feature sobe para `components/` dessa feature, não para o
+  design system. Nunca crie `utils/`, `helpers/` ou `common/`.
 - Dentro do `design-system`, a hierarquia atômica continua: átomos não conhecem regra de negócio nem outros átomos do domínio. Nas features,
   componentes compostos ficam ao lado dos pequenos que usam; hooks orquestram e funções puras concentram a regra.
 - Todo valor visual vem de um token. Nada de cor ou espaçamento solto em componente.

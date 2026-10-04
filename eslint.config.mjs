@@ -69,7 +69,13 @@ const eslintConfig = [
   },
   { files: ['src/app/**'], rules: restrictImports([forbidDeepFeatureImports]) },
   {
-    files: ['src/lib/**', 'src/hooks/**', 'src/design-system/**', 'src/content/**'],
+    files: [
+      'src/lib/**',
+      'src/hooks/**',
+      'src/design-system/**',
+      'src/content/**',
+      'src/services/**',
+    ],
     rules: restrictImports([forbidApp, forbidAllFeatures]),
   },
   { files: ['scripts/**'], rules: { 'no-console': 'off' } },

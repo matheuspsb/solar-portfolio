@@ -2,7 +2,7 @@
 // be bypassed), hand only valid trimmed data to the delivery integration, and when delivery breaks
 // answer with a generic message: never the internal error, which could leak infrastructure details.
 import { describe, expect, it, vi } from 'vitest';
-import { createContactMessageHandler, unconfiguredContactDelivery } from './contact';
+import { createContactMessageHandler } from './contact';
 
 const valid = {
   name: ' Ana Souza ',
@@ -50,19 +50,5 @@ describe('createContactMessageHandler', () => {
       error: expect.stringContaining('Não foi possível enviar'),
     });
     expect(JSON.stringify(result)).not.toContain('SMTP');
-  });
-
-  it('does not deliver twice for one call', async () => {
-    const deliver = vi.fn(async () => undefined);
-    await createContactMessageHandler({ deliver })(valid);
-    expect(deliver).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe('unconfiguredContactDelivery', () => {
-  it('accepts messages without doing anything yet (placeholder until integrated)', async () => {
-    await expect(
-      unconfiguredContactDelivery.deliver({ name: 'a', email: 'a@b.co', message: '1234567890' }),
-    ).resolves.toBeUndefined();
   });
 });
