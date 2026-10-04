@@ -3,12 +3,16 @@ import { ArrowUpRightIcon } from '@/design-system/atoms/ArrowUpRightIcon';
 import { Heading } from '@/design-system/atoms/Heading';
 import { Link } from '@/design-system/atoms/Link';
 import { Text } from '@/design-system/atoms/Text';
+import type { ContactMessageSubmitter } from '@/lib/contact-message';
+import { RuledHeading } from '../../components/RuledHeading';
+import { ContactForm } from './ContactForm';
 
 type ContactSectionProps = {
   content: ContactContent;
+  onSubmitMessage: ContactMessageSubmitter;
 };
 
-export function ContactSection({ content }: ContactSectionProps) {
+export function ContactSection({ content, onSubmitMessage }: ContactSectionProps) {
   const hasChannels = content.channels.length > 0;
 
   return (
@@ -29,6 +33,8 @@ export function ContactSection({ content }: ContactSectionProps) {
           ))}
         </ul>
       )}
+      <RuledHeading level={3} title={content.form.heading} />
+      <ContactForm content={content.form} onSubmit={onSubmitMessage} />
     </div>
   );
 }

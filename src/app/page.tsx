@@ -2,6 +2,7 @@ import { celestialBodies } from '@/content/celestial-bodies';
 import { credits } from '@/content/credits';
 import { sceneDescription } from '@/content/scene';
 import { PortfolioExperience } from '@/features/portfolio';
+import { sendContactMessage } from './actions';
 
 export default function HomePage() {
   return (
@@ -11,6 +12,7 @@ export default function HomePage() {
         bodies={celestialBodies}
         credits={credits}
         sceneDescription={sceneDescription}
+        onSendContactMessage={sendContactMessage}
       />
     </main>
   );

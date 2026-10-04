@@ -193,5 +193,27 @@ abstract only when genuinely reused).
   `mercury-small.webp` (512 px); credited in `CREDITS.md` and in the panel footer (`content/credits.ts`).
 - **Contact copy is a placeholder:** "Vamos conversar?" and the one-line summary are proposed text, and the only channel is the LinkedIn link
   that was already approved. E-mail, GitHub etc. were not added because they were not provided; add them to `content/contact.ts`.
-- **Not done yet from the Phase 2 proposal:** flying the camera to the selected body (`CameraFocus`); moons/`parentId`; more planets.
+- **Not done yet from the Phase 2 proposal:** moons/`parentId`; more planets.
   Cost measured: mobile Lighthouse moved from 76 to about 71 (software WebGL, one more texture and shader), desktop from 94 to 83-94 (noisy).
+
+## Camera focus, live orbits and the contact form
+
+- **Planets keep orbiting with the panel open.** The render loop used to stop while the panel was open (`getFrameloop(isPanelOpen, reducedMotion)`).
+  It now depends only on reduced motion (`getFrameloop(prefersReducedMotion)`): `always`, or `demand` when motion is reduced. The cost of
+  keeping the loop alive behind the panel was judged smaller than a frozen scene; `KeyboardZoom` is still disabled while the panel is open.
+- **Camera follows the focused or selected body.** `CameraFocus` swings the camera around the Sun (azimuth only, target stays at the origin),
+  so zoom, OrbitControls and the system framing are untouched and the focused body ends up in front of the Sun instead of behind it. The goal
+  azimuth is the body's own azimuth plus a side offset (`CAMERA_FOCUS_SIDE_OFFSET_RADIANS = 0.9`) so the Sun does not hide it, and it is
+  recomputed every frame, so the camera tracks a moving planet. Damped over the shortest arc (`stepAngleToward`, rate
+  `cameraFocusEasingRate`); instant with reduced motion. A user drag (OrbitControls `start`) cancels the following until a new focus
+  (`nonce` in `useCameraTarget`) arrives. Pure math in `lib/camera-focus.ts`. Click, Tab/arrows and the menu all go through `useCameraTarget`.
+- **Contact form.** `react-hook-form` + `zod` (+ `@hookform/resolvers`); zod was chosen over yup for its TypeScript inference and because
+  one schema (`lib/contact-message.ts`) is shared by the browser (friendly Portuguese errors, `mode: 'onTouched'`, focus on the first
+  invalid field) and the server (never trusts the client). Limits: name 100, e-mail 254, message 10 to 2000 characters, all trimmed.
+- **Delivery is a placeholder.** `app/actions.ts` is a Next Server Action that calls `createContactMessageHandler(unconfiguredContactDelivery)`
+  (`services/contact.ts`): it re-validates, delivers through the `ContactDelivery` interface and answers a generic error when delivery
+  throws (no internals leaked). The default delivery **drops the message**; implement `ContactDelivery` (e-mail, CRM, database) and swap it
+  in `app/actions.ts` (marked `TODO(integration)`). Rate limiting / spam protection (honeypot, captcha) are not included and should come with the integration.
+- **Form pieces:** atoms `Input`/`Textarea` (ref as prop, `aria-invalid` styling, new `danger-400` token), `FormField` (label, error tied
+  by `aria-describedby`) colocated with the contact section because only it uses it; `RuledHeading` moved to `content-panel/components`
+  because About and Contact both use it. Form copy lives in `content/contact.ts` (`form`).

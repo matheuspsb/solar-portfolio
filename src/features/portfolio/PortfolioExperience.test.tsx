@@ -18,12 +18,14 @@ function FakeScene({
   onContextLost,
   onContextRestored,
   isActive,
+  cameraTarget,
   description,
 }: SceneProps) {
   return (
     <div
       data-testid="fake-scene"
       data-active={String(isActive)}
+      data-camera-target={cameraTarget.id ?? 'none'}
       role="group"
       aria-label={description}
     >
@@ -69,6 +71,7 @@ function setup({
       bodies={celestialBodies}
       credits={credits}
       sceneDescription="Cena 3D de teste"
+      onSendContactMessage={async () => ({ ok: true })}
       scene={scene}
       detectWebGL={() => hasWebGL}
       idleScheduler={immediateScheduler}
@@ -161,6 +164,30 @@ describe('PortfolioExperience', () => {
     const user = setup();
     await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
     expect(screen.getAllByRole('link', { name: /CC BY 4\.0/ })).toHaveLength(credits.length);
+  });
+
+  it('points the camera at the body that gets keyboard focus, then at the next one', async () => {
+    const user = setup();
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'none');
+    await user.tab();
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'sun');
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'mercury');
+  });
+
+  it('points the camera at a body clicked in the scene and keeps it there after the panel closes', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('img', { name: /Mercúrio \(cena\)/ }));
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'mercury');
+    await user.keyboard('{Escape}');
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'mercury');
+  });
+
+  it('points the camera at the destination chosen in the quick-access menu', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Acesso rápido' }));
+    await user.click(screen.getByRole('button', { name: 'Contato' }));
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'mercury');
   });
 
   it('ignores Escape when the panel is already closed', async () => {

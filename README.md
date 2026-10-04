@@ -31,12 +31,13 @@ src/
   content/                dados: corpos celestes, painel "Sobre", créditos, descrição da cena
   design-system/          UI compartilhada
     tokens/               tokens (Tailwind v4 @theme + variáveis) e valores usados pela cena
-    atoms/                Button, IconButton, Heading, Text, Label, Link, PlanetDot, ícones, VisuallyHidden
+    atoms/                Button, IconButton, Input, Textarea, Heading, Text, Label, Link, PlanetDot, ícones, VisuallyHidden
   features/
     solar-scene/          cena 3D: components/ (Sol, corona, estrelas, câmera...), hooks/, lib/, shaders/, constants.ts
-    content-panel/        painel modal: components/, sections/about/ (conteúdo "Sobre"), hooks/, lib/
+    content-panel/        painel modal: components/, sections/ (about, contact + formulário), hooks/, lib/
     quick-access-menu/    menu orbital + orbit-layout (função pura)
     portfolio/            composição: PortfolioExperience, fallback, dica, controles de teclado
+  services/               entrega da mensagem de contato (interface ContactDelivery; hoje um placeholder)
   hooks/                  hooks usados por 2+ features (navegação por setas, ociosidade do navegador)
   lib/                    domínio e utilitários usados por 2+ features (corpo celeste, interaction-state, join-class-names...)
 ```
@@ -48,6 +49,10 @@ e nada importa de `app/`.
 
 Decisões de projeto:
 
+- **Câmera e órbitas.** A câmera gira em torno do Sol até o corpo focado ou selecionado (Tab, setas, clique, menu), para que ele nunca
+  fique atrás do Sol; os planetas continuam orbitando com o painel aberto (só `prefers-reduced-motion` pausa a cena).
+- **Formulário de contato.** react-hook-form + zod; o mesmo schema (`lib/contact-message.ts`) valida no navegador e na Server Action
+  (`app/actions.ts`). A entrega é um placeholder que descarta a mensagem: implemente `ContactDelivery` (`services/contact.ts`) e troque em `app/actions.ts`.
 - **Planetas são dados.** Mercúrio (a seção "Contato") é só um item em `content/celestial-bodies.ts` com `kind: 'planet'` e uma `orbit`; a cena
   desenha a órbita, o planeta e o enquadramento a partir disso.
 - **Corpos celestes são dados.** `content/celestial-bodies.ts` é uma lista tipada e validada (`lib/celestial-body.ts`). Cena, menu e

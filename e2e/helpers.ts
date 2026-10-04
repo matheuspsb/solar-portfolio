@@ -70,7 +70,8 @@ export async function waitForFiniteAnimations(page: Page) {
       document
         .getAnimations()
         .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
-        .map((animation) => animation.finished),
+        // A cancelled transition (a style changed mid-way) rejects `finished`; it is over either way.
+        .map((animation) => animation.finished.catch(() => undefined)),
     ),
   );
 }
@@ -80,7 +81,7 @@ export async function hoverMercury(page: Page) {
   const box = (await page.locator('canvas').boundingBox())!;
   await expect(async () => {
     for (let offsetY = 0.5; offsetY <= 0.85; offsetY += 0.05) {
-      for (let offsetX = 0.45; offsetX <= 0.8; offsetX += 0.05) {
+      for (let offsetX = 0.45; offsetX <= 0.9; offsetX += 0.05) {
         await page.mouse.move(box.x + box.width * offsetX, box.y + box.height * offsetY);
         if (await page.getByText('Mercúrio · Contato').isVisible()) return;
       }

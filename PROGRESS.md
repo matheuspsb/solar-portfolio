@@ -66,6 +66,12 @@
 - `scripts/screenshot.mjs <name> [w] [h]` captures a screenshot of the running server into `screenshots/`.
 - three 0.186 + R3F 9.8 logs a Clock deprecation warning; three is pinned to 0.182 (see DECISIONS.md).
 
+## Câmera, órbitas ao vivo e formulário de contato
+
+- Planetas continuam orbitando com o painel aberto; a câmera gira em torno do Sol até o corpo focado/selecionado (Tab, setas, clique, menu).
+- Formulário de contato (react-hook-form + zod) com Server Action. **Pendente de integração:** a entrega (`services/contact.ts`) descarta a mensagem.
+- Validação: lint, typecheck, 669 testes unitários, 48 e2e (incl. axe no painel com erros do formulário, 320 px) e build passando.
+
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 
 Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A arquitetura atual já é orientada a dados; o que muda:

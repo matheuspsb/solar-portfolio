@@ -13,6 +13,7 @@ import {
 import type { SceneProps, SceneStatus } from '@/features/solar-scene';
 import type { IdleScheduler } from '@/hooks/use-idle-ready';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
+import type { ContactMessageSubmitter } from '@/lib/contact-message';
 import type { Credit } from '@/lib/credit';
 import { getBodyAccessibleLabel, getHintLabel } from './body-labels';
 import { BodyHint } from './BodyHint';
@@ -20,11 +21,14 @@ import { SceneFallback } from './SceneFallback';
 import { SceneKeyboardControls } from './SceneKeyboardControls';
 import type { SceneKeyboardControlsHandle } from './SceneKeyboardControls';
 import { useBodyInteraction } from './use-body-interaction';
+import { useCameraTarget } from './use-camera-target';
 
 type PortfolioExperienceProps = {
   bodies: readonly CelestialBodyConfig[];
   credits: readonly Credit[];
   sceneDescription: string;
+  /** Receives the contact form messages (a Server Action in the app). */
+  onSendContactMessage: ContactMessageSubmitter;
   /** Injectable so the experience can run without WebGL (tests, fallback). */
   scene?: ComponentType<SceneProps>;
   /** Injectable WebGL probe, for tests. */
@@ -48,6 +52,7 @@ export function PortfolioExperience({
   bodies,
   credits,
   sceneDescription,
+  onSendContactMessage,
   scene: SceneComponent = SolarSystemSceneLoader,
   detectWebGL: probeWebGL = detectWebGL,
   idleScheduler,
@@ -71,6 +76,7 @@ export function PortfolioExperience({
     label: body.section.menuLabel,
     tone: body.section.menuTone,
   }));
+  const cameraTarget = useCameraTarget(interaction.state.selectedId ?? interaction.state.focusedId);
   const fallbackMessage = fallbackMessageByStatus[availability.status];
   const canMountScene = availability.isChecked && availability.status !== 'unavailable';
   const retryHandler = availability.canRetry ? availability.retry : undefined;
@@ -109,6 +115,7 @@ export function PortfolioExperience({
               onContextLost={availability.markContextLost}
               onContextRestored={availability.markContextRestored}
               isActive={selectedBody === undefined}
+              cameraTarget={cameraTarget}
               description={sceneDescription}
             />
           )}
@@ -145,6 +152,7 @@ export function PortfolioExperience({
           <SectionView
             content={selectedBody.section.content}
             emblemTextureUrl={selectedBody.texture?.smallUrl ?? null}
+            onSubmitContactMessage={onSendContactMessage}
           />
         )}
       </ContentPanel>

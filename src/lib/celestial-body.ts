@@ -20,11 +20,22 @@ export type AboutContent = {
   links: ReadonlyArray<{ label: string; href: string }>;
 };
 
+export type ContactFormContent = {
+  heading: string;
+  nameLabel: string;
+  emailLabel: string;
+  messageLabel: string;
+  submitLabel: string;
+  submittingLabel: string;
+  successMessage: string;
+};
+
 export type ContactContent = {
   type: 'contact';
   headline: string;
   summary: string;
   channels: ReadonlyArray<{ label: string; href: string }>;
+  form: ContactFormContent;
 };
 
 /** Union that grows as new sections (projects, experience...) are added. */
