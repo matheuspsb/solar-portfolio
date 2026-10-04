@@ -1,6 +1,3 @@
-// Use case: recruiters scan the tech stack quickly. It must be a real list with a name so that
-// screen readers announce "Stack principal, lista com 6 itens"; an empty stack must not leave an
-// empty labelled list behind.
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { StackItem } from '@/lib/celestial-body';

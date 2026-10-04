@@ -3,7 +3,6 @@ import nextTypescript from 'eslint-config-next/typescript';
 
 const features = ['content-panel', 'portfolio', 'quick-access-menu', 'solar-scene'];
 
-/** `no-restricted-imports` entry that forbids reaching into other features or into the app layer. */
 const restrictImports = (patterns) => ({
   'no-restricted-imports': ['error', { patterns }],
 });
@@ -23,8 +22,6 @@ const forbidDeepFeatureImports = {
   message: "Import from the feature's index (public API), not from its internals.",
 };
 
-// Features are isolated from each other; only `portfolio` (the composition layer) may use the others,
-// and only through their public index. Shared code never depends on features.
 const featureBoundaries = features
   .filter((feature) => feature !== 'portfolio')
   .map((feature) => ({

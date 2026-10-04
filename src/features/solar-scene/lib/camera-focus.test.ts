@@ -1,7 +1,3 @@
-// Use case: when a visitor tabs to or clicks a planet, the camera swings around the Sun until that
-// planet is in front, so it is never hidden behind the Sun. The angle maths must take the short way
-// round (not spin 350 degrees), tolerate wrapped and corrupted angles, and never produce NaN
-// positions (which would blank the scene).
 import { describe, expect, it } from 'vitest';
 import {
   getAzimuth,
@@ -40,7 +36,6 @@ describe('stepAngleToward', () => {
 
   it('takes the short way round across the +-PI seam', () => {
     const next = stepAngleToward({ current: 3, target: -3, rate: 8, deltaSeconds: 0.05 });
-    // The short arc from 3 to -3 passes through PI, so the angle grows past 3 instead of shrinking.
     expect(wrapAngle(next - 3)).toBeGreaterThan(0);
     expect(Math.abs(wrapAngle(next - 3))).toBeLessThan(0.3);
   });

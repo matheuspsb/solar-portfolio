@@ -1,5 +1,3 @@
-// Use case: the stack heading says "6 corpos" (or "1 corpo"). Wrong plurals or "NaN corpos" would
-// look careless in the first thing a recruiter reads in the panel.
 import { describe, expect, it } from 'vitest';
 import { formatBodyCount } from './format-count';
 

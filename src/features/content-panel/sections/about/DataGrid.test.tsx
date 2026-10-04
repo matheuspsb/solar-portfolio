@@ -1,5 +1,3 @@
-// Use case: key facts (experience, location) sit side by side like telemetry cells. Each cell must
-// pair its label with its value as a description list so screen readers read "Experiência: ~5 ...".
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { DataCell } from './DataCell';

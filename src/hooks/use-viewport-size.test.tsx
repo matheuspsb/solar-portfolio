@@ -1,6 +1,3 @@
-// Use case: the scene picks its quality tier and camera framing from the viewport size and must
-// follow window resizes and device rotation. If the hook did not update (or leaked listeners) the scene would
-// keep a desktop-sized star count on a rotated phone, or leak after unmount.
 import { act, renderHook } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';

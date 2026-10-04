@@ -4,10 +4,6 @@ type PlanetToggleIconProps = {
   isOpen: boolean;
 };
 
-/**
- * A small ringed planet; the ring flips when the menu opens. Decorative.
- * The ring uses `rounded-ellipse` (50%): `rounded-full` on a wide, short box draws a stadium, not an ellipse.
- */
 export function PlanetToggleIcon({ isOpen }: PlanetToggleIconProps) {
   const ringTilt = isOpen ? 'rotate-160' : '-rotate-20';
 

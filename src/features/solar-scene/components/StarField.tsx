@@ -13,7 +13,6 @@ type StarFieldProps = {
 const ignoreRaycast = () => undefined;
 
 export function StarField({ starCount }: StarFieldProps) {
-  // Explicit useMemo: R3F re-uploads the buffer whenever the attribute array identity changes.
   const positions = useMemo(
     () =>
       generateStarPositions({

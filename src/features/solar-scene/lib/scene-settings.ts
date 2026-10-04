@@ -24,7 +24,6 @@ type SceneSettings = {
   cameraFocusEasingRate: number;
 };
 
-/** Everything the scene derives from screen size, bodies and visitor preferences. */
 export function getSceneSettings(input: SceneSettingsInput): SceneSettings {
   const { width, height } = input.viewport;
   return {

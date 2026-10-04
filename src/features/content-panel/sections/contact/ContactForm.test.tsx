@@ -1,6 +1,3 @@
-// Use case: a recruiter writes to Matheus without leaving the portfolio. They must get clear
-// Portuguese errors for bad input (and land on the first bad field), be unable to send twice by
-// double-clicking, see confirmation on success, and keep what they typed when sending fails.
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';

@@ -1,7 +1,3 @@
-// Use case: the Sun must fit comfortably on any screen: a wide desktop, a tall phone, a phone
-// rotated sideways. A fixed camera distance would make the Sun overflow a narrow phone or look
-// tiny on an ultrawide monitor. Invalid sizes (0 before layout, NaN) must not send the camera to
-// infinity or to the Sun's center.
 import { describe, expect, it } from 'vitest';
 import { getFramingDistance } from './camera-framing';
 

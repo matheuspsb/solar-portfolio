@@ -109,8 +109,6 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
         controlsId={listId}
         onClick={() => setIsOpen((wasOpen) => !wasOpen)}
       />
-      {/* After the button in the DOM so Tab goes button -> destinations. The anchor sits at the
-          planet's center: the ring, the glow and every destination hang from it. */}
       <div className="pointer-events-none absolute top-5.5 right-5.5 size-0">
         <div aria-hidden="true" className={joinClassNames(glowClasses, glowState)} />
         <div

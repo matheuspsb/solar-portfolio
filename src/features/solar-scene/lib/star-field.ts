@@ -5,7 +5,6 @@ type RandomSource = () => number;
 const MULBERRY_INCREMENT = 0x6d2b79f5;
 const UINT32_RANGE = 4294967296;
 
-/** mulberry32: tiny deterministic PRNG so the sky is identical on every render. */
 export function createSeededRandom(seed: number): RandomSource {
   let state = seed >>> 0;
   return () => {
@@ -23,7 +22,6 @@ type StarPositionsInput = {
   random: RandomSource;
 };
 
-/** Uniformly distributed points on a sphere, as a flat [x, y, z, ...] buffer. */
 export function generateStarPositions({ count, radius, random }: StarPositionsInput): Float32Array {
   const isCountValid = Number.isFinite(count) && count > 0;
   const isRadiusValid = Number.isFinite(radius) && radius > 0;

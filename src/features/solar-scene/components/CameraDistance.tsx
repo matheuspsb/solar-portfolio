@@ -7,7 +7,6 @@ type CameraDistanceProps = {
 
 const DEFAULT_VIEW_AXIS_Z = 1;
 
-/** Moves the camera along its current viewing direction so it sits `distance` from the origin. */
 export function CameraDistance({ distance }: CameraDistanceProps) {
   const camera = useThree((state) => state.camera);
 

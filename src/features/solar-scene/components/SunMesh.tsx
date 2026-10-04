@@ -15,16 +15,12 @@ import {
 const SPHERE_SEGMENTS = 96;
 
 type SunMeshProps = {
-  /** Lets the camera find this body by name. */
   name: string;
   radius: number;
   texture: Texture | null;
-  /** `null` disables automatic rotation (reduced motion). */
   rotationPeriodSeconds: number | null;
-  /** False freezes the drifting plasma (reduced motion). */
   isSurfaceAnimated: boolean;
   highlight: Highlight;
-  /** `Infinity` applies highlight changes instantly (reduced motion). */
   highlightEasingRate: number;
   onPointerOver: () => void;
   onPointerOut: () => void;
@@ -45,7 +41,6 @@ export function SunMesh({
 }: SunMeshProps) {
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<ShaderMaterial>(null);
-  // Created once: R3F would otherwise swap the uniforms object (and reset time) on every render.
   const [initialUniforms] = useState(() =>
     createSunSurfaceUniforms(sceneTokens.sunTextureTint, sceneTokens.sunCoreColor),
   );

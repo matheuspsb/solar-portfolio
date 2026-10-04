@@ -24,7 +24,6 @@ type ZoomInput = {
   direction: ZoomDirection;
 };
 
-/** One keyboard zoom step, always kept inside [minDistance, maxDistance]. */
 export function getZoomedDistance({
   current,
   minDistance,
@@ -41,7 +40,6 @@ export function getZoomedDistance({
   return Math.min(Math.max(startDistance * factor, minDistance), maxDistance);
 }
 
-/** The farthest zoom-out allowed: never less than the framing distance plus some breathing room. */
 export function getMaxZoomDistance(framingDistance: number): number {
   const isUsable = Number.isFinite(framingDistance) && framingDistance > 0;
   return isUsable

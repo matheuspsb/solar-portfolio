@@ -1,5 +1,3 @@
-// Use case: the document outline must be correct for assistive tech. If level mapping broke,
-// the panel title could be announced at the wrong level.
 import { render, screen } from '@testing-library/react';
 import { expect, it } from 'vitest';
 import { Heading } from './Heading';

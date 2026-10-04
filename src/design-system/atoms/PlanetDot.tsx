@@ -1,7 +1,6 @@
 import type { PlanetSize, PlanetTone } from '@/lib/celestial-body';
 import { joinClassNames } from '@/lib/join-class-names';
 
-/** `orbit` is the larger, brighter planet used by the quick-access menu. */
 type PlanetDotSize = PlanetSize | 'orbit';
 
 type PlanetDotProps = {
@@ -9,7 +8,6 @@ type PlanetDotProps = {
   size: PlanetDotSize;
 };
 
-// Full class names (not built from strings) so Tailwind can see them. Sizes are 7-11px on the spacing scale.
 const toneClasses: Record<PlanetTone, string> = {
   cyan: 'text-planet-cyan',
   white: 'text-planet-white',
@@ -29,7 +27,6 @@ const sizeClasses: Record<PlanetDotSize, string> = {
   orbit: 'size-4.5 shadow-planet-strong',
 };
 
-/** A small glowing planet; decorative, so it is hidden from assistive technology. */
 export function PlanetDot({ tone, size }: PlanetDotProps) {
   return (
     <span

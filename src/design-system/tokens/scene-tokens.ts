@@ -1,4 +1,3 @@
-/** Values the WebGL scene needs in JS form; kept next to the CSS tokens so both stay in sync. */
 export const sceneTokens = {
   backgroundColor: '#03040a',
   starColor: '#dfe6ff',

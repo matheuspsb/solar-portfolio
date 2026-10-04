@@ -1,7 +1,7 @@
 import { Color } from 'three';
 import type { IUniform } from 'three';
 
-export const sunCoronaVertexShader = /* glsl */ `
+export const sunCoronaVertexShader = `
   varying vec3 vViewNormal;
   varying vec3 vViewDirection;
 
@@ -13,12 +13,7 @@ export const sunCoronaVertexShader = /* glsl */ `
   }
 `;
 
-/**
- * Drawn on the inside faces of a sphere slightly larger than the Sun: the visible part is a ring
- * that is brightest next to the Sun's limb and fades to nothing at the outer silhouette. Rays
- * shimmer around the ring over time.
- */
-export const sunCoronaFragmentShader = /* glsl */ `
+export const sunCoronaFragmentShader = `
   uniform vec3 uColor;
   uniform float uTime;
   uniform float uIntensity;

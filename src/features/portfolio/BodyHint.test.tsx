@@ -1,6 +1,3 @@
-// Use case: when the Sun is hovered or focused, sighted users get a visible label naming it
-// (keyboard users have no other cue about what is focused). It must be absent when nothing is
-// highlighted and must not duplicate the name for screen readers (the buttons already carry it).
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { BodyHint } from './BodyHint';

@@ -82,7 +82,7 @@ Cada iteração pega **um** item pequeno do backlog e passa pelas quatro etapas.
 
 ### 4.1 Testes primeiro
 
-- Antes de escrever o teste, anote (em comentário no topo do arquivo de teste ou em `PROGRESS.md`) o **caso de uso**: quem usa isso, o que espera que aconteça e o que quebraria para o usuário se falhasse.
+- Antes de escrever o teste, anote (em `PROGRESS.md`, não em comentário no arquivo) o **caso de uso**: quem usa isso, o que espera que aconteça e o que quebraria para o usuário se falhasse.
 - Escreva os testes e **rode-os para vê-los falhar pelo motivo certo**. Teste que nunca falhou não prova nada.
 - Vá além do caminho feliz. Para cada unidade, pense deliberadamente em casos de borda. Exemplos para este projeto:
   - entradas numéricas: zero, negativo, `NaN`, `Infinity`, delta de tempo enorme (aba em segundo plano por minutos), delta zero;
@@ -152,7 +152,7 @@ Não misture lógica com template: nada de cálculo, ternário aninhado ou trans
 - Código, nomes e commits em inglês; textos visíveis ao usuário em português.
 - Funções pequenas, um nível de abstração por função, retorno antecipado em vez de aninhamento.
 - Sem números mágicos: constantes nomeadas ou tokens.
-- Sem código morto, sem `console.log` esquecido, sem comentário que repete o código. Comentário explica o porquê.
+- Sem código morto, sem `console.log` esquecido. **Sem comentários no código** (nem em testes, CSS ou configs), exceto `TODO(...)` e diretivas de ferramenta (`eslint-disable`, `@ts-expect-error`). O porquê vai em nomes claros, em `DECISIONS.md` e na mensagem de commit.
 - Sem `any`. Tipos explícitos nas fronteiras (props, retornos de hooks, configuração).
 
 ### 5.4 Estrutura de pastas: features + design system

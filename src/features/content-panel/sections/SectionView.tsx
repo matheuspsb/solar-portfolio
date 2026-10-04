@@ -5,13 +5,10 @@ import { ContactSection } from './contact/ContactSection';
 
 type SectionViewProps = {
   content: SectionContent;
-  /** Small Sun texture used by decorative parts of the section. */
   emblemTextureUrl: string | null;
-  /** Delivers a contact-form message; kept outside so the section does not know where it goes. */
   onSubmitContactMessage: ContactMessageSubmitter;
 };
 
-/** New section types render here by adding a case; panels and scene stay untouched. */
 export function SectionView({
   content,
   emblemTextureUrl,

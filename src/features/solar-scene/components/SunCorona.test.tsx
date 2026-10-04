@@ -1,6 +1,3 @@
-// Use case: the Sun should look like a star, with a soft glowing halo around it. The halo must sit
-// outside the surface, add light (not block it), never steal clicks from the Sun, and flicker only
-// when motion is allowed. A halo that blocked pointer events would make the Sun's edge unclickable.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { AdditiveBlending, BackSide, Raycaster, Vector3 } from 'three';
 import type { Mesh, ShaderMaterial, SphereGeometry } from 'three';

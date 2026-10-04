@@ -1,4 +1,3 @@
-// Prints raw and gzip size of every JS/CSS chunk emitted by `next build`, largest first.
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';

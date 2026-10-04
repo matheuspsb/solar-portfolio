@@ -8,11 +8,8 @@ export type SceneStatus = 'working' | 'contextLost' | 'unavailable';
 
 type SceneAvailability = {
   status: SceneStatus;
-  /** False until the WebGL probe has run (it waits for the browser to be idle). */
   isChecked: boolean;
-  /** Retrying only helps when WebGL exists; without it the scene can never run. */
   canRetry: boolean;
-  /** Pass to the error boundary so a retry remounts the scene. */
   resetKey: number;
   markCrashed: () => void;
   markContextLost: () => void;

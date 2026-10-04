@@ -1,7 +1,3 @@
-// Use case: a recruiter writes to Matheus through the contact form. The same schema runs in the
-// browser (friendly errors while typing) and on the server (never trust the client), so it must
-// accept ordinary messages, reject empty/oversized/invalid ones with clear Portuguese messages, and
-// hand back trimmed values (no leading/trailing spaces in names or e-mails that would break replies).
 import { describe, expect, it } from 'vitest';
 import {
   CONTACT_MESSAGE_LIMITS,

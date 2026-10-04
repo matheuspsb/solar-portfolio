@@ -19,17 +19,14 @@ import { SceneLights } from './SceneLights';
 import { StarField } from './StarField';
 import { CelestialBody } from './CelestialBody';
 
-// Slightly above the orbital plane so orbits read as ellipses instead of edge-on lines.
 const CAMERA_POSITION: [number, number, number] = [0, 4, 9.5];
 const HOME_AZIMUTH = Math.atan2(CAMERA_POSITION[2], CAMERA_POSITION[0]);
 const CAMERA_NEAR = 0.1;
 const CAMERA_FAR = 400;
 const CONTROLS_DAMPING = 0.08;
-// Keep the camera away from the poles, where an equirectangular texture pinches.
 const MIN_POLAR_ANGLE = Math.PI * 0.2;
 const MAX_POLAR_ANGLE = Math.PI * 0.8;
 
-// Post-processing is the heaviest dependency; load it after the Sun is already on screen.
 const SceneEffects = lazy(() =>
   import('./SceneEffects').then((module) => ({ default: module.SceneEffects })),
 );
@@ -86,7 +83,6 @@ export function SolarSystemScene({
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       onCreated={({ gl }) => {
         gl.domElement.addEventListener('webglcontextlost', (event) => {
-          // preventDefault tells the browser we want the context back when it is available.
           event.preventDefault();
           onContextLost();
         });

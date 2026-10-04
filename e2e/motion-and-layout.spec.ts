@@ -1,6 +1,3 @@
-// Use case: visitors who prefer reduced motion must see a still Sun (also if they switch the
-// setting while the site is open), and phone/tablet visitors in any orientation must see the whole
-// Sun and no sideways scrolling. Failing these would hurt accessibility and first impressions.
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { expectComfortableFill, measureSunFill } from './helpers';
@@ -89,9 +86,7 @@ test('keeps the planets orbiting while the content panel is open', async ({ page
   await page.getByRole('button', { name: 'Acesso rápido' }).click();
   await page.getByRole('button', { name: 'Sobre', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Sobre' })).toBeVisible();
-  // Let the slide-in and the Sun's glide aside finish before sampling.
   await page.waitForTimeout(1500);
-  // Only the scene side: the panel's decorative orbits spin on their own anyway.
   const sceneSide = { x: 0, y: 0, width: 700, height: 800 };
   const first = await page.screenshot({ clip: sceneSide });
   await page.waitForTimeout(2000);

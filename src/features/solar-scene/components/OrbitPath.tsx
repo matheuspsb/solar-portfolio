@@ -11,7 +11,6 @@ type OrbitPathProps = {
 
 const ignoreRaycast = () => undefined;
 
-/** A faint flat ring marking where a planet travels. A guide only: pointer events pass through it. */
 export function OrbitPath({ radius }: OrbitPathProps) {
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} raycast={ignoreRaycast}>

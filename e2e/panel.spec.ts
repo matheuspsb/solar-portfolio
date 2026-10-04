@@ -1,6 +1,3 @@
-// Use case: a recruiter opens the About panel by keyboard or by clicking the Sun, reads it,
-// and closes it. Accessibility violations (contrast, names, roles) would block
-// assistive-tech users, so axe runs with the panel closed and open.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { clickSun, waitForFiniteAnimations } from './helpers';
@@ -61,8 +58,6 @@ test('has no detectable accessibility violations, closed and open', async ({ pag
   await page.keyboard.press('Tab');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'Sobre' })).toBeVisible();
-  // Contrast is measured on the final colors, so let the slide-in/fade-in finish first.
-  // Contrast is measured on the final colors, so let the slide-in and fades finish first.
   await waitForFiniteAnimations(page);
   const openResults = await new AxeBuilder({ page }).analyze();
   expect(openResults.violations).toEqual([]);

@@ -1,5 +1,3 @@
-// Use case: keyboard users zoom with + and -. It must not hijack browser zoom (Ctrl +), must stay
-// silent while the content panel is open (typing/reading), and must respect the zoom limits.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { useThree } from '@react-three/fiber';
 import { act } from 'react';

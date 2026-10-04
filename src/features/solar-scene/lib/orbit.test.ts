@@ -1,6 +1,3 @@
-// Use case: a planet travels on a circle around the Sun in the horizontal plane. Positions must lie
-// on that circle for any angle (including huge or negative ones from long sessions) and never turn
-// NaN, which would make the planet vanish from the scene.
 import { describe, expect, it } from 'vitest';
 import { getOrbitPosition } from './orbit';
 

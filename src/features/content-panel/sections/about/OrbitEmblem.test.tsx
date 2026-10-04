@@ -1,6 +1,3 @@
-// Use case: a tiny orbiting Sun next to the visitor's name gives the panel its space identity. It is
-// purely decorative, so it must stay out of the accessibility tree, show the Sun texture when it is
-// available and still render a warm sun without it.
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { OrbitEmblem } from './OrbitEmblem';

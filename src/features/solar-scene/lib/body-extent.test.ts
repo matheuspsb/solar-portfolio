@@ -1,5 +1,3 @@
-// Use case: the camera must back off far enough to show every planet, not only the Sun. A body's
-// extent is how far its outer edge reaches from the center; a planet reaches its orbit plus itself.
 import { describe, expect, it } from 'vitest';
 import { getBodyExtent } from './body-extent';
 

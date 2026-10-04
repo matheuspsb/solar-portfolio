@@ -1,6 +1,3 @@
-// Use case: a visitor presses Tab and lands on Mercury while it is behind the Sun. The camera must
-// swing around so the planet comes into view, keep following it as it orbits, jump instantly with
-// reduced motion, and leave the camera alone when nothing is focused or the id is unknown.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { useThree } from '@react-three/fiber';
 import { describe, expect, it } from 'vitest';
@@ -36,7 +33,6 @@ async function setup(props: Props = {}, planetPosition: [number, number, number]
     </>
   );
   const renderer = await ReactThreeTestRenderer.create(element());
-  // Start in front of the scene, high enough to look down at the orbits.
   captured.camera!.position.set(0, 4, 9);
   return { renderer, camera: captured.camera!, element };
 }

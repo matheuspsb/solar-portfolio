@@ -5,12 +5,10 @@ import { PlanetDot } from '@/design-system/atoms/PlanetDot';
 
 type OrbitMenuItemProps = Omit<ComponentProps<'button'>, 'children' | 'type'> & {
   label: string;
-  /** Catalog number such as "OBJ-001"; decoration, so it is not part of the accessible name. */
   code: string;
   tone: PlanetTone;
 };
 
-/** A destination: a label card to the left of a glowing planet that sits on the orbit line. */
 export function OrbitMenuItem({ label, code, tone, ...rest }: OrbitMenuItemProps) {
   return (
     <button

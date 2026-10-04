@@ -1,5 +1,3 @@
-// Use case: body copy is a real paragraph and forwards native props (role, lang, id), so callers
-// such as the fallback notice can turn it into a live region without wrapping it again.
 import { render, screen } from '@testing-library/react';
 import { expect, it } from 'vitest';
 import { Text } from './Text';

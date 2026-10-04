@@ -1,6 +1,3 @@
-// Use case: the scene, the keyboard controls and the content panel share one interaction state.
-// An id that does not exist (stale event, removed body) must not select a ghost body and open an
-// empty panel; handlers must be safe to call repeatedly (Enter held down).
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useBodyInteraction } from './use-body-interaction';

@@ -18,7 +18,6 @@ function subscribe(onChange: () => void): () => void {
   };
 }
 
-/** useSyncExternalStore needs a stable snapshot: only build a new object when the size changed. */
 function getSnapshot(): ViewportSize {
   const { innerWidth: width, innerHeight: height } = window;
   if (lastSize.width !== width || lastSize.height !== height) lastSize = { width, height };

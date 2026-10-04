@@ -1,7 +1,7 @@
 import { Color, Texture } from 'three';
 import type { IUniform } from 'three';
 
-export const sunSurfaceVertexShader = /* glsl */ `
+export const sunSurfaceVertexShader = `
   varying vec2 vUv;
   varying vec3 vViewNormal;
   varying vec3 vViewDirection;
@@ -15,11 +15,7 @@ export const sunSurfaceVertexShader = /* glsl */ `
   }
 `;
 
-/**
- * Two copies of the texture drift in different directions so granulation seems to boil, then the
- * limb is darkened a little like a real star. Without a texture it renders a solid tint.
- */
-export const sunSurfaceFragmentShader = /* glsl */ `
+export const sunSurfaceFragmentShader = `
   uniform sampler2D uMap;
   uniform float uHasMap;
   uniform vec3 uTint;
@@ -31,9 +27,6 @@ export const sunSurfaceFragmentShader = /* glsl */ `
   varying vec3 vViewDirection;
 
   void main() {
-    // The detail layer repeats an integer number of times so the wrap-around seam stays invisible.
-    // Flow only along longitude (like the Sun's differential rotation): scaling or drifting the
-    // latitude would fold the texture and smear a visible band across the disc.
     float wobble = 0.003 * sin(vUv.x * 40.0 + uTime * 0.35);
     vec2 slowUv = vec2(vUv.x + uTime * 0.004, vUv.y + wobble);
     vec2 detailUv = vec2(vUv.x * 2.0 - uTime * 0.0065, vUv.y - wobble);

@@ -1,6 +1,3 @@
-// Use case: Mercury circles the Sun at a steady pace. If the motion depended on frame rate it would
-// race on fast monitors; if it ignored reduced motion it would keep moving for people who asked for
-// stillness; if a long-hidden tab produced a huge delta the planet would teleport.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { describe, expect, it } from 'vitest';
 import type { Group } from 'three';

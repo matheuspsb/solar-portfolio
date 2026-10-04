@@ -1,6 +1,3 @@
-// Use case: on desktop the content panel covers the right part of the screen, so the Sun slides
-// to the left to stay fully visible next to it. On phones the panel covers everything and no
-// shift is wanted. Wrong values would push the Sun off-screen or leave it hidden behind the panel.
 import { describe, expect, it } from 'vitest';
 import { getPanelViewOffsetPixels } from './panel-offset';
 

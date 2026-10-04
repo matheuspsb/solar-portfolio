@@ -13,7 +13,6 @@ function isTextEntryTarget(target: EventTarget | null): boolean {
   return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
 }
 
-/** `+` / `-` zoom the camera along its viewing direction, within the orbit controls' limits. */
 export function KeyboardZoom({ minDistance, maxDistance, isEnabled }: KeyboardZoomProps) {
   const camera = useThree((state) => state.camera);
   const invalidate = useThree((state) => state.invalidate);

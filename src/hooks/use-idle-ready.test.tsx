@@ -1,6 +1,3 @@
-// Use case: the heavy 3D bundle should start loading only after the page content has painted, so
-// recruiters see text and the menu immediately. The hook flips to "ready" once the browser is idle,
-// must not fire after unmount, and must still work in browsers without requestIdleCallback (Safari).
 import { act, renderHook } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';

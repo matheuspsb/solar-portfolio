@@ -1,6 +1,3 @@
-// Use case: the visitor sees a starry background around the Sun. If the field stopped producing
-// one point per requested star (or crashed with 0 stars on a degraded device) the sky would be
-// empty or the whole scene would fail to mount.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { describe, expect, it } from 'vitest';
 import { Raycaster, Vector3 } from 'three';

@@ -1,6 +1,3 @@
-// Use case: if the 3D scene throws while rendering (shader error, bad asset), the rest of the page
-// (menu, panel, content) must survive and the visitor must see a useful fallback instead of a
-// blank screen. The boundary also reports the error so it is not silently swallowed.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -13,7 +10,6 @@ function Bomb({ shouldThrow }: { shouldThrow: boolean }) {
 }
 
 beforeEach(() => {
-  // React logs caught errors; keep the test output readable.
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
 });
 

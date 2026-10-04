@@ -1,5 +1,3 @@
-// Use case: the Sun texture can fail (offline CDN, 404, blocked request). The visitor must still
-// get a glowing Sun and a working page; a missing texture must not blank or crash the scene.
 import { expect, test } from '@playwright/test';
 import { expectComfortableFill, measureSunFill } from './helpers';
 

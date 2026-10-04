@@ -1,6 +1,3 @@
-// Use case: a visitor with vestibular sensitivity enables "reduce motion" in their OS, possibly
-// while the site is open. The Sun must stop rotating and easing right away, and start again if
-// they turn it off. Browsers without matchMedia must default to normal motion, not crash.
 import { act, renderHook } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';

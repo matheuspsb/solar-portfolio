@@ -15,14 +15,11 @@ import { SunMesh } from './SunMesh';
 type CelestialBodyProps = {
   id: string;
   kind: BodyKind;
-  /** Where a planet travels; stars stay at the center (`null`). */
   orbit: Orbit | null;
   radius: number;
   texture: BodyTexture | null;
   prefersSmallTexture: boolean;
-  /** `null` disables automatic rotation (reduced motion). */
   rotationPeriodSeconds: number | null;
-  /** False freezes the plasma, the corona shimmer and the orbit (reduced motion). */
   isAnimated: boolean;
   highlight: Highlight;
   highlightEasingRate: number;

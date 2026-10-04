@@ -1,4 +1,3 @@
-/** Color of a little "planet" (stack items, menu destinations); maps to the `planet-*` color tokens. */
 export type PlanetTone = 'cyan' | 'white' | 'blue' | 'green' | 'orchid' | 'amber' | 'periwinkle';
 
 export type PlanetSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -38,7 +37,6 @@ export type ContactContent = {
   form: ContactFormContent;
 };
 
-/** Union that grows as new sections (projects, experience...) are added. */
 export type SectionContent = AboutContent | ContactContent;
 
 export type BodyTexture = {
@@ -48,11 +46,9 @@ export type BodyTexture = {
 
 export type BodyKind = 'star' | 'planet';
 
-/** A circular orbit around the star at the center of the scene. */
 export type Orbit = {
   radius: number;
   periodSeconds: number;
-  /** Starting angle, in radians, so planets do not all begin on the same line. */
   phaseRadians: number;
 };
 
@@ -62,15 +58,12 @@ export type CelestialBodyConfig = {
   kind: BodyKind;
   radius: number;
   rotationPeriodSeconds: number;
-  /** Stars stay at the center (`null`); planets orbit it. */
   orbit: Orbit | null;
   texture: BodyTexture | null;
   section: {
     menuLabel: string;
-    /** Color of this destination's planet in the quick-access menu. */
     menuTone: PlanetTone;
     title: string;
-    /** Small caption in the panel header, e.g. "Sobre · Objeto 001". */
     panelLabel: string;
     content: SectionContent;
   };

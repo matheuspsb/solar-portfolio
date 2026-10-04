@@ -1,6 +1,3 @@
-// Use case: phones must not render as many stars/pixels as a desktop, or the scene stutters
-// and drains battery. Bad viewport values (0 while the layout is not measured yet, NaN) must
-// fall back to the cheapest tier instead of crashing or picking the expensive one.
 import { describe, expect, it } from 'vitest';
 import { getSceneQuality } from './scene-quality';
 

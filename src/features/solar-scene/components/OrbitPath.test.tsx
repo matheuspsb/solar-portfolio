@@ -1,6 +1,3 @@
-// Use case: a faint ring on the floor of the scene shows where a planet travels, so the visitor
-// reads the layout as a solar system. It is only a guide: it must lie flat, match the orbit and
-// never intercept clicks meant for the Sun or the planet.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Raycaster, Vector3 } from 'three';
 import type { Mesh, RingGeometry } from 'three';

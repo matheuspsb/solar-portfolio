@@ -15,7 +15,6 @@ type ModalFocusOptions = {
   isOpen: boolean;
   containerRef: RefObject<HTMLElement | null>;
   onEscape: () => void;
-  /** Where focus goes on close when the opener is gone or was not focusable (e.g. the 3D canvas). */
   getFallbackFocus?: () => HTMLElement | null;
 };
 
@@ -27,7 +26,6 @@ function isUsableFocusTarget(element: Element | null): element is HTMLElement {
   return element instanceof HTMLElement && element.isConnected && element !== document.body;
 }
 
-/** Modal behavior: focus moves in, is trapped, Esc closes, and focus returns to the origin. */
 export function useModalFocus({
   isOpen,
   containerRef,

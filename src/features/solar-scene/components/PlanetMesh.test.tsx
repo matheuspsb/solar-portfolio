@@ -1,6 +1,3 @@
-// Use case: Mercury must look like a lit, textured little planet that reacts like the Sun does:
-// grows slightly when highlighted, opens its section when clicked, and has a click target big
-// enough to hit with a finger. A missing texture must still leave a visible grey ball.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
 import type { Group, Mesh, MeshLambertMaterial } from 'three';

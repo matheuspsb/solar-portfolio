@@ -1,6 +1,3 @@
-// Use case: the scene's camera distance, quality tier and panel shift all derive from the screen
-// size, the bodies and the visitor's preferences. Keeping the derivation in one pure function lets
-// us test the awkward inputs (empty list, unmeasured viewport, reduced motion) without WebGL.
 import { describe, expect, it } from 'vitest';
 import { INSTANT_EASING_RATE } from './motion';
 import { getSceneSettings } from './scene-settings';

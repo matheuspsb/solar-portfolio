@@ -1,5 +1,3 @@
-// Use case: every form field needs a visible label tied to its control and, when invalid, an error
-// that screen readers announce together with the field. Without it, errors are only visual.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { Input } from '@/design-system/atoms/Input';

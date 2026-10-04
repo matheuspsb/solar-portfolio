@@ -1,5 +1,3 @@
-// Use case: icon-only controls (close, menu) must be understood by screen-reader users. If the
-// accessible label were missing the control would be announced as just "button".
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';

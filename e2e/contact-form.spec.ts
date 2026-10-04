@@ -1,6 +1,3 @@
-// Use case: a recruiter opens Contact from the menu and writes a message. Bad input must be
-// explained in Portuguese (accessibly), a good message must go through the server action and be
-// confirmed, and the form must stay usable on a small phone.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';

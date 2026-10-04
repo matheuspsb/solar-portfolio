@@ -1,5 +1,3 @@
-// Use case: the CC BY 4.0 license of the Sun texture requires visible credit. If the note were
-// missing or the license link broken, the site would violate the license terms.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { AttributionNote } from './AttributionNote';

@@ -1,6 +1,3 @@
-// Use case: the form posts a message to the server. The handler must re-validate (the browser can
-// be bypassed), hand only valid trimmed data to the delivery integration, and when delivery breaks
-// answer with a generic message: never the internal error, which could leak infrastructure details.
 import { describe, expect, it, vi } from 'vitest';
 import { createContactMessageHandler } from './contact';
 

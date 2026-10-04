@@ -1,5 +1,3 @@
-// Use case: components compose utility classes conditionally. A bug would leak "undefined"
-// or "false" class names into the DOM or drop a required class.
 import { expect, it } from 'vitest';
 import { joinClassNames } from './join-class-names';
 

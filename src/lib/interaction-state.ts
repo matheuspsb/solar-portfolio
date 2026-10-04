@@ -20,7 +20,6 @@ export const initialInteractionState: InteractionState = {
   selectedId: null,
 };
 
-/** Pointer travel (in px) above which a press is an orbit drag, not a click. */
 const MAX_CLICK_MOVEMENT_PIXELS = 5;
 
 export function interactionReducer(

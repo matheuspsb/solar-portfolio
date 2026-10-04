@@ -1,6 +1,3 @@
-// Use case: a recruiter who finished reading wants a way to reach out. The section must show a
-// clear heading and every channel as a safe external link; with no channels it must not leave an
-// empty list behind.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { ContactContent } from '@/lib/celestial-body';

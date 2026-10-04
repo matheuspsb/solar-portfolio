@@ -1,6 +1,3 @@
-// Use case: the visitor sees a textured, slowly rotating Sun. If the rotation ignored the delta
-// time it would spin at monitor-refresh speed; if reduced motion still rotated it, motion-sensitive
-// visitors would be affected; if a missing texture left no material color the Sun would turn black.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
 import type { Mesh, ShaderMaterial } from 'three';

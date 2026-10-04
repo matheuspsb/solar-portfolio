@@ -1,6 +1,3 @@
-// Use case: the 3D scene and the HTML interface must share the same palette. The scene reads JS
-// constants while the interface reads CSS variables; if they drift, the Sun's glow, the focus ring
-// and the page background would stop matching between canvas and DOM.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';

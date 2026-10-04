@@ -17,7 +17,6 @@ const loadTextureWithThree: TextureLoadFunction = async (url) => {
   const texture = await new TextureLoader().loadAsync(url);
   texture.colorSpace = SRGBColorSpace;
   texture.anisotropy = MAX_ANISOTROPY;
-  // The surface shader scrolls the texture, so it must wrap instead of clamping at the edges.
   texture.wrapS = RepeatWrapping;
   texture.wrapT = MirroredRepeatWrapping;
   return texture;
@@ -26,7 +25,6 @@ const loadTextureWithThree: TextureLoadFunction = async (url) => {
 const IDLE_STATE: TextureState = { texture: null, status: 'idle' };
 const LOADING_STATE: TextureState = { texture: null, status: 'loading' };
 
-/** `load` must have a stable identity (module-level function or injected once). */
 export function useTexture(
   url: string | null,
   load: TextureLoadFunction = loadTextureWithThree,

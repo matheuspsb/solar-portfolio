@@ -6,7 +6,6 @@ import { createContactMessageHandler, unconfiguredContactDelivery } from '@/serv
 // TODO(integration): swap `unconfiguredContactDelivery` for a real `ContactDelivery` (e-mail, CRM...).
 const handleContactMessage = createContactMessageHandler(unconfiguredContactDelivery);
 
-/** Server Action called by the contact form. Input comes from the browser, so it is validated again. */
 export async function sendContactMessage(input: unknown): Promise<ContactSubmitResult> {
   return handleContactMessage(input);
 }

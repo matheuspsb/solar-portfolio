@@ -1,6 +1,3 @@
-// Use case: a keyboard or screen-reader user cannot click on a 3D canvas, so each celestial body
-// has a real, focusable button. They Tab to it, use arrows to move between bodies, and press
-// Enter/Space to open it. If any of that broke, the 3D experience would be unreachable.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -40,7 +37,7 @@ describe('SceneKeyboardControls', () => {
 
   it('is reachable with Tab and reports focus and blur', async () => {
     const { user, onItemFocus, onItemBlur } = setup();
-    await user.tab(); // "antes"
+    await user.tab();
     await user.tab();
     expect(screen.getByRole('button', { name: 'Sol: Sobre' })).toHaveFocus();
     expect(onItemFocus).toHaveBeenLastCalledWith('sun');

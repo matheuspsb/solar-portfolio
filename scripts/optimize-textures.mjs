@@ -1,4 +1,3 @@
-// Converts source textures in assets-src/ to WebP in public/textures/ (full and small versions).
 import sharp from 'sharp';
 
 const textures = [
@@ -11,7 +10,6 @@ const textures = [
   },
   {
     source: 'assets-src/2k_mercury.jpg',
-    // A small planet never needs more than 1024 px, so the "full" version is already modest.
     variants: [
       { file: 'public/textures/mercury.webp', width: 1024, quality: 78 },
       { file: 'public/textures/mercury-small.webp', width: 512, quality: 76 },

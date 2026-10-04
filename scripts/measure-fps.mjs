@@ -1,5 +1,3 @@
-// Usage: node scripts/measure-fps.mjs [width] [height] — average and worst-frame timings over 5 s.
-// Note: headless Chromium uses software WebGL (SwiftShader), so absolute numbers are pessimistic.
 import { chromium } from '@playwright/test';
 
 const [width = '1280', height = '800'] = process.argv.slice(2);

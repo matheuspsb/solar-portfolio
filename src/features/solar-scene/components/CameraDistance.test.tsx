@@ -1,7 +1,3 @@
-// Use case: when the window is resized or the phone is rotated the camera backs off or comes
-// closer so the Sun keeps fitting, without changing the angle the visitor chose. A bad distance
-// (NaN while the layout is not measured) must leave the camera alone instead of moving it to NaN,
-// which would blank the scene.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { useThree } from '@react-three/fiber';
 import { describe, expect, it } from 'vitest';

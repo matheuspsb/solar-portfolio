@@ -1,5 +1,3 @@
-// Use case: a recruiter clicks the LinkedIn link. External links must open safely (no
-// window.opener leak) and tell screen-reader users that they open a new tab.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { Link } from './Link';

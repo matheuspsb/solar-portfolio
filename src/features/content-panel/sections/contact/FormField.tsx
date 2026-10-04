@@ -11,7 +11,6 @@ type ControlProps = {
 type FormFieldProps = {
   label: string;
   error?: string;
-  /** Receives the attributes that tie the control to its label and error. */
   children: (controlProps: ControlProps) => ReactNode;
 };
 

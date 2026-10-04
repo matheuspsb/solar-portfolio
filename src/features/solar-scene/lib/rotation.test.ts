@@ -1,6 +1,3 @@
-// Use case: the Sun spins slowly, driven by frame time. Visitors must never see it jump, freeze
-// or turn NaN (which would make the mesh vanish). The pure function guards against a tab that
-// stayed in background for minutes (huge delta), zero delta, and corrupted inputs.
 import { describe, expect, it } from 'vitest';
 import {
   FULL_TURN_RADIANS,
@@ -11,7 +8,6 @@ import {
 
 describe('advanceRotation', () => {
   it('advances proportionally to elapsed time', () => {
-    // period 1s, delta 0.05s (below the clamp) => 5% of a turn
     const next = advanceRotation({ angle: 0, deltaSeconds: 0.05, periodSeconds: 1 });
     expect(next).toBeCloseTo(FULL_TURN_RADIANS * 0.05);
   });

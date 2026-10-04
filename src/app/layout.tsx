@@ -16,7 +16,6 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ['400', '500'],
   variable: '--font-jetbrains',
   display: 'swap',
-  // Only small captions inside the panel and menu use it; keep it off the critical path.
   preload: false,
 });
 

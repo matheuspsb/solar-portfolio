@@ -1,5 +1,3 @@
-// Use case: keyboard-only visitors can zoom the scene with + and -, but not while reading the panel,
-// and Ctrl+ must stay with the browser's own page zoom.
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { measureSunFill } from './helpers';

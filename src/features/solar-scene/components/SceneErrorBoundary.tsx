@@ -6,7 +6,6 @@ import type { ReactNode } from 'react';
 type SceneErrorBoundaryProps = {
   fallback: ReactNode;
   onError?: (error: Error) => void;
-  /** Changing this value clears a previous error and tries rendering the children again. */
   resetKey?: unknown;
   children: ReactNode;
 };

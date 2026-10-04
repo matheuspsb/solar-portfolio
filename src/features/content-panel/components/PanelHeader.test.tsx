@@ -1,6 +1,3 @@
-// Use case: the panel header tells the visitor what they opened ("SOBRE · OBJETO 001") and offers a
-// clear way out. If the close button lost its name or its handler, keyboard and screen-reader users
-// could not dismiss the panel from the header.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';

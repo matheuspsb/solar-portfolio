@@ -1,6 +1,3 @@
-// Use case: opening the panel should feel like part of the same universe: the panel slides in and
-// the Sun glides aside so it stays visible next to it. With reduced motion these transitions must
-// be instant. The Sun also needs its halo to read as a star rather than a flat disc.
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import sharp from 'sharp';
@@ -11,7 +8,6 @@ async function openPanelFromMenu(page: Page) {
   await expect(page.getByRole('dialog', { name: 'Sobre' })).toBeVisible();
 }
 
-/** Horizontal centroid of the reddish pixels (the Sun, dimmed by the overlay) in the left 60%. */
 async function measureSunCenterX(page: Page): Promise<number> {
   const { data, info } = await sharp(await page.screenshot())
     .raw()
@@ -99,7 +95,6 @@ test('the Sun has a glowing halo beyond its surface', async ({ page }) => {
     .toBuffer({ resolveWithObject: true });
   const centerRow = Math.floor(info.height / 2);
   const centerColumn = Math.floor(info.width / 2);
-  // Walk right from the center until the bright disc ends, then sample a bit further out.
   let edge = centerColumn;
   while (edge < info.width - 1 && data[(centerRow * info.width + edge) * info.channels]! > 140) {
     edge += 1;

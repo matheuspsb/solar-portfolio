@@ -19,7 +19,6 @@ export const browserIdleScheduler: IdleScheduler = {
   },
 };
 
-/** False until the browser is idle after the first render; lets heavy work wait for first paint. */
 export function useIdleReady(scheduler: IdleScheduler = browserIdleScheduler): boolean {
   const [isReady, setIsReady] = useState(false);
 

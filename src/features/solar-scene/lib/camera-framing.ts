@@ -8,9 +8,7 @@ const HALF_TURN_DEGREES = 180;
 type FramingInput = {
   radius: number;
   fieldOfViewDegrees: number;
-  /** Viewport width divided by height. */
   aspectRatio: number;
-  /** Fraction of the limiting screen dimension that the body diameter should occupy. */
   screenFill: number;
 };
 
@@ -28,7 +26,6 @@ function sanitizeScreenFill(screenFill: number): number {
   return Math.min(Math.max(screenFill, MIN_SCREEN_FILL), MAX_SCREEN_FILL);
 }
 
-/** Camera distance at which a sphere fits the screen: height-limited when wide, width-limited when tall. */
 export function getFramingDistance(input: FramingInput): number {
   const isRadiusUsable = Number.isFinite(input.radius) && input.radius > 0;
   if (!isRadiusUsable) return FALLBACK_DISTANCE;

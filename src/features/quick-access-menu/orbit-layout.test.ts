@@ -1,7 +1,3 @@
-// Use case: the quick-access destinations sit on an arc around the menu button's planet. The
-// angles decide whether a label lands on screen or off its edge, so the placement must be exact for
-// one item (today's case) and spread evenly for many (future planets); bad input must never produce
-// NaN coordinates that would throw an item out of the page.
 import { describe, expect, it } from 'vitest';
 import {
   formatObjectCode,
@@ -26,7 +22,6 @@ describe('getOrbitPositions', () => {
 
   it('keeps every item on the circle', () => {
     for (const { x, y } of getOrbitPositions({ count: 5, radius: RADIUS })) {
-      // Positions are rounded to whole pixels, so allow one pixel of error.
       expect(Math.abs(Math.hypot(x, y) - RADIUS)).toBeLessThanOrEqual(1);
     }
   });

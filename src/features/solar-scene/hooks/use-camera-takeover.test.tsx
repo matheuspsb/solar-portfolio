@@ -1,7 +1,3 @@
-// Use case: while the camera follows a planet, the visitor may grab the scene and orbit it
-// themselves. From that moment the automatic follow must stop fighting their hand, and resume only
-// when they pick another body. If it never stopped, dragging would feel broken; if it never
-// resumed, focusing a planet again would do nothing.
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useCameraTakeover } from './use-camera-takeover';

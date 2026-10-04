@@ -1,6 +1,3 @@
-// Use case: when the 3D scene cannot run, the visitor still lands on a useful page: a clear message
-// and direct buttons to every section. If it announced nothing or lacked the buttons, recruiters
-// on weak devices would see an empty black screen.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';

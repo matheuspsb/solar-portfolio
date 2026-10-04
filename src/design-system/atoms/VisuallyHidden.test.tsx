@@ -1,5 +1,3 @@
-// Use case: text only for assistive tech (e.g. canvas description). It must stay in the
-// accessibility tree. If it were removed with display:none it would be silent for screen readers.
 import { render, screen } from '@testing-library/react';
 import { expect, it } from 'vitest';
 import { VisuallyHidden } from './VisuallyHidden';

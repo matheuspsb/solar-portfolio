@@ -1,5 +1,3 @@
-// Use case: icons next to text or inside labelled buttons are decoration. They must never be
-// announced or focusable, otherwise a "Fechar painel" button would read an extra empty graphic.
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { ArrowUpRightIcon } from './ArrowUpRightIcon';

@@ -1,7 +1,3 @@
-// Use case: the camera should swing to a body whenever the visitor moves attention to it (Tab,
-// arrow keys, click or menu), stay on it while attention leaves to the menu or the panel closes,
-// and swing again when they come back to the same body. The hook turns "what is active now" into
-// "where the camera should look" plus a request counter that tells the scene a new request arrived.
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useCameraTarget } from './use-camera-target';

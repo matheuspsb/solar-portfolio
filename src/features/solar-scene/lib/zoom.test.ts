@@ -1,6 +1,3 @@
-// Use case: keyboard-only visitors zoom the camera with + and -. The distance must stay inside the
-// allowed range (not pass through the Sun or fly into space) and never become NaN, which would
-// blank the whole scene.
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_MAX_ZOOM_DISTANCE,

@@ -1,5 +1,3 @@
-// Use case: a recruiter uses the top-right quick-access menu to reach the About panel without
-// touching the 3D scene, by mouse or keyboard, and ends up back at the menu button.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { waitForFiniteAnimations } from './helpers';
@@ -69,7 +67,6 @@ test('keeps destinations unreachable while collapsed and on screen once expanded
     const toggle = page.getByRole('button', { name: 'Acesso rápido' });
     await toggle.click();
     await expect(destination).toBeVisible();
-    // The arc finishes its entrance after ~0.8 s.
     await page.waitForTimeout(1200);
     const box = (await destination.boundingBox())!;
     const toggleBox = (await toggle.boundingBox())!;

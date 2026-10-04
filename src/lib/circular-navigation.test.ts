@@ -1,6 +1,3 @@
-// Use case: keyboard users move focus between celestial bodies with Tab/arrow keys. Navigation
-// must wrap (last -> first), start sensibly when nothing is focused, and never crash on an
-// empty list or an id that no longer exists.
 import { describe, expect, it } from 'vitest';
 import { getAdjacentId } from './circular-navigation';
 

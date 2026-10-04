@@ -1,6 +1,3 @@
-// Use case: the highlight scale eases toward its target. A frame-rate dependent or unstable
-// easing would look jerky; invalid deltas (tab resume, zero) must never produce NaN scale
-// (a NaN scale makes the Sun disappear).
 import { describe, expect, it } from 'vitest';
 import { dampValue } from './damp';
 

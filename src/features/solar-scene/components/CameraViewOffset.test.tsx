@@ -1,6 +1,3 @@
-// Use case: when the content panel opens on desktop the Sun glides to the left so it stays fully
-// visible next to the panel, and glides back when it closes. With reduced motion it jumps
-// instantly. A stuck or NaN offset would leave the Sun off-center (or blank the scene).
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { useThree } from '@react-three/fiber';
 import { describe, expect, it } from 'vitest';

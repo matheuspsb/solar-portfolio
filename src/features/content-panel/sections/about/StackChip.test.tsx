@@ -1,5 +1,3 @@
-// Use case: each technology is a chip with a little planet. The text read out must be just the
-// technology name (the planet is decoration), otherwise lists would read noisy item names.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { StackChip } from './StackChip';

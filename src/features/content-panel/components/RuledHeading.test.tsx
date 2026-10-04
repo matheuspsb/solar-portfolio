@@ -1,5 +1,3 @@
-// Use case: section titles like "STACK PRINCIPAL ──── 6 CORPOS" must be real headings (outline for
-// screen readers) with a decorative rule and an optional trailing note.
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { RuledHeading } from './RuledHeading';

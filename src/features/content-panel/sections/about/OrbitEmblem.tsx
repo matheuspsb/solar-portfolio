@@ -1,13 +1,11 @@
 import Image from 'next/image';
 
 type OrbitEmblemProps = {
-  /** Sun texture for the central body; without it a gradient Sun is drawn. */
   textureUrl: string | null;
 };
 
 const planetClasses = 'absolute left-1/2 -translate-x-1/2 rounded-full bg-current shadow-planet';
 
-/** A tiny decorative solar system: a textured Sun with two orbiting planets. */
 export function OrbitEmblem({ textureUrl }: OrbitEmblemProps) {
   return (
     <div aria-hidden="true" className="relative size-24 shrink-0">

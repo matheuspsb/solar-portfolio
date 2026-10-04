@@ -1,6 +1,5 @@
 export const FULL_TURN_RADIANS = Math.PI * 2;
 
-/** Caps one frame's contribution so a long-suspended tab resumes smoothly instead of jumping. */
 export const MAX_FRAME_DELTA_SECONDS = 0.1;
 
 type AdvanceRotationInput = {

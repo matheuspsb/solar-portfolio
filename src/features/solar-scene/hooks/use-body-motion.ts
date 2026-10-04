@@ -8,14 +8,11 @@ import { advanceRotation } from '../lib/rotation';
 
 type BodyMotionOptions = {
   bodyRef: RefObject<Object3D | null>;
-  /** `null` disables automatic rotation (reduced motion). */
   rotationPeriodSeconds: number | null;
   highlight: Highlight;
-  /** `Infinity` applies highlight changes instantly (reduced motion). */
   highlightEasingRate: number;
 };
 
-/** Spins a body on its axis and eases its scale towards the current highlight. */
 export function useBodyMotion({
   bodyRef,
   rotationPeriodSeconds,

@@ -1,6 +1,3 @@
-// Use case: the scene and the quick-access menu are both fed by the celestial body list. A
-// malformed entry (duplicate id, radius NaN, no name) would crash the scene or render a
-// nameless menu item, so the config is validated before anything uses it.
 import { describe, expect, it } from 'vitest';
 import { assertValidCelestialBodies, validateCelestialBodies } from './celestial-body';
 import type { CelestialBodyConfig } from './celestial-body';

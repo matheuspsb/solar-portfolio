@@ -16,7 +16,6 @@ type ArrowNavigation = {
   getItem: (id: string) => HTMLElement | null;
 };
 
-/** Moves DOM focus between registered items with the arrow keys, wrapping at the ends. */
 export function useArrowNavigation(ids: readonly string[]): ArrowNavigation {
   const elementsById = useRef(new Map<string, HTMLElement>());
 

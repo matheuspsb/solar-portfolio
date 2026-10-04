@@ -1,6 +1,3 @@
-// Use case: each destination in the orbital menu is a button with a label card and a coloured
-// planet. Its accessible name must be the destination ("Sobre"), not "Sobre OBJ-001": the catalog
-// code is flavour for sighted users. It must be activatable by click and keyboard.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';

@@ -1,7 +1,3 @@
-// Use case: mouse hover, keyboard focus and selection happen on the same body at overlapping
-// times (hover while focused, leave while selected). The visual highlight must be predictable:
-// selected > focused > hovered, and a late "pointer out" from a different body must not clear
-// the current hover (that would flicker the highlight when moving between bodies).
 import { describe, expect, it } from 'vitest';
 import {
   getHighlight,

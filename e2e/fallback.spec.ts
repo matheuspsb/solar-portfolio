@@ -1,5 +1,3 @@
-// Use case: recruiters on devices without WebGL (or whose GPU context gets lost mid-visit) must
-// still reach the content. Without the fallback they would see a black screen and leave.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
@@ -62,7 +60,6 @@ test('shows a recovery notice when the WebGL context is lost and hides it when r
   await page.goto('/');
   await expect(page.locator('canvas')).toBeVisible();
   await textureLoaded;
-  // Let the first frames render: losing the context during mount is a different (crash) path.
   await page.waitForTimeout(1500);
   await expect(page.getByRole('status')).toHaveCount(0);
 

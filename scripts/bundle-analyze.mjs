@@ -1,4 +1,3 @@
-// Attributes the bytes of every JS chunk to npm packages using the production source maps.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 

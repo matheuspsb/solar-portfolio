@@ -1,6 +1,3 @@
-// Use case: keyboard users cannot see a DOM focus outline on a 3D object, so a ring around the
-// body is the visible focus indicator (WCAG 2.4.7). If it were missing or hidden inside the
-// body, a keyboard user would not know where focus is.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { describe, expect, it } from 'vitest';
 import { Raycaster, Vector3 } from 'three';

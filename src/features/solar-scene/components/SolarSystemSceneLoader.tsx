@@ -47,7 +47,6 @@ export function SolarSystemSceneLoader({
     cameraFocusSeconds: CAMERA_FOCUS_TRANSITION_SECONDS,
   });
 
-  // The 3D bundle is large: wait until the content has painted and the browser is idle.
   if (!isIdle) return null;
 
   return (

@@ -2,11 +2,9 @@ import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import sharp from 'sharp';
 
-/** Moves the pointer over the Sun and waits for the hover hint (software WebGL can be slow). */
 export async function hoverSun(page: Page) {
   const viewport = page.viewportSize()!;
   const canvas = page.locator('canvas');
-  // R3F starts at 300x150 and resizes asynchronously: wait for the real size before aiming.
   await expect
     .poll(async () => (await canvas.boundingBox())?.width)
     .toBeCloseTo(viewport.width, -1);
@@ -26,19 +24,15 @@ export async function clickSun(page: Page) {
   await page.mouse.click(centerX, centerY);
 }
 
-/** Diameter of the orange disc (the Sun) along the central row/column, relative to the smaller screen side. */
 export async function measureSunFill(image: Buffer): Promise<number> {
   const { data, info } = await sharp(image).raw().toBuffer({ resolveWithObject: true });
   const isWarm = (column: number, row: number): boolean => {
     const offset = (row * info.width + column) * info.channels;
-    // Bright yellow patches have high blue, so compare against blue instead of a fixed ceiling.
-    // The corona's glow stays below red 125, the disc is above 140 even in dark spots.
     return data[offset]! > 140 && data[offset]! > data[offset + 2]! * 1.5;
   };
   const centerColumn = Math.floor(info.width / 2);
   const centerRow = Math.floor(info.height / 2);
 
-  // Walk outward from the center so unrelated warm UI (the menu border) is never counted.
   const measureRun = (
     isWarmAt: (position: number) => boolean,
     start: number,
@@ -60,23 +54,17 @@ export async function measureSunFill(image: Buffer): Promise<number> {
   return Math.max(horizontalSpan, verticalSpan) / Math.min(info.width, info.height);
 }
 
-/**
- * Waits for CSS transitions and finite animations to finish (axe measures colors mid-fade otherwise).
- * Infinite animations, such as the decorative orbits, are skipped because they never finish.
- */
 export async function waitForFiniteAnimations(page: Page) {
   await page.evaluate(() =>
     Promise.all(
       document
         .getAnimations()
         .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)
-        // A cancelled transition (a style changed mid-way) rejects `finished`; it is over either way.
         .map((animation) => animation.finished.catch(() => undefined)),
     ),
   );
 }
 
-/** Sweeps the pointer over the area where Mercury sits at rest (reduced motion) until its hint shows. */
 export async function hoverMercury(page: Page) {
   const box = (await page.locator('canvas').boundingBox())!;
   await expect(async () => {
@@ -91,8 +79,6 @@ export async function hoverMercury(page: Page) {
 }
 
 export function expectComfortableFill(fill: number) {
-  // The system (Sun plus Mercury's orbit) fills ~80% of the limiting dimension and the Sun is
-  // about 45% of that; allow for bloom and highlight scale.
   expect(fill).toBeGreaterThan(0.25);
   expect(fill).toBeLessThan(0.5);
 }

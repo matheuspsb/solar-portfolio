@@ -1,6 +1,5 @@
 type TabTargetInput = {
   count: number;
-  /** Index of the active element among the focusable ones, or -1 when it is not one of them. */
   activeIndex: number;
   isShift: boolean;
 };

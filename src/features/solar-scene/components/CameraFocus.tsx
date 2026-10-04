@@ -12,20 +12,13 @@ import {
 const SETTLED_ANGLE_RADIANS = 0.002;
 
 type CameraFocusProps = {
-  /** Body to bring into view; `null` leaves the camera where the visitor put it. */
   targetId: string | null;
-  /** Changes on every new focus request, even for the same body, so following resumes. */
   nonce: number;
-  /** `Infinity` swings the camera instantly (reduced motion). */
   easingRate: number;
   homeAzimuth: number;
   sideOffset: number;
 };
 
-/**
- * Swings the camera around the center until the focused body is in front of the star, and keeps
- * following it as it orbits. Bodies are found by the `body-<id>` name given by `CelestialBody`.
- */
 export function CameraFocus({
   targetId,
   nonce,
@@ -51,7 +44,6 @@ export function CameraFocus({
     const { x, y, z } = setAzimuth(camera.position, nextAzimuth);
     camera.position.set(x, y, z);
 
-    // In on-demand mode nothing else asks for the next frame of the swing.
     if (Math.abs(wrapAngle(targetAzimuth - nextAzimuth)) > SETTLED_ANGLE_RADIANS) invalidate();
   });
 

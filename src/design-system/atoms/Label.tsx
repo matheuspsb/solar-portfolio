@@ -23,7 +23,6 @@ const sizeClasses = {
   code: 'text-label tracking-code',
 } as const;
 
-/** Small uppercase mono caption used for data labels and section titles. */
 export function Label({
   as = 'span',
   tone = 'muted',

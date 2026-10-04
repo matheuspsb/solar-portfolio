@@ -1,7 +1,3 @@
-// Use case: the whole journey without WebGL: a recruiter focuses the Sun with the keyboard (or
-// clicks it in the scene), opens "Sobre", reads it and closes it, ending where they started. The
-// 3D scene is replaced by a tiny stand-in that emits the same events (clicks/hover); everything
-// else is the real wiring. If this broke, the portfolio content would be unreachable.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -49,7 +45,6 @@ function FakeScene({
   );
 }
 
-/** The probe normally waits for the browser to be idle; tests run it right away. */
 const immediateScheduler = {
   schedule: (callback: () => void) => {
     callback();
@@ -209,7 +204,6 @@ describe('PortfolioExperience', () => {
 
   it('opens from the menu entirely by keyboard', async () => {
     const user = setup();
-    // One Tab stop per celestial body (Sun, Mercury), then the menu button.
     await user.tab();
     await user.tab();
     await user.tab();

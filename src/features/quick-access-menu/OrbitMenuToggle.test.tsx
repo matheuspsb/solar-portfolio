@@ -1,6 +1,3 @@
-// Use case: the "Acesso rápido" button opens the orbital menu. Assistive technology must hear its
-// name and its expanded/collapsed state and know which list it controls; the little planet and its
-// ring are decoration and must stay silent.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';

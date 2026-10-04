@@ -1,6 +1,3 @@
-// Use case: a celestial body shows its texture, chosen by screen size, and must still show up as
-// a warm sphere when the texture cannot load (404/offline). If the fallback failed, the Sun
-// would be missing or black exactly when the network is flaky.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
 import type { Group, Mesh, MeshLambertMaterial, ShaderMaterial } from 'three';

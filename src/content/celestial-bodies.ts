@@ -8,7 +8,6 @@ const SUN_ROTATION_PERIOD_SECONDS = 180;
 
 const MERCURY_RADIUS = 0.55;
 const MERCURY_ROTATION_PERIOD_SECONDS = 90;
-// A stylized orbit: much slower than the real 88 days, and far enough to clear the corona.
 const MERCURY_ORBIT_RADIUS = 4.6;
 const MERCURY_ORBIT_PERIOD_SECONDS = 70;
 const MERCURY_ORBIT_PHASE_RADIANS = 0.9;
@@ -51,5 +50,4 @@ const mercury: CelestialBodyConfig = {
   },
 };
 
-/** Adding a planet means adding an item here; no component changes. */
 export const celestialBodies = assertValidCelestialBodies([sun, mercury]);

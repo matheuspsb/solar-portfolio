@@ -1,5 +1,3 @@
-// Usage: node scripts/lighthouse.mjs [mobile|desktop] [url]
-// Runs Lighthouse against a running production server using Playwright's Chromium and prints the key numbers.
 import { chromium } from '@playwright/test';
 import { launch } from 'chrome-launcher';
 import lighthouse from 'lighthouse';

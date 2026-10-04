@@ -7,7 +7,6 @@ import { Text } from '@/design-system/atoms/Text';
 import type { ContactMessageSubmitter } from '@/lib/contact-message';
 import { RuledHeading } from '../../components/RuledHeading';
 
-// The form pulls in react-hook-form and zod (~100 KB); only visitors who open Contact pay for them.
 const ContactForm = lazy(() =>
   import('./ContactForm').then((module) => ({ default: module.ContactForm })),
 );

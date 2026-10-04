@@ -1,6 +1,3 @@
-// Use case: the page is server-rendered and then hydrated. WebGL can only be probed in the
-// browser, so the hook must say "unknown" during server rendering (no hydration mismatch) and the
-// real answer afterwards. A wrong answer would either flash a fallback or hide a working scene.
 import { renderHook } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';

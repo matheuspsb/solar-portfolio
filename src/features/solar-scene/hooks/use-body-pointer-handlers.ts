@@ -6,7 +6,6 @@ type BodyPointerCallbacks = {
   onSelect: () => void;
 };
 
-/** Pointer-over and click handlers for a body; a click that was really an orbit drag is ignored. */
 export function useBodyPointerHandlers({ onPointerOver, onSelect }: BodyPointerCallbacks) {
   const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation();

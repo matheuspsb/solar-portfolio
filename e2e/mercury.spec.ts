@@ -1,7 +1,3 @@
-// Use case: a recruiter reaches the Contact section through Mercury, by keyboard, by the menu or by
-// clicking the little planet. Each path must open the same panel with a working LinkedIn link, and
-// the panel must be accessible. Mercury is small and moving, so reaching it must also work when
-// motion is reduced (it then rests at its starting point).
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { hoverMercury, waitForFiniteAnimations } from './helpers';

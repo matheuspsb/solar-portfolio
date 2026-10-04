@@ -1,5 +1,3 @@
-// Use case: visitors hover the Sun with the mouse, or reach it with Tab. Both must show a visible
-// label naming it. If the scene's raycast or the keyboard buttons broke, the Sun would be inert.
 import { expect, test } from '@playwright/test';
 import { hoverSun } from './helpers';
 

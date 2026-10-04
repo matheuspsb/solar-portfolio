@@ -1,6 +1,3 @@
-// Use case: some browsers/devices (old phones, blocklisted GPUs, privacy modes) have no WebGL.
-// Detection must answer false instead of throwing, otherwise the whole page would crash for those
-// recruiters instead of falling back to the plain content.
 import { describe, expect, it, vi } from 'vitest';
 import { detectWebGL } from './webgl-support';
 

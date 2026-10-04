@@ -6,9 +6,7 @@ import { dampValue } from '../lib/damp';
 const SETTLED_DISTANCE_PIXELS = 0.5;
 
 type CameraViewOffsetProps = {
-  /** Pixels to shift the rendered view to the right (the scene moves left). */
   targetOffsetPixels: number;
-  /** `Infinity` jumps straight to the target (reduced motion). */
   easingRate: number;
 };
 
@@ -16,7 +14,6 @@ function isPerspectiveCamera(camera: Camera): camera is PerspectiveCamera {
   return 'isPerspectiveCamera' in camera;
 }
 
-/** Eases a horizontal projection shift so the scene can slide aside for the content panel. */
 export function CameraViewOffset({ targetOffsetPixels, easingRate }: CameraViewOffsetProps) {
   const currentOffsetRef = useRef(0);
 
@@ -44,7 +41,6 @@ export function CameraViewOffset({ targetOffsetPixels, easingRate }: CameraViewO
         size.height,
       );
     }
-    // In on-demand mode nothing else asks for the next frame of the glide.
     if (!isSettled) invalidate();
   });
 

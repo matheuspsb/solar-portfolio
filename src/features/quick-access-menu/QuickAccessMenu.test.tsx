@@ -1,6 +1,3 @@
-// Use case: a recruiter in a hurry (or on a device where the 3D scene is slow) opens the quick
-// access menu in the top-right corner and jumps straight to a section. The menu must be a proper
-// disclosure (button state, Esc, outside click, focus handling) and independent from the scene.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';

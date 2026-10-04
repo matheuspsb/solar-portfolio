@@ -1,7 +1,3 @@
-// Use case: a recruiter opens the "Sobre" panel by mouse or keyboard. The panel must announce
-// itself as a dialog, keep keyboard focus inside while open, close with Esc / close button /
-// outside click, and put focus back where the user came from. Failing any of these would trap
-// or strand keyboard and screen-reader users.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';

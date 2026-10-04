@@ -15,7 +15,6 @@ const STACK_LABEL = 'Stack principal';
 
 type AboutSectionProps = {
   content: AboutContent;
-  /** Sun texture for the little orbiting emblem; `null` draws a gradient Sun. */
   emblemTextureUrl: string | null;
 };
 

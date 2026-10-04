@@ -1,6 +1,3 @@
-// Use case: Tab inside a modal must cycle through the panel controls and never leak to the
-// hidden page behind it. These are the wrap-around rules, including the awkward starts (focus on
-// the dialog container itself, nothing focusable at all).
 import { describe, expect, it } from 'vitest';
 import { getTabTarget } from './focus-trap';
 

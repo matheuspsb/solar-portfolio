@@ -1,4 +1,3 @@
-// Usage: node scripts/screenshot.mjs <name> [width] [height] [url]
 import { chromium } from '@playwright/test';
 
 const [name = 'shot', width = '1280', height = '800', url = 'http://localhost:3100'] =

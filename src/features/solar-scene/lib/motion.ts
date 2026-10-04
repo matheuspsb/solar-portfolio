@@ -1,6 +1,5 @@
 const HIGHLIGHT_EASING_RATE = 10;
 
-/** Easing rate that applies a change in a single frame. */
 export const INSTANT_EASING_RATE = Number.POSITIVE_INFINITY;
 
 export function getTransitionSeconds(baseSeconds: number, prefersReducedMotion: boolean): number {
@@ -8,7 +7,6 @@ export function getTransitionSeconds(baseSeconds: number, prefersReducedMotion: 
   return Number.isFinite(baseSeconds) && baseSeconds > 0 ? baseSeconds : 0;
 }
 
-/** `null` means "do not rotate automatically". */
 export function getRotationPeriodForMotion(
   periodSeconds: number,
   prefersReducedMotion: boolean,
@@ -20,14 +18,12 @@ export function getHighlightEasingRate(prefersReducedMotion: boolean): number {
   return prefersReducedMotion ? INSTANT_EASING_RATE : HIGHLIGHT_EASING_RATE;
 }
 
-/** 'demand' still redraws on resize, pointer events and prop changes, but stops the idle loop. */
 export function getFrameloop(prefersReducedMotion: boolean): 'always' | 'demand' {
   return prefersReducedMotion ? 'demand' : 'always';
 }
 
 const TRANSITION_SETTLE_FACTOR = 5;
 
-/** Easing rate for `dampValue` such that a transition is visually settled after `seconds`. */
 export function getTransitionRate(seconds: number): number {
   const isDurationUsable = Number.isFinite(seconds) && seconds > 0;
   return isDurationUsable ? TRANSITION_SETTLE_FACTOR / seconds : INSTANT_EASING_RATE;

@@ -1,7 +1,3 @@
-// Use case: the 3D scene can be unavailable (no WebGL), crash while rendering, or temporarily lose
-// its GPU context. The page must always know which of these states it is in, so it can show the
-// right notice and offer a retry only when retrying can help. A wrong state would hide a working
-// scene or offer a retry button that can never succeed.
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { useSceneAvailability } from './use-scene-availability';
@@ -10,7 +6,6 @@ import type { IdleScheduler } from '@/hooks/use-idle-ready';
 const withWebGL = () => true;
 const withoutWebGL = () => false;
 
-/** Scheduler that fires immediately-after-mount work only when the test says the browser is idle. */
 function createManualScheduler() {
   const callbacks: Array<() => void> = [];
   const scheduler: IdleScheduler = {
@@ -20,7 +15,6 @@ function createManualScheduler() {
   return { scheduler, becomeIdle: () => callbacks.forEach((callback) => callback()) };
 }
 
-/** Renders the hook and lets the browser go idle, as it does right after first paint. */
 function renderIdle(probe: () => boolean) {
   const { scheduler, becomeIdle } = createManualScheduler();
   const rendered = renderHook(() => useSceneAvailability(probe, scheduler));

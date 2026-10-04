@@ -15,9 +15,7 @@ const CORONA_INTENSITY = 1.5;
 const SPHERE_SEGMENTS = 64;
 
 type SunCoronaProps = {
-  /** Radius of the body the corona surrounds. */
   radius: number;
-  /** False freezes the shimmer (reduced motion). */
   isAnimated: boolean;
 };
 

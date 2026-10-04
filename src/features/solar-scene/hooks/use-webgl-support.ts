@@ -15,10 +15,6 @@ function probeOnce(detect: () => boolean): boolean {
 
 const subscribeToNothing = () => () => undefined;
 
-/**
- * `unknown` on the server, during hydration and while `isEnabled` is false (so the probe, which
- * creates a throwaway WebGL context, can wait until the browser is idle); the real answer otherwise.
- */
 export function useWebGLSupport(
   detect: () => boolean = detectWebGL,
   isEnabled: boolean = true,

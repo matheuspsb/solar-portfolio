@@ -27,13 +27,9 @@ type PortfolioExperienceProps = {
   bodies: readonly CelestialBodyConfig[];
   credits: readonly Credit[];
   sceneDescription: string;
-  /** Receives the contact form messages (a Server Action in the app). */
   onSendContactMessage: ContactMessageSubmitter;
-  /** Injectable so the experience can run without WebGL (tests, fallback). */
   scene?: ComponentType<SceneProps>;
-  /** Injectable WebGL probe, for tests. */
   detectWebGL?: () => boolean;
-  /** Injectable idle scheduler (the probe waits for the browser to be idle), for tests. */
   idleScheduler?: IdleScheduler;
 };
 

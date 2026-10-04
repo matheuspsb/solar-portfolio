@@ -1,6 +1,3 @@
-// Use case: the Sun's surface texture loads asynchronously. Visitors must see the Sun even if
-// the file fails (404, offline), and switching/unmounting mid-load must not leak GPU memory or
-// update unmounted components.
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { Texture } from 'three';
 import { describe, expect, it, vi } from 'vitest';

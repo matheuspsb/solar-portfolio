@@ -1,6 +1,3 @@
-// Use case: visitors with prefers-reduced-motion must get no automatic rotation and no long
-// camera transitions. If these helpers returned the wrong value, motion-sensitive users could
-// get nauseous or the camera would not move at all.
 import { describe, expect, it } from 'vitest';
 import {
   INSTANT_EASING_RATE,

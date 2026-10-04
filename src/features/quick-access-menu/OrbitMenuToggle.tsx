@@ -4,7 +4,6 @@ import { PlanetToggleIcon } from './PlanetToggleIcon';
 type OrbitMenuToggleProps = Omit<ComponentProps<'button'>, 'children' | 'aria-expanded'> & {
   label: string;
   isOpen: boolean;
-  /** Id of the list this button shows and hides. */
   controlsId: string;
 };
 

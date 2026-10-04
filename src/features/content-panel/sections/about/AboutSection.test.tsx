@@ -1,6 +1,3 @@
-// Use case: the "Sobre" content is what a recruiter came for: who, what role, how much
-// experience, where, which stack, and how to reach out. If any block rendered wrongly, the
-// recruiter could miss the contact link or see a broken, empty section.
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { AboutContent } from '@/lib/celestial-body';

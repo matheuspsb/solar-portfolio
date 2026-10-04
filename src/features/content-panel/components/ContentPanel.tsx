@@ -5,13 +5,10 @@ import { PanelHeader } from './PanelHeader';
 
 type ContentPanelProps = {
   isOpen: boolean;
-  /** Accessible name of the dialog. */
   title: string;
-  /** Caption shown in the header, e.g. "Sobre · Objeto 001". */
   panelLabel: string;
   onClose: () => void;
   getFallbackFocus?: () => HTMLElement | null;
-  /** Pinned to the bottom of the panel (credits, legal notes). */
   footer?: ReactNode;
   children: ReactNode;
 };

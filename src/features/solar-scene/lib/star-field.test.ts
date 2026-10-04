@@ -1,6 +1,3 @@
-// Use case: the background stars must surround the Sun evenly and look the same on every
-// render (no flicker when React re-renders). If positions were not on the sphere, or changed
-// per call, the sky would look broken or jittery; invalid counts must not crash WebGL buffers.
 import { describe, expect, it } from 'vitest';
 import { createSeededRandom, generateStarPositions } from './star-field';
 

@@ -1,12 +1,10 @@
 type DampInput = {
   current: number;
   target: number;
-  /** Larger is snappier. `Infinity` snaps instantly. */
   rate: number;
   deltaSeconds: number;
 };
 
-/** Exponential smoothing; the result does not depend on the frame rate. */
 export function dampValue({ current, target, rate, deltaSeconds }: DampInput): number {
   if (!Number.isFinite(current)) return target;
   const isDeltaUsable = deltaSeconds > 0;

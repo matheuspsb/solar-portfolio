@@ -1,5 +1,3 @@
-// Use case: planets added later are lit by the Sun. The lights must exist and the point light
-// must sit at the Sun's position (origin), otherwise future bodies would be lit from the wrong side.
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { expect, it } from 'vitest';
 import { SceneLights } from './SceneLights';

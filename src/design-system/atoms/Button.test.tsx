@@ -1,5 +1,3 @@
-// Use case: any user (mouse or keyboard) activates an action by name. If Button broke, the
-// panel and menu could not be operated, or a button inside a form would submit it by accident.
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, it, vi } from 'vitest';

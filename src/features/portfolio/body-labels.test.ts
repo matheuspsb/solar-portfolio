@@ -1,6 +1,3 @@
-// Use case: the floating hint and the keyboard buttons name bodies from the same config. The
-// hint must reflect what the user is pointing at or focusing, and vanish while the panel is open
-// or when the id refers to a body that no longer exists.
 import { describe, expect, it } from 'vitest';
 import { getBodyAccessibleLabel, getHintLabel } from './body-labels';
 import type { LabeledBody } from './body-labels';

@@ -4,7 +4,6 @@ import { VisuallyHidden } from './VisuallyHidden';
 
 type LinkProps = ComponentProps<'a'> & {
   external?: boolean;
-  /** `button` keeps link semantics but looks like a primary pill button. */
   variant?: 'text' | 'button';
 };
 

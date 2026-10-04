@@ -1,4 +1,3 @@
-/** Viewport width from which the panel is a side drawer (Tailwind `sm`); below it, it fills the screen. */
 const SIDE_PANEL_MIN_VIEWPORT_PIXELS = 640;
 
 type PanelOffsetInput = {
@@ -7,7 +6,6 @@ type PanelOffsetInput = {
   isPanelOpen: boolean;
 };
 
-/** Horizontal pixels to shift the view by so a centered body ends up centered beside the panel. */
 export function getPanelViewOffsetPixels({
   viewportWidth,
   panelWidthPixels,
