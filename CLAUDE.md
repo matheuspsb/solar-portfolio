@@ -153,30 +153,34 @@ Não misture lógica com template: nada de cálculo, ternário aninhado ou trans
 - Sem código morto, sem `console.log` esquecido, sem comentário que repete o código. Comentário explica o porquê.
 - Sem `any`. Tipos explícitos nas fronteiras (props, retornos de hooks, configuração).
 
-### 5.4 Design system atômico
+### 5.4 Estrutura de pastas: features + design system
 
 ```
 src/
-  app/                      # rotas e layout do Next.js
-  content/                  # dados do portfólio e configuração dos corpos celestes
-  design-system/
-    tokens/                 # cores, espaçamentos, tipografia, raios, z-index, durações
-    atoms/                  # Button, IconButton, Heading, Text, Link, VisuallyHidden
-    molecules/              # MenuItem, PanelHeader, StackList
-    organisms/              # QuickAccessMenu, ContentPanel
-  scene/
-    atoms/                  # SunMesh, StarField, SceneLights
-    molecules/              # CelestialBody (malha + interação)
-    organisms/              # SolarSystemScene (canvas, câmera, pós-processamento)
-  hooks/
-  lib/                      # funções puras
+  app/                      # rotas e layout do Next.js; só compõe features
+  content/                  # dados do portfólio (corpos celestes, textos, créditos)
+  design-system/            # UI compartilhada por várias features
+    tokens/                 # cores, tipografia, raios, sombras, easing, durações
+    atoms/                  # Button, IconButton, Heading, Text, Label, Link, PlanetDot, ícones...
+  features/                 # cada feature é dona dos seus componentes, hooks e funções
+    solar-scene/            # cena 3D (components/, hooks/, lib/, shaders/, constants.ts, index.ts)
+    content-panel/          # painel modal e seções (components/, sections/, hooks/, lib/, index.ts)
+    quick-access-menu/      # menu orbital (componentes + orbit-layout, index.ts)
+    portfolio/              # camada de composição: junta as outras features (PortfolioExperience)
+  hooks/                    # hooks usados por 2+ features
+  lib/                      # funções puras e tipos usados por 2+ features (domínio, utilitários)
   services/                 # somente se necessário
 ```
 
-- Átomos não conhecem regra de negócio nem outros átomos do domínio. Moléculas compõem átomos. Organismos compõem moléculas e se conectam a hooks.
-- A mesma hierarquia vale para a cena 3D.
+- **Colocation:** o que só uma feature usa fica dentro dela (componente, hook, função pura, teste). Só sobe para `lib/`, `hooks/` ou
+  `design-system/` quando **duas ou mais** features passam a usar. Apagar uma feature deve ser apagar uma pasta.
+- **Dependências em um sentido só:** código compartilhado (`lib`, `hooks`, `design-system`, `content`) não importa de `features/` nem de `app/`;
+  uma feature não importa de outra nem de `app/`; só `features/portfolio` (composição) usa as demais, e apenas pelo `index.ts` público de cada uma.
+  Isso é imposto por `no-restricted-imports` no ESLint.
+- Dentro do `design-system`, a hierarquia atômica continua: átomos não conhecem regra de negócio nem outros átomos do domínio. Nas features,
+  componentes compostos ficam ao lado dos pequenos que usam; hooks orquestram e funções puras concentram a regra.
 - Todo valor visual vem de um token. Nada de cor ou espaçamento solto em componente.
-- Cada arquivo de componente fica ao lado do seu teste e do seu estilo.
+- Cada arquivo de componente fica ao lado do seu teste; estilos são classes Tailwind no próprio componente.
 
 ## 6. Assets
 

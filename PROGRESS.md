@@ -27,6 +27,7 @@
   menu expanded and the panel open, reduced-motion checks, on-screen position at 1280 and 375 px), production build.
 - Low-value tests (render-only, class comparisons, copy pinning) were removed on request: 474 -> 505 tests after adding the new ones.
 - **Cleanup audit** (unused variants/tokens/exports/scripts/tests, one real styling bug fixed): see DECISIONS.md. Final: 489 unit tests, 37 e2e, lint/typecheck/build green.
+- **Folder restructure** to features + shared kernel with lint-enforced boundaries (DECISIONS.md); 122 files moved, no behavior change: 489 unit tests, 37 e2e, build green.
 
 ## Performance metrics (production build, Lighthouse 13 in headless Chromium with SwiftShader software WebGL)
 

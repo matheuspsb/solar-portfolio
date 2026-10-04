@@ -135,3 +135,36 @@ name in the components checked against the compiled CSS) and a read of all test 
   another test (`forwards selection`), "renders a span by default" style checks, and the trivial hex-format check.
 - **Kept on purpose:** the sync tests that read `tokens.css` (they catch silent drift), the contract tests of atoms (ref/props forwarding),
   and the edge-case tests of pure functions.
+
+## Folder structure: features with colocation (replaces the layer-first layout)
+
+**Why:** `hooks/` and `lib/` had become dumping grounds (most of their files served a single part of the app), and one component was
+spread over `molecules/`, `organisms/`, `hooks/` and `lib/`. Sources consulted: the
+[Next.js project structure guide](https://nextjs.org/docs/app/getting-started/project-structure) (unopinionated; shows "split project files by
+feature or route" with only globally shared code at the root), [bulletproof-react](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md)
+(feature folders with their own components/hooks/utils; shared code only when several features use it; features must not import each
+other and compose at the app level; enforce it with `import/no-restricted-paths`-style lint rules) and
+[Kent C. Dodds on colocation](https://kentcdodds.com/blog/colocation) ("place code as close to where it is relevant as possible";
+abstract only when genuinely reused).
+
+**Rules adopted**
+
+1. Default to colocation. Promote to `lib/`, `hooks/` or `design-system/` only when 2+ features use it.
+2. `features/solar-scene`, `content-panel`, `quick-access-menu` are isolated. `features/portfolio` is the composition layer: it is the only
+   one that imports other features, and only through their `index.ts` (public API). `app/` imports `features/portfolio`.
+3. Shared code (`lib`, `hooks`, `design-system`, `content`) never imports from `features/` or `app/`. Enforced in `eslint.config.mjs`
+   with `no-restricted-imports` (checked by adding throwaway violations: all rules fire).
+4. Inside a feature the structure is only as deep as needed (`components/`, `hooks/`, `lib/`, `sections/`); small features stay flat.
+5. Tests live next to what they test; per-component folders were flattened (`atoms/Button.tsx`, not `atoms/Button/Button.tsx`).
+
+**What moved where (summary)**
+
+- Scene math/hooks (`rotation`, `damp`, `star-field`, `scene-quality`, `scene-settings`, `camera-framing`, `panel-offset`, `zoom`, `motion`,
+  `webgl-support`, texture/viewport/reduced-motion/availability hooks) -> `features/solar-scene`. The page-to-scene contract (`SceneProps`)
+  now lives there too and the loader reuses it.
+- `focus-trap`, `use-modal-focus`, `format-count` and the About section pieces -> `features/content-panel`.
+- `orbit-layout` -> `features/quick-access-menu`. `body-labels`, `use-body-interaction`, `SceneFallback`, `BodyHint`, `SceneKeyboardControls` ->
+  `features/portfolio`.
+- Stayed shared: `lib/{celestial-body, credit, interaction-state, circular-navigation, join-class-names}`, `hooks/{use-arrow-navigation, use-idle-ready}`,
+  `design-system/{tokens, atoms}`, `content/`. The `Credit` type moved out of a component into `lib/credit.ts` (data was importing a UI file).
+- CLAUDE.md section 5.4 was updated to describe this layout (the earlier atoms/molecules/organisms tree no longer applies to features).

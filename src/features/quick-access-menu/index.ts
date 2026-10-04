@@ -1,0 +1,1 @@
+export { QuickAccessMenu } from './QuickAccessMenu';

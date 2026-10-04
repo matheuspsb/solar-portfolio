@@ -1,7 +1,7 @@
 import { celestialBodies } from '@/content/celestial-bodies';
 import { credits } from '@/content/credits';
 import { sceneDescription } from '@/content/scene';
-import { PortfolioExperience } from '@/design-system/organisms/PortfolioExperience/PortfolioExperience';
+import { PortfolioExperience } from '@/features/portfolio';
 
 export default function HomePage() {
   return (

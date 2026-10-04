@@ -1,4 +1,4 @@
-import type { Credit } from '@/design-system/molecules/AttributionNote/AttributionNote';
+import type { Credit } from '@/lib/credit';
 
 export const credits: readonly Credit[] = [
   {

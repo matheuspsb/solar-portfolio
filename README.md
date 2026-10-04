@@ -27,21 +27,24 @@ pnpm build && pnpm start
 
 ```
 src/
-  app/                    rotas e layout (Next.js App Router)
+  app/                    rotas e layout (Next.js App Router); só compõe features
   content/                dados: corpos celestes, painel "Sobre", créditos, descrição da cena
-  design-system/
+  design-system/          UI compartilhada
     tokens/               tokens (Tailwind v4 @theme + variáveis) e valores usados pela cena
-    atoms/                Button, IconButton, Heading, Text, Label, Link, PlanetDot, icons, VisuallyHidden
-    molecules/            OrbitMenuToggle, OrbitMenuItem, PanelHeader, OrbitEmblem, DataGrid, RuledHeading, StackList, AboutSection, SceneKeyboardControls, BodyHint, SceneFallback...
-    organisms/            ContentPanel, QuickAccessMenu, PortfolioExperience (orquestra tudo)
-  scene/
-    atoms/                SunMesh, SunCorona, StarField, SceneLights, SceneEffects, FocusRing, CameraDistance, CameraViewOffset
-    molecules/            CelestialBody (malha + interação + textura)
-    organisms/            SolarSystemScene, SolarSystemSceneLoader, SceneErrorBoundary
-    shaders/              GLSL da superfície e da corona do Sol
-  hooks/                  estado e efeitos (interação, foco, movimento reduzido, WebGL, viewport, textura...)
-  lib/                    funções puras (rotação, navegação circular, enquadramento de câmera, validação...)
+    atoms/                Button, IconButton, Heading, Text, Label, Link, PlanetDot, ícones, VisuallyHidden
+  features/
+    solar-scene/          cena 3D: components/ (Sol, corona, estrelas, câmera...), hooks/, lib/, shaders/, constants.ts
+    content-panel/        painel modal: components/, sections/about/ (conteúdo "Sobre"), hooks/, lib/
+    quick-access-menu/    menu orbital + orbit-layout (função pura)
+    portfolio/            composição: PortfolioExperience, fallback, dica, controles de teclado
+  hooks/                  hooks usados por 2+ features (navegação por setas, ociosidade do navegador)
+  lib/                    domínio e utilitários usados por 2+ features (corpo celeste, interaction-state, join-class-names...)
 ```
+
+**Como decidimos onde cada arquivo mora** (colocation, como recomendam a documentação do Next.js e o bulletproof-react): o que só uma
+feature usa fica dentro dela; só sobe para `lib/`, `hooks/` ou `design-system/` quando duas ou mais features usam. O ESLint impõe o sentido
+das dependências: compartilhado não importa de features, uma feature não importa de outra (só `portfolio` compõe, pelo `index.ts` público)
+e nada importa de `app/`.
 
 Decisões de projeto:
 
