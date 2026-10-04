@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import type { ContactContent } from '@/lib/celestial-body';
 import { ArrowUpRightIcon } from '@/design-system/atoms/ArrowUpRightIcon';
 import { Heading } from '@/design-system/atoms/Heading';
@@ -5,7 +6,11 @@ import { Link } from '@/design-system/atoms/Link';
 import { Text } from '@/design-system/atoms/Text';
 import type { ContactMessageSubmitter } from '@/lib/contact-message';
 import { RuledHeading } from '../../components/RuledHeading';
-import { ContactForm } from './ContactForm';
+
+// The form pulls in react-hook-form and zod (~100 KB); only visitors who open Contact pay for them.
+const ContactForm = lazy(() =>
+  import('./ContactForm').then((module) => ({ default: module.ContactForm })),
+);
 
 type ContactSectionProps = {
   content: ContactContent;
@@ -34,7 +39,9 @@ export function ContactSection({ content, onSubmitMessage }: ContactSectionProps
         </ul>
       )}
       <RuledHeading level={3} title={content.form.heading} />
-      <ContactForm content={content.form} onSubmit={onSubmitMessage} />
+      <Suspense fallback={null}>
+        <ContactForm content={content.form} onSubmit={onSubmitMessage} />
+      </Suspense>
     </div>
   );
 }

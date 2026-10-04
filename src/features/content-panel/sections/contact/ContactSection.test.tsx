@@ -56,11 +56,11 @@ describe('ContactSection', () => {
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
 
-  it('offers the message form under its own heading', () => {
+  it('offers the message form under its own heading', async () => {
     render(<ContactSection content={content} onSubmitMessage={submitMessage} />);
     expect(
       screen.getByRole('heading', { level: 3, name: 'Ou envie uma mensagem' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Enviar mensagem' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Enviar mensagem' })).toBeInTheDocument();
   });
 });

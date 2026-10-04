@@ -34,16 +34,18 @@
 
 ## Performance metrics (production build, Lighthouse 13 in headless Chromium with SwiftShader software WebGL)
 
-| Step                                                                                    | Mobile perf | Desktop perf | Mobile TBT   | Desktop TBT | A11y | Best practices | SEO |
-| --------------------------------------------------------------------------------------- | ----------- | ------------ | ------------ | ----------- | ---- | -------------- | --- |
-| Baseline (before item 12)                                                               | 70          | 74           | 2110-2440 ms | 690 ms      | 100  | 96             | 100 |
-| + favicon, source maps, demand frameloop                                                | 70          | 74           | 1910 ms      | 710 ms      | 100  | 100            | 100 |
-| + lazy post-processing chunk                                                            | 71-72       | -            | 1600-1810 ms | -           | 100  | 100            | 100 |
-| + scene mount deferred to idle (`useIdleReady`)                                         | 72-79       | 79           | 860-1770 ms  | 480 ms      | 100  | 100            | 100 |
-| + WebGL probe deferred to idle and its context released                                 | 76-79       | **95**       | 850-1100 ms  | 180 ms      | 100  | 100            | 100 |
-| + panel and orbital-menu redesign (fonts via `next/font`, JetBrains Mono not preloaded) | 76          | 94           | 930-960 ms   | 190 ms      | 100  | 100            | 100 |
+| Step                                                                                    | Mobile perf | Desktop perf   | Mobile TBT              | Desktop TBT | A11y | Best practices | SEO |
+| --------------------------------------------------------------------------------------- | ----------- | -------------- | ----------------------- | ----------- | ---- | -------------- | --- |
+| Baseline (before item 12)                                                               | 70          | 74             | 2110-2440 ms            | 690 ms      | 100  | 96             | 100 |
+| + favicon, source maps, demand frameloop                                                | 70          | 74             | 1910 ms                 | 710 ms      | 100  | 100            | 100 |
+| + lazy post-processing chunk                                                            | 71-72       | -              | 1600-1810 ms            | -           | 100  | 100            | 100 |
+| + scene mount deferred to idle (`useIdleReady`)                                         | 72-79       | 79             | 860-1770 ms             | 480 ms      | 100  | 100            | 100 |
+| + WebGL probe deferred to idle and its context released                                 | 76-79       | **95**         | 850-1100 ms             | 180 ms      | 100  | 100            | 100 |
+| + panel and orbital-menu redesign (fonts via `next/font`, JetBrains Mono not preloaded) | 76          | 94             | 930-960 ms              | 190 ms      | 100  | 100            | 100 |
+| + Mercury (second texture, orbit, Lambert planet)                                       | 70-71       | 83-94 (noisy)  | 1500-1700 ms            | 200-380 ms  | 100  | 100            | 100 |
+| + camera focus, live orbits with panel open, contact form (form lazy-loaded)            | 69-72       | 85-91 (one 78) | 1460-1710 ms (one 2430) | 240-470 ms  | 100  | 100            | 100 |
 
-- After the redesign LCP moved from ~2.2 s to ~2.5 s on mobile (the LCP element is the menu button text; 8 KB of render-blocking CSS and the web font are on its path). Bundle total 465 KB gzip.| + Mercury (second texture, orbit, Lambert planet) | 70-71 | 83-94 (noisy) | 1500-1700 ms | 200-380 ms | 100 | 100 | 100 |
+- After the redesign LCP moved from ~2.2 s to ~2.5 s on mobile (the LCP element is the menu button text; 8 KB of render-blocking CSS and the web font are on its path). Bundle total 465 KB gzip.
 
 - Bundle (gzip, all chunks): ~446 KB total; the three/R3F chunk (~229 KB) loads lazily, after content and menu are visible.
   Content, menu and panel render server-side before any 3D code runs (CLS = 0).
@@ -51,7 +53,8 @@
   total blocking time comes from evaluating three.js (~1 MB raw) and compiling shaders in software. LCP element is the menu button (text, SSR).
   The first WebGL context creation alone cost ~0.9 s of main thread under SwiftShader (the probe now waits for idle and releases its context). Tried: lazy bundle split, idle-deferred mount, demand frameloop, deferred probe; not tried yet: replacing `@react-three/postprocessing` (n8ao is bundled) with `postprocessing` directly (~100 KB raw).
 - FPS (SwiftShader, so pessimistic): 1280x800 about 11 fps (CPU raster of bloom), 375x740 about 38 fps. On real GPUs the scene (one 18k-triangle sphere, <=2600 points, bloom) is far below budget. Measure with `node scripts/measure-fps.mjs`.
-- Idle cost: the render loop switches to `demand` when reduced motion is preferred or the panel covers the scene (e2e verifies no frames change).
+- Idle cost: the render loop switches to `demand` only when reduced motion is preferred (planets keep orbiting behind the open panel since the camera-focus work; e2e verifies the orbit keeps moving).
+- Contact form: `react-hook-form` + `zod` are lazy-loaded with the form (`React.lazy` in `ContactSection`). Eagerly imported they added ~120 KB gzip to the initial JS (found by measuring); now the initial JS is ~195 KB gzip and the total build is ~570 KB gzip including lazy chunks (three, bloom, form).
 - Tools: `scripts/lighthouse.mjs`, `scripts/bundle-size.mjs`, `scripts/bundle-analyze.mjs`, `scripts/measure-fps.mjs`.
 
 ## Pending reminders
