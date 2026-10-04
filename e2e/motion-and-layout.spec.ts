@@ -46,19 +46,21 @@ test('stops rotating when reduced motion is switched on while the site is open',
   expect(first.equals(second)).toBe(true);
 });
 
-test('the whole Sun fits narrow portrait and rotated phone screens', async ({ browser }) => {
-  for (const viewport of [
-    { width: 320, height: 640 },
-    { width: 375, height: 700 },
-    { width: 812, height: 375 },
-    { width: 768, height: 1024 },
-  ]) {
+const phoneViewports = [
+  { width: 320, height: 640 },
+  { width: 375, height: 700 },
+  { width: 812, height: 375 },
+  { width: 768, height: 1024 },
+];
+
+for (const viewport of phoneViewports) {
+  test(`the whole Sun fits a ${viewport.width}x${viewport.height} screen`, async ({ browser }) => {
     const page = await browser.newPage({ viewport });
     await waitForScene(page);
     expectComfortableFill(await measureSunFill(await captureCanvas(page)));
     await page.close();
-  }
-});
+  });
+}
 
 test('reframes the Sun when the viewport is rotated while open', async ({ page }) => {
   await page.setViewportSize({ width: 812, height: 375 });
