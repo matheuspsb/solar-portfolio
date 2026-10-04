@@ -5,9 +5,9 @@ const port = 3100;
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
-  // Software WebGL (SwiftShader) is CPU-bound; too many parallel pages starve each other.
   workers: 2,
-  reporter: 'list',
+  retries: process.env.CI ? 1 : 0,
+  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: `http://localhost:${port}`,
     launchOptions: {
