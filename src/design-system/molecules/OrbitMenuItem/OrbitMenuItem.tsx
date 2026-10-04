@@ -18,7 +18,7 @@ export function OrbitMenuItem({ label, code, tone, ...rest }: OrbitMenuItemProps
       className="group absolute flex -translate-x-[calc(100%-9px)] -translate-y-1/2 cursor-pointer items-center gap-2.5 text-ink-100"
       {...rest}
     >
-      <span className="flex flex-col items-end gap-px rounded-block border border-line-chip bg-panel-start/93 px-3 py-1.75 whitespace-nowrap">
+      <span className="flex flex-col items-center gap-px rounded-block border border-line-chip bg-panel-start/93 px-3 py-1.75 whitespace-nowrap">
         <span className="text-body font-medium transition-colors duration-fast group-hover:text-ember-400">
           {label}
         </span>
