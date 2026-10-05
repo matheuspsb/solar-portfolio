@@ -26,18 +26,13 @@ export function stepAngleToward({ current, target, rate, deltaSeconds }: StepAng
 
 type FocusAzimuthInput = {
   bodyPosition: { x: number; z: number };
-  homeAzimuth: number;
   sideOffset: number;
 };
 
-export function getFocusAzimuth({
-  bodyPosition,
-  homeAzimuth,
-  sideOffset,
-}: FocusAzimuthInput): number {
+export function getFocusAzimuth({ bodyPosition, sideOffset }: FocusAzimuthInput): number | null {
   const { x, z } = bodyPosition;
-  if (!Number.isFinite(x) || !Number.isFinite(z)) return homeAzimuth;
-  if (Math.hypot(x, z) < CENTER_EPSILON) return homeAzimuth;
+  if (!Number.isFinite(x) || !Number.isFinite(z)) return null;
+  if (Math.hypot(x, z) < CENTER_EPSILON) return null;
   return Math.atan2(z, x) + sideOffset;
 }
 

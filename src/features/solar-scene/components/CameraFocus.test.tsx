@@ -6,7 +6,6 @@ import { getAzimuth, wrapAngle } from '../lib/camera-focus';
 import { CameraFocus } from './CameraFocus';
 
 const SIDE_OFFSET = 0.5;
-const HOME_AZIMUTH = Math.PI / 2;
 
 type Props = Partial<React.ComponentProps<typeof CameraFocus>>;
 
@@ -22,7 +21,6 @@ async function setup(props: Props = {}, planetPosition: [number, number, number]
         targetId="mercury"
         nonce={1}
         easingRate={8}
-        homeAzimuth={HOME_AZIMUTH}
         sideOffset={SIDE_OFFSET}
         {...props}
         {...nextProps}
@@ -78,14 +76,15 @@ describe('CameraFocus', () => {
     expect(wrapAngle(azimuthOf(camera) - SIDE_OFFSET)).toBeCloseTo(0, 5);
   });
 
-  it('returns to the home azimuth when the star is focused', async () => {
+  it('does not move the camera when the star is focused', async () => {
     const { renderer, camera } = await setup({
       targetId: 'sun',
       easingRate: Number.POSITIVE_INFINITY,
     });
     camera.position.set(9, 4, 0);
-    await renderer.advanceFrames(1, 0.016);
-    expect(wrapAngle(azimuthOf(camera) - HOME_AZIMUTH)).toBeCloseTo(0, 5);
+    const before = camera.position.clone();
+    await renderer.advanceFrames(5, 0.016);
+    expect(camera.position.toArray()).toEqual(before.toArray());
   });
 
   it('does nothing when nothing is focused', async () => {

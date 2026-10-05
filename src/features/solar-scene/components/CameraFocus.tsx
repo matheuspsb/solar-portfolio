@@ -15,17 +15,10 @@ type CameraFocusProps = {
   targetId: string | null;
   nonce: number;
   easingRate: number;
-  homeAzimuth: number;
   sideOffset: number;
 };
 
-export function CameraFocus({
-  targetId,
-  nonce,
-  easingRate,
-  homeAzimuth,
-  sideOffset,
-}: CameraFocusProps) {
+export function CameraFocus({ targetId, nonce, easingRate, sideOffset }: CameraFocusProps) {
   const controls = useThree((state) => state.controls) as EventTarget | null;
   const hasTakenOverRef = useCameraTakeover(controls, nonce);
 
@@ -34,7 +27,8 @@ export function CameraFocus({
     const body = scene.getObjectByName(getBodySceneName(targetId));
     if (!body) return;
 
-    const targetAzimuth = getFocusAzimuth({ bodyPosition: body.position, homeAzimuth, sideOffset });
+    const targetAzimuth = getFocusAzimuth({ bodyPosition: body.position, sideOffset });
+    if (targetAzimuth === null) return;
     const nextAzimuth = stepAngleToward({
       current: getAzimuth(camera.position),
       target: targetAzimuth,

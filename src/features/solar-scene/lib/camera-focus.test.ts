@@ -75,7 +75,7 @@ describe('stepAngleToward', () => {
 });
 
 describe('getFocusAzimuth', () => {
-  const options = { homeAzimuth: Math.PI / 2, sideOffset: 0.5 };
+  const options = { sideOffset: 0.5 };
 
   it('places the camera at the planet azimuth plus the side offset', () => {
     const azimuth = getFocusAzimuth({ bodyPosition: { x: 0, z: 4 }, ...options });
@@ -87,14 +87,14 @@ describe('getFocusAzimuth', () => {
     expect(azimuth).toBeCloseTo(Math.atan2(-3, -3) + 0.5);
   });
 
-  it('returns the home azimuth for a body at the center (the star)', () => {
-    expect(getFocusAzimuth({ bodyPosition: { x: 0, z: 0 }, ...options })).toBe(Math.PI / 2);
+  it('has no azimuth for a body at the center (the star): the camera stays put', () => {
+    expect(getFocusAzimuth({ bodyPosition: { x: 0, z: 0 }, ...options })).toBeNull();
   });
 
   it.each([Number.NaN, Number.POSITIVE_INFINITY])(
-    'returns the home azimuth for an invalid position (%s)',
+    'has no azimuth for an invalid position (%s)',
     (value) => {
-      expect(getFocusAzimuth({ bodyPosition: { x: value, z: 1 }, ...options })).toBe(Math.PI / 2);
+      expect(getFocusAzimuth({ bodyPosition: { x: value, z: 1 }, ...options })).toBeNull();
     },
   );
 });

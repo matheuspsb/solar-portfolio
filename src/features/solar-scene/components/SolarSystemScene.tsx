@@ -20,7 +20,6 @@ import { StarField } from './StarField';
 import { CelestialBody } from './CelestialBody';
 
 const CAMERA_POSITION: [number, number, number] = [0, 4, 9.5];
-const HOME_AZIMUTH = Math.atan2(CAMERA_POSITION[2], CAMERA_POSITION[0]);
 const CAMERA_NEAR = 0.1;
 const CAMERA_FAR = 400;
 const CONTROLS_DAMPING = 0.08;
@@ -95,7 +94,6 @@ export function SolarSystemScene({
         targetId={cameraTarget.id}
         nonce={cameraTarget.nonce}
         easingRate={cameraFocusEasingRate}
-        homeAzimuth={HOME_AZIMUTH}
         sideOffset={CAMERA_FOCUS_SIDE_OFFSET_RADIANS}
       />
       <CameraViewOffset targetOffsetPixels={viewOffsetPixels} easingRate={viewOffsetEasingRate} />
