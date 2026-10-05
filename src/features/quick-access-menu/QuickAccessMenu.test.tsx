@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { QuickAccessMenu } from './QuickAccessMenu';
@@ -102,6 +102,21 @@ describe('QuickAccessMenu', () => {
     await user.tab();
     await user.tab();
     expect(getToggle()).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('stays open while a destination is being pressed even if focus goes nowhere, as in Safari', async () => {
+    const { user, onSelectItem } = setup();
+    await user.click(getToggle());
+    const focusedItem = screen.getByRole('button', { name: 'Sobre' });
+    expect(focusedItem).toHaveFocus();
+
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'Projetos' }));
+    fireEvent.focusOut(focusedItem, { relatedTarget: null });
+    expect(getToggle()).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.pointerUp(screen.getByRole('button', { name: 'Projetos' }));
+
+    await user.click(screen.getByRole('button', { name: 'Projetos' }));
+    expect(onSelectItem).toHaveBeenCalledWith('earth');
   });
 
   it('reports the chosen item, closes, and parks focus on the toggle', async () => {

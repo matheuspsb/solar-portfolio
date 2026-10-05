@@ -39,6 +39,7 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
   const listId = useId();
   const containerRef = useRef<HTMLElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
+  const isPressingMenuRef = useRef(false);
   const { registerItem, handleKeyDown, getItem } = useArrowNavigation(items.map((item) => item.id));
   const firstItemId = items[0]?.id;
   const focusFirstItem = useEffectEvent(() => {
@@ -80,6 +81,7 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
 
   const closeWhenFocusLeaves = (event: FocusEvent<HTMLElement>) => {
     const nextFocus = event.relatedTarget;
+    if (nextFocus === null && isPressingMenuRef.current) return;
     if (nextFocus instanceof Node && event.currentTarget.contains(nextFocus)) return;
     setIsOpen(false);
   };
@@ -95,6 +97,15 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
       ref={containerRef}
       className="fixed top-5 right-5 z-(--z-chrome)"
       onBlur={closeWhenFocusLeaves}
+      onPointerDown={() => {
+        isPressingMenuRef.current = true;
+      }}
+      onPointerUp={() => {
+        isPressingMenuRef.current = false;
+      }}
+      onPointerCancel={() => {
+        isPressingMenuRef.current = false;
+      }}
       onKeyDown={(event) => {
         if (event.key === 'Escape' && isOpen) {
           event.stopPropagation();
