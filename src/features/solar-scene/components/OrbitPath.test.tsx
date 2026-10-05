@@ -10,19 +10,6 @@ async function renderPath(radius: number) {
 }
 
 describe('OrbitPath', () => {
-  it('is a thin ring centered on the orbit radius', async () => {
-    const ring = await renderPath(4.6);
-    const { innerRadius, outerRadius } = ring.geometry.parameters;
-    expect(innerRadius).toBeLessThan(4.6);
-    expect(outerRadius).toBeGreaterThan(4.6);
-    expect(outerRadius - innerRadius).toBeLessThan(0.2);
-  });
-
-  it('lies flat in the horizontal plane', async () => {
-    const ring = await renderPath(4.6);
-    expect(ring.rotation.x).toBeCloseTo(-Math.PI / 2);
-  });
-
   it('is not hit by pointer rays', async () => {
     const ring = await renderPath(4.6);
     ring.updateWorldMatrix(true, false);

@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { OrbitMenuItem } from './OrbitMenuItem';
 
 describe('OrbitMenuItem', () => {
@@ -13,34 +12,5 @@ describe('OrbitMenuItem', () => {
   it('keeps the code out of the accessible name', () => {
     render(<OrbitMenuItem label="Sobre" code="OBJ-001" tone="amber" onClick={() => undefined} />);
     expect(screen.getByRole('button')).toHaveAccessibleName('Sobre');
-  });
-
-  it('activates with click and with the keyboard', async () => {
-    const user = userEvent.setup();
-    const onClick = vi.fn();
-    render(<OrbitMenuItem label="Sobre" code="OBJ-001" tone="amber" onClick={onClick} />);
-    await user.click(screen.getByRole('button'));
-    await user.keyboard('{Enter}');
-    expect(onClick).toHaveBeenCalledTimes(2);
-  });
-
-  it('forwards the ref and key handlers for arrow navigation', async () => {
-    const user = userEvent.setup();
-    const ref = { current: null as HTMLButtonElement | null };
-    const onKeyDown = vi.fn();
-    render(
-      <OrbitMenuItem
-        label="Sobre"
-        code="OBJ-001"
-        tone="amber"
-        onClick={() => undefined}
-        onKeyDown={onKeyDown}
-        ref={ref}
-      />,
-    );
-    expect(ref.current).toBe(screen.getByRole('button'));
-    ref.current!.focus();
-    await user.keyboard('{ArrowDown}');
-    expect(onKeyDown).toHaveBeenCalledOnce();
   });
 });

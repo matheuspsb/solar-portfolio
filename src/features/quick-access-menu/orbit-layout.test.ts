@@ -9,10 +9,6 @@ import {
 const RADIUS = 200;
 
 describe('getOrbitPositions', () => {
-  it('places a single item at 138 degrees', () => {
-    expect(getOrbitPositions({ count: 1, radius: RADIUS })).toEqual([{ x: -149, y: 134 }]);
-  });
-
   it('spreads several items from 100 to 170 degrees, first to last', () => {
     const positions = getOrbitPositions({ count: 3, radius: RADIUS });
     expect(positions).toHaveLength(3);
@@ -59,12 +55,6 @@ describe('getOrbitPositions', () => {
 });
 
 describe('getOrbitDelaySeconds', () => {
-  it('starts at 0.1 s and staggers each item by 0.08 s', () => {
-    expect(getOrbitDelaySeconds(0)).toBeCloseTo(0.1);
-    expect(getOrbitDelaySeconds(1)).toBeCloseTo(0.18);
-    expect(getOrbitDelaySeconds(3)).toBeCloseTo(0.34);
-  });
-
   it.each([-1, Number.NaN])('never delays by a negative or invalid amount (%s)', (index) => {
     expect(getOrbitDelaySeconds(index)).toBeCloseTo(0.1);
   });

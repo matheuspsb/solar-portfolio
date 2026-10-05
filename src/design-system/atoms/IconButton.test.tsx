@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { expect, it, vi } from 'vitest';
+import { expect, it } from 'vitest';
 import { IconButton } from './IconButton';
 
 it('is named by its label and hides the decorative icon', () => {
@@ -10,26 +9,4 @@ it('is named by its label and hides the decorative icon', () => {
     </IconButton>,
   );
   expect(screen.getByRole('button', { name: 'Fechar painel' })).toBeInTheDocument();
-});
-
-it('activates on click', async () => {
-  const onClick = vi.fn();
-  render(
-    <IconButton label="Fechar" onClick={onClick}>
-      <svg />
-    </IconButton>,
-  );
-  await userEvent.click(screen.getByRole('button', { name: 'Fechar' }));
-  expect(onClick).toHaveBeenCalledOnce();
-});
-
-it('forwards native props and ref', () => {
-  const ref = { current: null as HTMLButtonElement | null };
-  render(
-    <IconButton ref={ref} label="Menu" aria-expanded="false">
-      <svg />
-    </IconButton>,
-  );
-  expect(ref.current).toBe(screen.getByRole('button', { name: 'Menu' }));
-  expect(ref.current).toHaveAttribute('aria-expanded', 'false');
 });

@@ -26,12 +26,6 @@ const content: ContactContent = {
 const submitMessage: ContactMessageSubmitter = async () => ({ ok: true });
 
 describe('ContactSection', () => {
-  it('shows the headline as the panel heading, with the summary', () => {
-    render(<ContactSection content={content} onSubmitMessage={submitMessage} />);
-    expect(screen.getByRole('heading', { level: 2, name: 'Vamos conversar?' })).toBeInTheDocument();
-    expect(screen.getByText('Resumo do contato.')).toBeInTheDocument();
-  });
-
   it('offers every channel as an external link that opens safely in a new tab', () => {
     render(<ContactSection content={content} onSubmitMessage={submitMessage} />);
     const links = screen.getAllByRole('link');

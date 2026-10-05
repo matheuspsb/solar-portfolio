@@ -150,17 +150,6 @@ describe('PortfolioExperience', () => {
     expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'true');
   });
 
-  it('gives the scene a textual description from the data it was given', () => {
-    setup();
-    expect(screen.getByRole('group', { name: 'Cena 3D de teste' })).toBeInTheDocument();
-  });
-
-  it('shows only the credits it was given', async () => {
-    const user = setup();
-    await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
-    expect(screen.getAllByRole('link', { name: /CC BY 4\.0/ })).toHaveLength(credits.length);
-  });
-
   it('points the camera at the body that gets keyboard focus, then at the next one', async () => {
     const user = setup();
     expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'none');

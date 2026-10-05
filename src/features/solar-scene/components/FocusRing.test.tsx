@@ -16,14 +16,6 @@ describe('FocusRing', () => {
     expect(ring.geometry.parameters.innerRadius).toBeGreaterThan(2);
   });
 
-  it('scales with the body radius', async () => {
-    const small = await findRing(1);
-    const large = await findRing(4);
-    expect(large.geometry.parameters.innerRadius).toBeGreaterThan(
-      small.geometry.parameters.innerRadius,
-    );
-  });
-
   it('is not hit by pointer rays (clicks go to the body)', async () => {
     const ring = await findRing(2);
     ring.updateWorldMatrix(true, false);

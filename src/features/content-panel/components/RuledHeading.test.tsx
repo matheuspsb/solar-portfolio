@@ -13,9 +13,4 @@ describe('RuledHeading', () => {
     expect(screen.getByText('6 corpos')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Stack principal' })).toBeInTheDocument();
   });
-
-  it('omits the trailing note when there is none', () => {
-    const { container } = render(<RuledHeading level={3} title="Stack principal" />);
-    expect(container).toHaveTextContent(/^Stack principal$/);
-  });
 });

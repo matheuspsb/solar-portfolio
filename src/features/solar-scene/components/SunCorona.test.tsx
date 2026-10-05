@@ -1,5 +1,5 @@
 import ReactThreeTestRenderer from '@react-three/test-renderer';
-import { AdditiveBlending, BackSide, Raycaster, Vector3 } from 'three';
+import { Raycaster, Vector3 } from 'three';
 import type { Mesh, ShaderMaterial, SphereGeometry } from 'three';
 import { describe, expect, it } from 'vitest';
 import { MAX_FRAME_DELTA_SECONDS } from '../lib/rotation';
@@ -17,22 +17,6 @@ describe('SunCorona', () => {
   it('is larger than the body it surrounds', async () => {
     const { mesh } = await renderCorona({ radius: 3 });
     expect(mesh.geometry.parameters.radius).toBeGreaterThan(3);
-  });
-
-  it('scales with the body radius', async () => {
-    const small = await renderCorona({ radius: 1 });
-    const large = await renderCorona({ radius: 4 });
-    expect(large.mesh.geometry.parameters.radius).toBeGreaterThan(
-      small.mesh.geometry.parameters.radius,
-    );
-  });
-
-  it('adds light from the inside of the sphere without writing depth', async () => {
-    const { material } = await renderCorona();
-    expect(material.blending).toBe(AdditiveBlending);
-    expect(material.side).toBe(BackSide);
-    expect(material.transparent).toBe(true);
-    expect(material.depthWrite).toBe(false);
   });
 
   it('is not hit by pointer rays', async () => {

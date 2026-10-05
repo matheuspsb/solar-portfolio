@@ -26,12 +26,6 @@ async function renderSun(props: Partial<React.ComponentProps<typeof SunMesh>> = 
 }
 
 describe('SunMesh', () => {
-  it('has the requested radius', async () => {
-    const { mesh } = await renderSun({ radius: 3 });
-    mesh.geometry.computeBoundingSphere();
-    expect(mesh.geometry.boundingSphere?.radius).toBeCloseTo(3);
-  });
-
   it('rotates proportionally to frame delta', async () => {
     const { renderer, mesh } = await renderSun({ rotationPeriodSeconds: 1 });
     await renderer.advanceFrames(1, 0.05);

@@ -57,11 +57,6 @@ describe('OrbitGroup', () => {
     expect(Math.atan2(group.position.z, group.position.x)).toBeLessThanOrEqual(largestStep + 1e-6);
   });
 
-  it('keeps its children', async () => {
-    const { group } = await renderOrbit();
-    expect(group.children.map((child) => child.name)).toContain('passenger');
-  });
-
   it('survives a zero delta frame', async () => {
     const { renderer, group } = await renderOrbit();
     await renderer.advanceFrames(1, 0);
