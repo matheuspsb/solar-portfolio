@@ -268,23 +268,29 @@ Sources: the Next.js docs shipped with the installed version (`guides/server-act
 1 MB body cap, but the docs say to treat every action as an untrusted entry point, validate input, return only what the UI needs and rate limit
 expensive operations such as sending e-mail.
 
-| Threat                                                                                               | Status                                                                                                                                                                |
-| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Forged or oversized input                                                                            | Covered: the shared zod schema runs again on the server (name 2 to 100, e-mail up to 254, message up to 500 characters) and Next caps the body at 1 MB.               |
-| Header injection in the e-mail                                                                       | Covered: Resend takes structured fields, the subject is collapsed to one line, `replyTo` is a validated address.                                                      |
-| HTML injection into the owner inbox                                                                  | Covered: name, e-mail and message are HTML-escaped.                                                                                                                   |
-| Open relay (sending to other people)                                                                 | Covered: `from` and `to` come from server environment variables, never from the request.                                                                              |
-| Secret exposure                                                                                      | Covered: variables are not `NEXT_PUBLIC_`, only `app/actions.ts` reads `process.env`, `resend` is not in the browser bundle, errors shown to the visitor are generic. |
-| Cross-site POST from another origin                                                                  | Covered by Next's Origin/Host check. It does not stop a script that forges the header, so it is not a defense against bots.                                           |
-| Spam and bots calling the action directly                                                            | **Not covered yet.**                                                                                                                                                  |
-| Quota exhaustion (the free Resend plan has a daily and monthly cap, so a flood blocks real messages) | **Not covered yet.**                                                                                                                                                  |
-| Content spam (links, ads) from a single real visitor                                                 | Not covered; needs a captcha or content rules if it shows up.                                                                                                         |
+| Threat                                                                                                                      | Status                                                                                                                                                                |
+| --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Forged or oversized input                                                                                                   | Covered: the shared zod schema runs again on the server (name 2 to 100, e-mail up to 254, message up to 500 characters) and Next caps the body at 1 MB.               |
+| Header injection in the e-mail                                                                                              | Covered: Resend takes structured fields, the subject is collapsed to one line, `replyTo` is a validated address.                                                      |
+| HTML injection into the owner inbox                                                                                         | Covered: name, e-mail and message are HTML-escaped.                                                                                                                   |
+| Open relay (sending to other people)                                                                                        | Covered: `from` and `to` come from server environment variables, never from the request.                                                                              |
+| Secret exposure                                                                                                             | Covered: variables are not `NEXT_PUBLIC_`, only `app/actions.ts` reads `process.env`, `resend` is not in the browser bundle, errors shown to the visitor are generic. |
+| Cross-site POST from another origin                                                                                         | Covered by Next's Origin/Host check. It does not stop a script that forges the header, so it is not a defense against bots.                                           |
+| Naive bots: scripts that fill every field, or POST straight to the action                                                   | Covered by layer 1 below (honeypot, minimum time, required signals). A determined attacker who reads the code can forge them.                                         |
+| Flood from one source (quota exhaustion: the free Resend plan has a daily and monthly cap, so a flood blocks real messages) | **Not covered yet.** Needs layer 2 (host) and/or 3 (shared store).                                                                                                    |
+| Content spam (links, ads) from a single real visitor                                                                        | Not covered; needs a captcha or content rules if it shows up.                                                                                                         |
 
-Planned layers, cheapest first:
+Layers, cheapest first:
 
-1. A hidden honeypot field plus a minimum time to fill the form (a bot answers instantly), checked in the handler before delivery.
-2. A host-level rate limit (Vercel Firewall rule on `POST` to `/`, where the action posts) so abusive traffic never reaches the function.
-3. An in-code limiter keyed by IP and a global daily cap, backed by a shared store (Redis); an in-memory counter does not work on serverless
-   because instances do not share memory. The IP comes from `headers()` (`x-forwarded-for` / `x-real-ip`), which is trustworthy only behind a
+1. **Done: honeypot, minimum time and required signals** (`lib/bot-guard.ts`, checked by the handler after validation). The form carries a hidden
+   `homepage` input (`inert`, `aria-hidden`, out of the tab order) and the time since the panel opened (`elapsedMs`, measured in the browser, so
+   there is no clock skew). The server treats a filled hidden field, less than 2 s (`MIN_FILL_MS`) or missing signals (a direct POST that skipped
+   the form) as a bot: it answers `{ ok: true }` without sending anything, so a bot cannot tell it was blocked, and logs the reason
+   (`reportBlocked`). The threshold is deliberately low so a fast human with autofill is not dropped silently.
+2. **To do in the Vercel dashboard: host-level rate limit.** Project, Firewall, add a rule: method `POST`, path `/` (that is where the Server
+   Action posts), rate limit per IP (for example 10 requests per minute), action Deny/429. Check which limits the current plan allows. Abusive
+   traffic then never reaches the function or the Resend quota.
+3. **Optional: in-code limiter** keyed by IP plus a global daily cap, backed by a shared store (Redis); an in-memory counter does not work on
+   serverless because instances do not share memory. The IP comes from `headers()` (`x-forwarded-for` / `x-real-ip`), trustworthy only behind a
    proxy that sets it (Vercel does); self-hosted setups need a trusted proxy configuration.
-4. A captcha (for example Cloudflare Turnstile) only if spam persists.
+4. **Optional: captcha** (for example Cloudflare Turnstile) only if spam persists.

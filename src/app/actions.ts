@@ -11,10 +11,18 @@ function logDeliveryFailure(error: unknown) {
   console.error('Contact message could not be delivered', error);
 }
 
+function logBlockedSubmission(verdict: string) {
+  // eslint-disable-next-line no-console
+  console.warn(`Contact submission blocked by the bot guard: ${verdict}`);
+}
+
 export async function sendContactMessage(input: unknown): Promise<ContactSubmitResult> {
   const delivery = createContactDelivery(
     readDeliveryConfig(process.env),
     (apiKey) => new Resend(apiKey),
   );
-  return createContactMessageHandler(delivery, logDeliveryFailure)(input);
+  return createContactMessageHandler(delivery, {
+    reportError: logDeliveryFailure,
+    reportBlocked: logBlockedSubmission,
+  })(input);
 }

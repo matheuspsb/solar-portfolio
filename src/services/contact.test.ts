@@ -5,6 +5,8 @@ const valid = {
   name: ' Ana Souza ',
   email: 'ana@empresa.com',
   message: 'Gostei do seu portfólio, vamos conversar?',
+  homepage: '',
+  elapsedMs: 9000,
 };
 
 describe('createContactMessageHandler', () => {
@@ -23,7 +25,7 @@ describe('createContactMessageHandler', () => {
   it('rejects invalid input without calling the delivery', async () => {
     const deliver = vi.fn(async () => undefined);
     const handle = createContactMessageHandler({ deliver });
-    const result = await handle({ name: '', email: 'não-é-email', message: 'oi' });
+    const result = await handle({ ...valid, name: '', email: 'não-é-email' });
     expect(result).toEqual({ ok: false, error: expect.stringContaining('Confira') });
     expect(deliver).not.toHaveBeenCalled();
   });
@@ -58,10 +60,40 @@ describe('createContactMessageHandler', () => {
           throw cause;
         },
       },
-      reportError,
+      { reportError },
     );
     const result = await handle(valid);
     expect(reportError).toHaveBeenCalledWith(cause);
     expect(JSON.stringify(result)).not.toContain('API key');
+  });
+
+  describe('bot protection', () => {
+    it('pretends success but delivers nothing when the hidden field is filled', async () => {
+      const deliver = vi.fn(async () => undefined);
+      const reportBlocked = vi.fn();
+      const handle = createContactMessageHandler({ deliver }, { reportBlocked });
+      await expect(handle({ ...valid, homepage: 'http://spam.example' })).resolves.toEqual({
+        ok: true,
+      });
+      expect(deliver).not.toHaveBeenCalled();
+      expect(reportBlocked).toHaveBeenCalledWith('honeypot');
+    });
+
+    it('pretends success but delivers nothing when it came faster than a person can type', async () => {
+      const deliver = vi.fn(async () => undefined);
+      const reportBlocked = vi.fn();
+      const handle = createContactMessageHandler({ deliver }, { reportBlocked });
+      await expect(handle({ ...valid, elapsedMs: 100 })).resolves.toEqual({ ok: true });
+      expect(deliver).not.toHaveBeenCalled();
+      expect(reportBlocked).toHaveBeenCalledWith('too-fast');
+    });
+
+    it('pretends success but delivers nothing for a direct request that skipped the form', async () => {
+      const deliver = vi.fn(async () => undefined);
+      const handle = createContactMessageHandler({ deliver });
+      const { name, email, message } = valid;
+      await expect(handle({ name, email, message })).resolves.toEqual({ ok: true });
+      expect(deliver).not.toHaveBeenCalled();
+    });
   });
 });

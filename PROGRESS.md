@@ -84,7 +84,7 @@
 ## Envio por e-mail (Resend)
 
 - A Server Action agora entrega por e-mail pelo Resend (`services/`), com o cliente injetável nos testes, escape de HTML, `reply-to` com o e-mail do visitante e log do erro real só no servidor. 706 testes unitários, lint, typecheck, build e e2e do contato passando (o e2e usa `CONTACT_DELIVERY=disabled`).
-- **Pendente (só você pode fazer):** gerar a chave no Resend, preencher `.env.local` e cadastrar as variáveis na Vercel. Falta proteção contra spam (honeypot e limite por IP).
+- **Pendente (só você pode fazer):** gerar a chave no Resend, preencher `.env.local` e cadastrar as variáveis na Vercel. Proteção contra bots: honeypot + tempo mínimo + sinais obrigatórios implementados (`lib/bot-guard.ts`, 726 testes unitários); falta o limite por IP no painel da Vercel (veja DECISIONS.md, camada 2).
 
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 

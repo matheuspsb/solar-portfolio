@@ -3,6 +3,7 @@ import { useId, useReducer, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
+import { HONEYPOT_FIELD } from '@/lib/bot-guard';
 import type { ContactContent } from '@/lib/contact-content';
 import {
   CONTACT_MESSAGE_LIMITS,
@@ -13,6 +14,7 @@ import type {
   ContactField,
   ContactMessage,
   ContactMessageSubmitter,
+  ContactSubmission,
   ContactSubmitResult,
 } from '@/lib/contact-message';
 import { getActionPresentation } from './action-presentation';
@@ -76,9 +78,14 @@ type ContactSectionProps = {
   getNow?: () => Date;
 };
 
+function readHoneypot(form: HTMLFormElement | null): string {
+  const value = form ? new FormData(form).get(HONEYPOT_FIELD) : null;
+  return typeof value === 'string' ? value : '';
+}
+
 async function deliverSafely(
   submit: ContactMessageSubmitter,
-  message: ContactMessage,
+  message: ContactSubmission,
 ): Promise<ContactSubmitResult> {
   try {
     return await submit(message);
@@ -97,6 +104,8 @@ export function ContactSection({
   const [flow, dispatch] = useReducer(contactFlowReducer, undefined, createInitialFlowState);
   const [delivery, setDelivery] = useState<Delivery | null>(null);
   const isSendingRef = useRef(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [openedAt] = useState(() => getNow().getTime());
   const noteId = useId();
   const comet = useComet({
     initialProgress: COMET_ENTRY_PROGRESS,
@@ -133,9 +142,14 @@ export function ContactSection({
   const sendMessage = async (message: ContactMessage) => {
     isSendingRef.current = true;
     dispatch({ type: 'send' });
+    const submission = {
+      ...message,
+      homepage: readHoneypot(formRef.current),
+      elapsedMs: getNow().getTime() - openedAt,
+    };
     const [, result] = await Promise.all([
       comet.travelTo(COMET_EXIT_PROGRESS, COMET_EXIT_MS),
-      deliverSafely(onSubmitMessage, message),
+      deliverSafely(onSubmitMessage, submission),
     ]);
     if (result.ok) {
       setDelivery({ message, deliveredAt: getNow() });
@@ -237,6 +251,7 @@ export function ContactSection({
         ) : (
           <>
             <form
+              ref={formRef}
               noValidate
               onSubmit={handleFormSubmit}
               onChange={() => dispatch({ type: 'edit' })}
@@ -272,6 +287,22 @@ export function ContactSection({
                       : undefined
                   }
                 />
+              </div>
+              <div
+                aria-hidden="true"
+                inert
+                className="pointer-events-none absolute size-px overflow-hidden opacity-0"
+              >
+                <label>
+                  {content.honeypotLabel}
+                  <input
+                    name={HONEYPOT_FIELD}
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    defaultValue=""
+                  />
+                </label>
               </div>
               <StepActions
                 label={action.label}

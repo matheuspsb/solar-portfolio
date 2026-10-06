@@ -22,6 +22,7 @@ export type ContactContent = {
     jumpLabel: string;
   };
   sendingNote: string;
+  honeypotLabel: string;
   linkedin: { text: string; label: string; href: string };
   delivered: {
     kicker: string;

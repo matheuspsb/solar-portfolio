@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { contactContent } from '@/content/contact';
@@ -29,15 +29,16 @@ const message = {
 
 function setup(submit: ContactMessageSubmitter = async () => ({ ok: true })) {
   const user = userEvent.setup();
+  const clock = { time: new Date(2026, 9, 5).getTime() };
   render(
     <ContactSection
       content={contactContent}
       onSubmitMessage={submit}
       frameScheduler={createInstantScheduler()}
-      getNow={() => new Date(2026, 9, 5)}
+      getNow={() => new Date(clock.time)}
     />,
   );
-  return { user };
+  return { user, clock };
 }
 
 const nameField = () => screen.getByRole('textbox', { name: /Como posso te chamar/ });
@@ -179,7 +180,7 @@ describe('ContactSection', () => {
       await screen.findByRole('heading', { level: 2, name: 'Hermes levou sua mensagem, Ana.' }),
     ).toBeInTheDocument();
     expect(submit).toHaveBeenCalledTimes(1);
-    expect(submit).toHaveBeenCalledWith(message);
+    expect(submit).toHaveBeenCalledWith(expect.objectContaining(message));
     expect(screen.getByText('Vou responder em ana@empresa.com.')).toBeInTheDocument();
     expect(screen.getByText(/Gostei do seu portfólio/)).toBeInTheDocument();
   });
@@ -271,5 +272,41 @@ describe('ContactSection', () => {
     expect(link).toHaveAttribute('href', 'https://www.linkedin.com/in/matheuspaulosouza');
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
+  });
+
+  describe('bot protection signals', () => {
+    it('tells the server how long the visitor took, with the hidden field left empty', async () => {
+      const submit = vi.fn<ContactMessageSubmitter>(async () => ({ ok: true }));
+      const { user, clock } = setup(submit);
+      await reachMessageStep(user);
+      clock.time += 7000;
+      await writeAndSend(user);
+      await waitFor(() =>
+        expect(submit).toHaveBeenCalledWith(
+          expect.objectContaining({ homepage: '', elapsedMs: 7000 }),
+        ),
+      );
+    });
+
+    it('sends whatever a script wrote into the hidden field', async () => {
+      const submit = vi.fn<ContactMessageSubmitter>(async () => ({ ok: true }));
+      const { user } = setup(submit);
+      await reachMessageStep(user);
+      fireEvent.change(screen.getByLabelText('Não preencha este campo', { selector: 'input' }), {
+        target: { value: 'http://spam.example' },
+      });
+      await writeAndSend(user);
+      await waitFor(() =>
+        expect(submit).toHaveBeenCalledWith(
+          expect.objectContaining({ homepage: 'http://spam.example' }),
+        ),
+      );
+    });
+
+    it('keeps the hidden field away from people and assistive technology', () => {
+      setup();
+      expect(screen.queryByRole('textbox', { name: /Não preencha este campo/ })).toBeNull();
+      expect(screen.getAllByRole('textbox')).toHaveLength(1);
+    });
   });
 });

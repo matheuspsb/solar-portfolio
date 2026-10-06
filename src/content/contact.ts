@@ -38,6 +38,7 @@ export const contactContent: ContactContent = {
     jumpLabel: 'Voltar para {label}',
   },
   sendingNote: 'Transmitindo pelo arco…',
+  honeypotLabel: 'Não preencha este campo',
   linkedin: {
     text: 'Quer trocar uma ideia ou falar sobre uma oportunidade? Me chame pelo LinkedIn.',
     label: 'LinkedIn',

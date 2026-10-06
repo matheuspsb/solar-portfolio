@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { BotSignals } from './bot-guard';
 
 export const CONTACT_MESSAGE_LIMITS = {
   nameMin: 2,
@@ -85,4 +86,8 @@ export function parseContactMessage(input: unknown): ParseResult {
 
 export type ContactSubmitResult = { ok: true } | { ok: false; error: string };
 
-export type ContactMessageSubmitter = (message: ContactMessage) => Promise<ContactSubmitResult>;
+export type ContactSubmission = ContactMessage & BotSignals;
+
+export type ContactMessageSubmitter = (
+  submission: ContactSubmission,
+) => Promise<ContactSubmitResult>;
