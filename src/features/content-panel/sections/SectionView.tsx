@@ -1,7 +1,11 @@
+import { Suspense, lazy } from 'react';
 import type { SectionContent } from '@/lib/celestial-body';
 import type { ContactMessageSubmitter } from '@/lib/contact-message';
 import { AboutSection } from './about/AboutSection';
-import { ContactSection } from './contact/ContactSection';
+
+const ContactSection = lazy(() =>
+  import('./contact/ContactSection').then((module) => ({ default: module.ContactSection })),
+);
 
 type SectionViewProps = {
   content: SectionContent;
@@ -18,6 +22,10 @@ export function SectionView({
     case 'about':
       return <AboutSection content={content} emblemTextureUrl={emblemTextureUrl} />;
     case 'contact':
-      return <ContactSection content={content} onSubmitMessage={onSubmitContactMessage} />;
+      return (
+        <Suspense fallback={null}>
+          <ContactSection content={content} onSubmitMessage={onSubmitContactMessage} />
+        </Suspense>
+      );
   }
 }

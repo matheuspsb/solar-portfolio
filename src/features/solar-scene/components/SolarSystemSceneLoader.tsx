@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import { useIdleReady } from '@/hooks/use-idle-ready';
 import { useViewportSize } from '@/hooks/use-viewport-size';
 import type { SceneProps } from '../types';
-import { usePrefersReducedMotion } from '../hooks/use-prefers-reduced-motion';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 
 import { getBodyExtent } from '../lib/body-extent';
 import { getSceneSettings } from '../lib/scene-settings';

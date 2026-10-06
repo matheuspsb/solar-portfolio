@@ -24,7 +24,7 @@ export function AboutSection({ content, emblemTextureUrl }: AboutSectionProps) {
   const stackCount = formatBodyCount(content.stack.length);
 
   return (
-    <div className="flex flex-col gap-6.5">
+    <div className="flex flex-col gap-6.5 p-7 pb-6">
       <div className="flex items-center gap-5">
         <OrbitEmblem textureUrl={emblemTextureUrl} />
         <div className="flex min-w-0 flex-col gap-1">

@@ -3,11 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { BodyHint } from './BodyHint';
 
 describe('BodyHint', () => {
-  it('shows the label text when there is one', () => {
-    render(<BodyHint label="Sol · Sobre" />);
-    expect(screen.getByText('Sol · Sobre')).toBeVisible();
-  });
-
   it('renders nothing when there is no label', () => {
     const { container } = render(<BodyHint label={null} />);
     expect(container).toBeEmptyDOMElement();

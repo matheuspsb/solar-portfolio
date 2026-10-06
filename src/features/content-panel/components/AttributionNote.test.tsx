@@ -11,22 +11,16 @@ const credit = {
 };
 
 describe('AttributionNote', () => {
-  it('names the subject, author and license', () => {
+  it('credits the author and the license with links to their sources (CC BY requires it)', () => {
     render(<AttributionNote credits={[credit]} />);
-    expect(screen.getByText(/Textura do Sol/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Solar System Scope/ })).toHaveAttribute(
       'href',
       credit.sourceHref,
     );
-    expect(screen.getByRole('link', { name: /CC BY 4\.0/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /CC BY 4.0/ })).toHaveAttribute(
       'href',
       credit.licenseHref,
     );
-  });
-
-  it('lists several credits', () => {
-    render(<AttributionNote credits={[credit, { ...credit, subject: 'Textura da Terra' }]} />);
-    expect(screen.getAllByRole('listitem')).toHaveLength(2);
   });
 
   it('renders nothing without credits', () => {

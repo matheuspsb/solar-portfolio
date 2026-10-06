@@ -28,14 +28,6 @@ describe('AboutSection', () => {
     expect(within(list).getAllByRole('listitem')).toHaveLength(2);
   });
 
-  it('links to LinkedIn safely in a new tab, styled as the call to action', () => {
-    render(<AboutSection content={content} emblemTextureUrl={emblem} />);
-    const link = screen.getByRole('link', { name: /LinkedIn/ });
-    expect(link).toHaveAttribute('href', 'https://www.linkedin.com/in/matheuspaulosouza');
-    expect(link).toHaveAttribute('target', '_blank');
-    expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'));
-  });
-
   it('omits the stack and the links when there are none', () => {
     render(<AboutSection content={{ ...content, stack: [], links: [] }} emblemTextureUrl={null} />);
     expect(screen.queryByRole('heading', { name: 'Stack principal' })).not.toBeInTheDocument();

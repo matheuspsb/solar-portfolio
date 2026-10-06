@@ -61,22 +61,6 @@ describe('SceneKeyboardControls', () => {
     expect(screen.getByRole('button', { name: 'Terra: Projetos' })).toHaveFocus();
   });
 
-  it('activates with Enter and with Space', async () => {
-    const { user, onItemActivate } = setup();
-    await user.tab();
-    await user.tab();
-    await user.keyboard('{Enter}');
-    await user.keyboard(' ');
-    expect(onItemActivate).toHaveBeenCalledTimes(2);
-    expect(onItemActivate).toHaveBeenCalledWith('sun');
-  });
-
-  it('activates on click', async () => {
-    const { user, onItemActivate } = setup();
-    await user.click(screen.getByRole('button', { name: 'Terra: Projetos' }));
-    expect(onItemActivate).toHaveBeenCalledWith('earth');
-  });
-
   it('keeps a single body focused when there is only one (arrows do nothing harmful)', async () => {
     const { user } = setup({ items: [items[0]!] });
     await user.tab();

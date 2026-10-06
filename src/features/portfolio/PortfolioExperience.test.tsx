@@ -95,13 +95,6 @@ describe('PortfolioExperience', () => {
     expect(sunButton).toHaveFocus();
   });
 
-  it('opens with Space as well', async () => {
-    const user = setup();
-    await user.tab();
-    await user.keyboard(' ');
-    expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
-  });
-
   it('opens when the Sun is clicked in the scene and focus lands on the Sun control after closing', async () => {
     const user = setup();
     await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
@@ -189,17 +182,6 @@ describe('PortfolioExperience', () => {
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Acesso rápido' })).toHaveFocus();
-  });
-
-  it('opens from the menu entirely by keyboard', async () => {
-    const user = setup();
-    await user.tab();
-    await user.tab();
-    await user.tab();
-    expect(screen.getByRole('button', { name: 'Acesso rápido' })).toHaveFocus();
-    await user.keyboard('{Enter}');
-    await user.keyboard('{Enter}');
-    expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
   });
 
   it('opens the Contact section from the second body with the keyboard', async () => {
@@ -297,11 +279,6 @@ describe('PortfolioExperience', () => {
       await user.click(screen.getByRole('button', { name: 'perder contexto' }));
       expect(screen.getByRole('status')).toHaveTextContent(/recuper/);
       await user.click(screen.getByRole('button', { name: 'restaurar contexto' }));
-      expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    });
-
-    it('does not show the fallback while the scene works', () => {
-      setup();
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
     });
   });

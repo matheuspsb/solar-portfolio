@@ -44,9 +44,11 @@ export function ContentPanel({
         className="animate-panel-in relative flex h-full w-full flex-col overflow-hidden border-l border-line bg-linear-to-b from-panel-start to-panel-end text-ink-100 shadow-panel outline-none sm:w-(--size-panel-width)"
       >
         <PanelHeader label={panelLabel} onClose={onClose} />
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-7">
-          <div className="pb-6">{children}</div>
-          {footer && <div className="mt-auto border-t border-line-faint pt-4">{footer}</div>}
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          <div className="flex flex-1 flex-col">{children}</div>
+          {footer && (
+            <div className="mx-7 mt-auto mb-7 border-t border-line-faint pt-4">{footer}</div>
+          )}
         </div>
       </div>
     </div>

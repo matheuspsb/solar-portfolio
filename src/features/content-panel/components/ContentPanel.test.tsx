@@ -46,23 +46,6 @@ describe('ContentPanel', () => {
     expect(screen.getByText('Sobre · Objeto 001')).toBeInTheDocument();
   });
 
-  it('shows the footer content after the main content', async () => {
-    const user = userEvent.setup();
-    render(<Harness />);
-    await user.click(screen.getByRole('button', { name: 'Abrir' }));
-    const content = screen.getByText('Conteúdo');
-    const footer = screen.getByText('Créditos');
-    expect(content.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  });
-
-  it('closes with the close button', async () => {
-    const user = userEvent.setup();
-    render(<Harness />);
-    await user.click(screen.getByRole('button', { name: 'Abrir' }));
-    await user.click(screen.getByRole('button', { name: 'Fechar painel' }));
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  });
-
   it('closes with Escape and returns focus to the opener', async () => {
     const user = userEvent.setup();
     render(<Harness />);

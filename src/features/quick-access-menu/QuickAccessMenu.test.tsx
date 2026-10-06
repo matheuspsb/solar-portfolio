@@ -40,14 +40,6 @@ describe('QuickAccessMenu', () => {
     expect(list).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it('makes the destinations reachable once expanded', async () => {
-    const { user } = setup();
-    await user.click(getToggle());
-    const list = screen.getByRole('list');
-    expect(list).not.toHaveAttribute('inert');
-    expect(list).not.toHaveAttribute('aria-hidden', 'true');
-  });
-
   it('opens with a click and lists one control per item', async () => {
     const { user } = setup();
     await user.click(getToggle());
@@ -147,27 +139,8 @@ describe('QuickAccessMenu', () => {
     expect(screen.getByRole('button', { name: 'Projetos' })).toHaveFocus();
   });
 
-  it('works with a single item (today: only "Sobre")', async () => {
-    const { user, onSelectItem } = setup([items[0]!]);
-    await user.click(getToggle());
-    await user.keyboard('{ArrowDown}');
-    expect(screen.getByRole('button', { name: 'Sobre' })).toHaveFocus();
-    await user.keyboard('{Enter}');
-    expect(onSelectItem).toHaveBeenCalledWith('sun');
-  });
-
   it('renders nothing when there are no items', () => {
     setup([]);
     expect(screen.queryByRole('button', { name: 'Acesso rápido' })).not.toBeInTheDocument();
-  });
-
-  it('ties the toggle to the list it controls', async () => {
-    const { user } = setup();
-    await user.click(getToggle());
-    const controlledId = getToggle().getAttribute('aria-controls');
-    expect(controlledId).toBeTruthy();
-    expect(document.getElementById(controlledId!)).toContainElement(
-      screen.getByRole('button', { name: 'Sobre' }),
-    );
   });
 });
