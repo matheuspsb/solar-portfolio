@@ -48,4 +48,20 @@ describe('createContactMessageHandler', () => {
     });
     expect(JSON.stringify(result)).not.toContain('SMTP');
   });
+
+  it('reports the real cause to the server logger, while the visitor only sees the generic message', async () => {
+    const reportError = vi.fn();
+    const cause = new Error('Invalid API key');
+    const handle = createContactMessageHandler(
+      {
+        deliver: async () => {
+          throw cause;
+        },
+      },
+      reportError,
+    );
+    const result = await handle(valid);
+    expect(reportError).toHaveBeenCalledWith(cause);
+    expect(JSON.stringify(result)).not.toContain('API key');
+  });
 });

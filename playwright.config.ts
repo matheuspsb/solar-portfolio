@@ -18,6 +18,7 @@ export default defineConfig({
     command: `pnpm build && pnpm start -p ${port}`,
     url: `http://localhost:${port}`,
     reuseExistingServer: false,
+    env: { ...process.env, CONTACT_DELIVERY: 'disabled' } as Record<string, string>,
     timeout: 240_000,
   },
 });

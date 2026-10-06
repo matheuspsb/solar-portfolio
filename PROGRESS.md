@@ -81,6 +81,11 @@
 - Validação: lint, typecheck, 686 testes unitários (depois de três podas de testes redundantes), 54 e2e (incluindo axe nas telas de erro e de entrega, 320/375 px e movimento reduzido) e build passando.
 - Métricas: JS inicial ~195 KB gzip (formulário e zod em chunk preguiçoso); Lighthouse mobile 69-71 (TBT 1,5-2,0 s, mesma causa de antes), desktop 91-93, acessibilidade/boas práticas/SEO 100.
 
+## Envio por e-mail (Resend)
+
+- A Server Action agora entrega por e-mail pelo Resend (`services/`), com o cliente injetável nos testes, escape de HTML, `reply-to` com o e-mail do visitante e log do erro real só no servidor. 706 testes unitários, lint, typecheck, build e e2e do contato passando (o e2e usa `CONTACT_DELIVERY=disabled`).
+- **Pendente (só você pode fazer):** gerar a chave no Resend, preencher `.env.local` e cadastrar as variáveis na Vercel. Falta proteção contra spam (honeypot e limite por IP).
+
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 
 Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A arquitetura atual já é orientada a dados; o que muda:

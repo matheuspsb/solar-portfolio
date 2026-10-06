@@ -1,11 +1,20 @@
 'use server';
 
+import { Resend } from 'resend';
 import type { ContactSubmitResult } from '@/lib/contact-message';
-import { createContactMessageHandler, unconfiguredContactDelivery } from '@/services/contact';
+import { createContactMessageHandler } from '@/services/contact';
+import { createContactDelivery } from '@/services/contact-delivery';
+import { readDeliveryConfig } from '@/services/delivery-config';
 
-// TODO(integration): swap `unconfiguredContactDelivery` for a real `ContactDelivery` (e-mail, CRM...).
-const handleContactMessage = createContactMessageHandler(unconfiguredContactDelivery);
+function logDeliveryFailure(error: unknown) {
+  // eslint-disable-next-line no-console
+  console.error('Contact message could not be delivered', error);
+}
 
 export async function sendContactMessage(input: unknown): Promise<ContactSubmitResult> {
-  return handleContactMessage(input);
+  const delivery = createContactDelivery(
+    readDeliveryConfig(process.env),
+    (apiKey) => new Resend(apiKey),
+  );
+  return createContactMessageHandler(delivery, logDeliveryFailure)(input);
 }

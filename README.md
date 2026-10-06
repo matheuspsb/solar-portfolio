@@ -12,6 +12,10 @@ pnpm dev            # desenvolvimento em http://localhost:3000
 pnpm build && pnpm start
 ```
 
+Para o formulário de contato enviar e-mail, copie `.env.example` para `.env.local` e preencha `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` e
+`CONTACT_TO_EMAIL` (na Vercel, em _Environment Variables_). Para trabalhar sem enviar nada, use `CONTACT_DELIVERY=disabled`: a mensagem é aceita e
+descartada. Sem as variáveis e sem esse valor, o envio falha de propósito e o servidor registra quais variáveis faltam.
+
 | Comando                                                 | O que faz                                                                                                                    |
 | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `pnpm lint` / `pnpm typecheck`                          | ESLint (inclui regra de nomes com 2+ letras) e TypeScript strict                                                             |
@@ -37,7 +41,7 @@ src/
     content-panel/        painel modal: components/, sections/ (about, contact em etapas), hooks/, lib/
     quick-access-menu/    menu orbital + orbit-layout (função pura)
     portfolio/            composição: PortfolioExperience, fallback, dica, controles de teclado
-  services/               entrega da mensagem de contato (interface ContactDelivery; hoje um placeholder)
+  services/               entrega da mensagem de contato por e-mail (Resend atrás da interface ContactDelivery)
   hooks/                  hooks usados por 2+ features (navegação por setas, ociosidade, tamanho da janela, movimento reduzido)
   lib/                    domínio e utilitários usados por 2+ features (corpo celeste, interaction-state, join-class-names...)
 ```
@@ -52,7 +56,7 @@ Decisões de projeto:
 - **Câmera e órbitas.** A câmera gira em torno do Sol até o corpo focado ou selecionado (Tab, setas, clique, menu), para que ele nunca
   fique atrás do Sol; os planetas continuam orbitando com o painel aberto (só `prefers-reduced-motion` pausa a cena).
 - **Contato em etapas.** Uma pergunta por vez (react-hook-form + zod; o mesmo schema de `lib/contact-message.ts` valida no navegador e na Server Action
-  `app/actions.ts`), com um cometa que percorre o arco de progresso e, ao enviar, a cena "Correio de Hermes" (envelope voando até Mercúrio). A entrega é um placeholder que descarta a mensagem: implemente `ContactDelivery` (`services/contact.ts`) e troque em `app/actions.ts`.
+  `app/actions.ts`), com um cometa que percorre o arco de progresso e, ao enviar, a cena "Correio de Hermes" (envelope voando até Mercúrio). A mensagem é enviada por e-mail pelo Resend (`services/`); configure as variáveis do `.env.example`.
 - **Planetas são dados.** Mercúrio (a seção "Contato") é só um item em `content/celestial-bodies.ts` com `kind: 'planet'` e uma `orbit`; a cena
   desenha a órbita, o planeta e o enquadramento a partir disso.
 - **Corpos celestes são dados.** `content/celestial-bodies.ts` é uma lista tipada e validada (`lib/celestial-body.ts`). Cena, menu e

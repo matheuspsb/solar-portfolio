@@ -207,13 +207,17 @@ abstract only when genuinely reused).
   recomputed every frame, so the camera tracks a moving planet. Damped over the shortest arc (`stepAngleToward`, rate
   `cameraFocusEasingRate`); instant with reduced motion. A user drag (OrbitControls `start`) cancels the following until a new focus
   (`nonce` in `useCameraTarget`) arrives. Pure math in `lib/camera-focus.ts`. Click, Tab/arrows and the menu all go through `useCameraTarget`.
-- **Delivery is a placeholder.** `app/actions.ts` is a Next Server Action that calls `createContactMessageHandler(unconfiguredContactDelivery)`
-  (`services/contact.ts`): it re-validates, delivers through the `ContactDelivery` interface and answers a generic error when delivery
-  throws (no internals leaked). The default delivery **drops the message**; implement `ContactDelivery` (e-mail, CRM, database) and swap it
-  in `app/actions.ts` (marked `TODO(integration)`). Rate limiting / spam protection (honeypot, captcha) are not included and should come with the integration.
-
-## Contact panel in steps with the comet and the "Correio de Hermes" delivery (design handoff 3b)
-
+- **Delivery through Resend.** `app/actions.ts` is a Next Server Action: it reads the environment (`readDeliveryConfig`), picks a
+  `ContactDelivery` (`createContactDelivery`) and runs the shared handler, which re-validates, delivers and answers a generic error when
+  delivery throws (the real cause goes only to the server log through the injected `reportError`). `services/` holds `contact-email` (pure
+  e-mail builder: escaped html, plain text, single-line subject, `replyTo` = the visitor), `resend-delivery` (talks to an injected
+  `EmailClient`, so tests never call the API), `delivery-config` and `contact-delivery`. The `resend` package is only imported by the
+  Server Action, so it stays out of the browser bundle.
+- **Configuration.** `RESEND_API_KEY`, `CONTACT_FROM_EMAIL` and `CONTACT_TO_EMAIL` (see `.env.example`; none is `NEXT_PUBLIC_`, so they stay on
+  the server). Missing variables make every send fail visibly (server log names the missing variables) instead of dropping messages silently.
+  `CONTACT_DELIVERY=disabled` is the explicit off switch: the message is accepted and discarded (Playwright sets it so e2e never e-mails).
+  With the Resend test sender (`onboarding@resend.dev`) only the account owner's address can receive; verify a domain to send elsewhere.
+  Rate limiting and spam protection (honeypot, captcha) are still not included.
 - **What replaced what.** The single-page form (`ContactForm`, `FormField`, `Input`, `Textarea`) was deleted. The panel asks Nome, E-mail and
   Mensagem one at a time; a comet travels an arc with three planets (progress), and a successful send ends on a delivery scene (envelope with
   wings flying to Mercury, "Entregue" stamp, receipt). Copy lives in `content/contact.ts` (typed by `lib/contact-content.ts`), with
@@ -256,3 +260,31 @@ abstract only when genuinely reused).
   constants or copy into the assertion, or repeated what a higher-level test already proves. The rule is in `CLAUDE.md` (section 4.1): keep a
   test when it protects a rule or a behavior that would break for the visitor (focus, accessibility, validation, math with edge cases,
   legally required attribution), and delete the lower-level duplicate when a higher-level test covers it.
+
+## Contact endpoint: threat model and abuse protection
+
+Sources: the Next.js docs shipped with the installed version (`guides/server-actions`, `guides/data-security`, `guides/backend-for-frontend`,
+`guides/production-checklist`). Server Actions are public POST endpoints: Next.js adds encrypted action IDs, an Origin/Host (CSRF) check and a
+1 MB body cap, but the docs say to treat every action as an untrusted entry point, validate input, return only what the UI needs and rate limit
+expensive operations such as sending e-mail.
+
+| Threat                                                                                               | Status                                                                                                                                                                |
+| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Forged or oversized input                                                                            | Covered: the shared zod schema runs again on the server (name 2 to 100, e-mail up to 254, message up to 500 characters) and Next caps the body at 1 MB.               |
+| Header injection in the e-mail                                                                       | Covered: Resend takes structured fields, the subject is collapsed to one line, `replyTo` is a validated address.                                                      |
+| HTML injection into the owner inbox                                                                  | Covered: name, e-mail and message are HTML-escaped.                                                                                                                   |
+| Open relay (sending to other people)                                                                 | Covered: `from` and `to` come from server environment variables, never from the request.                                                                              |
+| Secret exposure                                                                                      | Covered: variables are not `NEXT_PUBLIC_`, only `app/actions.ts` reads `process.env`, `resend` is not in the browser bundle, errors shown to the visitor are generic. |
+| Cross-site POST from another origin                                                                  | Covered by Next's Origin/Host check. It does not stop a script that forges the header, so it is not a defense against bots.                                           |
+| Spam and bots calling the action directly                                                            | **Not covered yet.**                                                                                                                                                  |
+| Quota exhaustion (the free Resend plan has a daily and monthly cap, so a flood blocks real messages) | **Not covered yet.**                                                                                                                                                  |
+| Content spam (links, ads) from a single real visitor                                                 | Not covered; needs a captcha or content rules if it shows up.                                                                                                         |
+
+Planned layers, cheapest first:
+
+1. A hidden honeypot field plus a minimum time to fill the form (a bot answers instantly), checked in the handler before delivery.
+2. A host-level rate limit (Vercel Firewall rule on `POST` to `/`, where the action posts) so abusive traffic never reaches the function.
+3. An in-code limiter keyed by IP and a global daily cap, backed by a shared store (Redis); an in-memory counter does not work on serverless
+   because instances do not share memory. The IP comes from `headers()` (`x-forwarded-for` / `x-real-ip`), which is trustworthy only behind a
+   proxy that sets it (Vercel does); self-hosted setups need a trusted proxy configuration.
+4. A captcha (for example Cloudflare Turnstile) only if spam persists.
