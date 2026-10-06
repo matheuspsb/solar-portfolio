@@ -1,19 +1,19 @@
 import type { Metadata, Viewport } from 'next';
-import { Bricolage_Grotesque, JetBrains_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import type { ReactNode } from 'react';
 import '@/design-system/tokens/tokens.css';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
 
-const bricolage = Bricolage_Grotesque({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
+const bricolage = localFont({
+  src: './fonts/bricolage-grotesque-latin.woff2',
+  weight: '200 800',
   variable: '--font-bricolage',
   display: 'swap',
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
+const jetbrainsMono = localFont({
+  src: './fonts/jetbrains-mono-latin.woff2',
+  weight: '100 800',
   variable: '--font-jetbrains',
   display: 'swap',
   preload: false,

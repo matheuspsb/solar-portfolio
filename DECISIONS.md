@@ -79,7 +79,7 @@ was copied. It was translated into the project's architecture:
   `RuledHeading`, `StackChip`/`StackList`, `AboutSection`. `ContentPanel` got a pinned `footer` (credits) and a `panelLabel`.
 - **Data, not markup.** `AboutContent` now carries `experience`, `location` (with coordinates) and `stack` items with a `tone` and `size`
   (resolved to `planet-*` color tokens and spacing-scale sizes). `section.panelLabel` ("Sobre · Objeto 001") feeds the header.
-- **Fonts via `next/font/google`** (Bricolage Grotesque and JetBrains Mono), exposed as `--font-sans` / `--font-mono`.
+- **Fonts self-hosted via `next/font/local`** (Bricolage Grotesque and JetBrains Mono, variable weight, Latin subset in `src/app/fonts/`), exposed as `--font-sans` / `--font-mono`. They used to come from `next/font/google`, but the Vercel build failed with `module-not-found` on the generated font CSS (the build downloads the fonts from Google, and that fetch broke in the Vercel environment). Self-hosting makes the build independent of Google, and the visitor's browser no longer contacts Google either. Licenses in `CREDITS.md` (SIL OFL).
 - **The "M" is gone.** The little Sun in the emblem uses the existing `sun-small.webp` texture (through `next/image`), with the
   design's gradient as fallback. Orbits spin with CSS and stop entirely under `prefers-reduced-motion`.
 - **Accessibility deviations from the mock:** `ink-400` was lightened (`#6f6a82` -> `#7f7a92`) and `ink-500` merged into it because
