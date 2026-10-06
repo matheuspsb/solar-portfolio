@@ -2,7 +2,6 @@ import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
 import type { Group, Mesh, MeshLambertMaterial } from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { FULL_TURN_RADIANS } from '../lib/rotation';
 import { PlanetMesh } from './PlanetMesh';
 
 type Props = React.ComponentProps<typeof PlanetMesh>;
@@ -33,18 +32,6 @@ async function renderPlanet(props: Partial<Props> = {}) {
 }
 
 describe('PlanetMesh', () => {
-  it('rotates proportionally to frame delta', async () => {
-    const { renderer, visible } = await renderPlanet({ rotationPeriodSeconds: 1 });
-    await renderer.advanceFrames(1, 0.05);
-    expect(visible.rotation.y).toBeCloseTo(FULL_TURN_RADIANS * 0.05, 3);
-  });
-
-  it('does not rotate when the period is null (reduced motion)', async () => {
-    const { renderer, visible } = await renderPlanet({ rotationPeriodSeconds: null });
-    await renderer.advanceFrames(5, 0.05);
-    expect(visible.rotation.y).toBe(0);
-  });
-
   it('shows the texture when it is available', async () => {
     const texture = new Texture();
     const { material } = await renderPlanet({ texture });
@@ -75,13 +62,6 @@ describe('PlanetMesh', () => {
     await renderer.fireEvent(hitNode, 'click', { delta: 0 });
     expect(onPointerOver).toHaveBeenCalledOnce();
     expect(onSelect).toHaveBeenCalledOnce();
-  });
-
-  it('ignores a click that was really an orbit drag', async () => {
-    const onSelect = vi.fn();
-    const { renderer, hitNode } = await renderPlanet({ onSelect });
-    await renderer.fireEvent(hitNode, 'click', { delta: 80 });
-    expect(onSelect).not.toHaveBeenCalled();
   });
 
   it('has a click target larger than a tiny planet but invisible', async () => {

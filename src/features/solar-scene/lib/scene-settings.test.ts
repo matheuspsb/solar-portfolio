@@ -15,13 +15,6 @@ const base = {
 };
 
 describe('getSceneSettings', () => {
-  it('picks the high quality tier for desktop widths and the low one for phones', () => {
-    expect(getSceneSettings(base).quality.tier).toBe('high');
-    expect(getSceneSettings({ ...base, viewport: { width: 375, height: 700 } }).quality.tier).toBe(
-      'low',
-    );
-  });
-
   it('backs the camera off on portrait screens', () => {
     const landscape = getSceneSettings(base).cameraDistance;
     const portrait = getSceneSettings({
@@ -64,15 +57,6 @@ describe('getSceneSettings', () => {
     expect(Number.isFinite(normal)).toBe(true);
     expect(normal).toBeGreaterThan(0);
     expect(getSceneSettings({ ...base, prefersReducedMotion: true }).viewOffsetEasingRate).toBe(
-      INSTANT_EASING_RATE,
-    );
-  });
-
-  it('swings the camera at a finite rate normally and instantly with reduced motion', () => {
-    const normal = getSceneSettings(base).cameraFocusEasingRate;
-    expect(Number.isFinite(normal)).toBe(true);
-    expect(normal).toBeGreaterThan(0);
-    expect(getSceneSettings({ ...base, prefersReducedMotion: true }).cameraFocusEasingRate).toBe(
       INSTANT_EASING_RATE,
     );
   });

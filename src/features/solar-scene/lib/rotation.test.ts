@@ -64,12 +64,6 @@ describe('advanceRotation', () => {
     const next = advanceRotation({ angle, deltaSeconds: 0.016, periodSeconds: 10 });
     expect(Number.isFinite(next)).toBe(true);
   });
-
-  it('normalizes a negative starting angle', () => {
-    const next = advanceRotation({ angle: -1, deltaSeconds: 0, periodSeconds: 10 });
-    expect(next).toBeGreaterThanOrEqual(0);
-    expect(next).toBeLessThan(FULL_TURN_RADIANS);
-  });
 });
 
 describe('clampFrameDelta', () => {
@@ -84,9 +78,5 @@ describe('clampFrameDelta', () => {
 
   it.each([-1, Number.NaN, Number.NEGATIVE_INFINITY])('treats %s as no time passing', (delta) => {
     expect(clampFrameDelta(delta)).toBe(0);
-  });
-
-  it('keeps zero as zero', () => {
-    expect(clampFrameDelta(0)).toBe(0);
   });
 });

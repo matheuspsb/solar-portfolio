@@ -40,12 +40,6 @@ describe('interactionReducer', () => {
     expect(interactionReducer(selected, { type: 'deselect' }).selectedId).toBeNull();
   });
 
-  it('deselecting with nothing selected keeps the same state object', () => {
-    expect(interactionReducer(initialInteractionState, { type: 'deselect' })).toBe(
-      initialInteractionState,
-    );
-  });
-
   it('selecting twice (repeated Enter) is idempotent', () => {
     const once = reduce([{ type: 'select', id: 'sun' }]);
     expect(interactionReducer(once, { type: 'select', id: 'sun' })).toBe(once);

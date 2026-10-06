@@ -86,15 +86,4 @@ describe('useSceneAvailability', () => {
     act(() => result.current.retry());
     expect(result.current.status).toBe('working');
   });
-
-  it('marking the same state repeatedly is harmless', () => {
-    const { result } = renderIdle(withWebGL);
-    act(() => {
-      result.current.markContextLost();
-      result.current.markContextLost();
-      result.current.markContextRestored();
-      result.current.markContextRestored();
-    });
-    expect(result.current.status).toBe('working');
-  });
 });

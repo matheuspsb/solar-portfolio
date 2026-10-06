@@ -16,15 +16,6 @@ describe('getPanelViewOffsetPixels', () => {
     expect(getPanelViewOffsetPixels({ ...base, viewportWidth: 375 })).toBe(0);
   });
 
-  it('does not shift when the panel is as wide as the viewport or wider', () => {
-    expect(getPanelViewOffsetPixels({ ...base, viewportWidth: 700, panelWidthPixels: 700 })).toBe(
-      0,
-    );
-    expect(getPanelViewOffsetPixels({ ...base, viewportWidth: 700, panelWidthPixels: 900 })).toBe(
-      0,
-    );
-  });
-
   it.each([0, -10, Number.NaN, Number.POSITIVE_INFINITY])(
     'does not shift for an invalid viewport width %s',
     (viewportWidth) => {

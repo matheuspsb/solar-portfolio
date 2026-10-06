@@ -9,11 +9,6 @@ function setup(initialActiveId: string | null = null) {
 }
 
 describe('useCameraTarget', () => {
-  it('starts without a target', () => {
-    const { result } = setup();
-    expect(result.current).toEqual({ id: null, nonce: 0 });
-  });
-
   it('targets the body that becomes active and counts it as a new request', () => {
     const { result, rerender } = setup();
     rerender({ activeId: 'mercury' });

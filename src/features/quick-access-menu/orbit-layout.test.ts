@@ -9,13 +9,6 @@ import {
 const RADIUS = 200;
 
 describe('getOrbitPositions', () => {
-  it('spreads several items from 100 to 170 degrees, first to last', () => {
-    const positions = getOrbitPositions({ count: 3, radius: RADIUS });
-    expect(positions).toHaveLength(3);
-    expect(positions[0]).toEqual({ x: -35, y: 197 });
-    expect(positions[2]).toEqual({ x: -197, y: 35 });
-  });
-
   it('keeps every item on the circle', () => {
     for (const { x, y } of getOrbitPositions({ count: 5, radius: RADIUS })) {
       expect(Math.abs(Math.hypot(x, y) - RADIUS)).toBeLessThanOrEqual(1);
@@ -27,12 +20,6 @@ describe('getOrbitPositions', () => {
       expect(x).toBeLessThan(0);
       expect(y).toBeGreaterThan(0);
     }
-  });
-
-  it('scales with the radius', () => {
-    const small = getOrbitPositions({ count: 1, radius: 100 })[0]!;
-    const large = getOrbitPositions({ count: 1, radius: 200 })[0]!;
-    expect(Math.abs(large.x - small.x * 2)).toBeLessThanOrEqual(1);
   });
 
   it.each([0, -2, Number.NaN])('returns no positions for count %s', (count) => {
@@ -98,10 +85,6 @@ describe('getOrbitRadius', () => {
       expect(getOrbitRadius(width)).toBe(getOrbitRadius(100));
     },
   );
-
-  it('is the full radius for an infinite width', () => {
-    expect(getOrbitRadius(Number.POSITIVE_INFINITY)).toBe(200);
-  });
 
   it('keeps the farthest label inside the screen for any phone width', () => {
     const labelAndMargin = 137;

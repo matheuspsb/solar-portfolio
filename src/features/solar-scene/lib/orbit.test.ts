@@ -19,13 +19,6 @@ describe('getOrbitPosition', () => {
     expect(Math.hypot(x, z)).toBeCloseTo(4.6, 6);
   });
 
-  it('scales with the radius', () => {
-    const near = getOrbitPosition({ radius: 2, angle: 1 });
-    const far = getOrbitPosition({ radius: 4, angle: 1 });
-    expect(far.x).toBeCloseTo(near.x * 2);
-    expect(far.z).toBeCloseTo(near.z * 2);
-  });
-
   it.each([Number.NaN, Number.POSITIVE_INFINITY])(
     'falls back to angle zero for angle %s',
     (angle) => {

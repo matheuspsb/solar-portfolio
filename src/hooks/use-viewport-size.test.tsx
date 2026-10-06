@@ -54,15 +54,6 @@ describe('useViewportSize', () => {
     removeSpy.mockRestore();
   });
 
-  it('keeps the same object between renders while the size does not change', () => {
-    setWindowWidth(640);
-    setWindowHeight(480);
-    const { result, rerender } = renderHook(() => useViewportSize());
-    const first = result.current;
-    rerender();
-    expect(result.current).toBe(first);
-  });
-
   it('reports a zero size on the server', () => {
     function Probe() {
       const { width, height } = useViewportSize();

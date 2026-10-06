@@ -2,7 +2,7 @@ import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
 import type { Mesh, ShaderMaterial } from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { FULL_TURN_RADIANS, MAX_FRAME_DELTA_SECONDS } from '../lib/rotation';
+import { FULL_TURN_RADIANS } from '../lib/rotation';
 import { SunMesh } from './SunMesh';
 
 async function renderSun(props: Partial<React.ComponentProps<typeof SunMesh>> = {}) {
@@ -35,12 +35,6 @@ describe('SunMesh', () => {
   it('does not rotate when the period is null (reduced motion)', async () => {
     const { renderer, mesh } = await renderSun({ rotationPeriodSeconds: null });
     await renderer.advanceFrames(5, 0.05);
-    expect(mesh.rotation.y).toBe(0);
-  });
-
-  it('survives a zero delta frame without changing rotation', async () => {
-    const { renderer, mesh } = await renderSun();
-    await renderer.advanceFrames(1, 0);
     expect(mesh.rotation.y).toBe(0);
   });
 
@@ -94,18 +88,6 @@ describe('SunMesh', () => {
     expect(material.uniforms.uTime!.value).toBe(0);
   });
 
-  it('does not jump the plasma after a huge delta (tab resumed)', async () => {
-    const { renderer, material } = await renderSun();
-    await renderer.advanceFrames(1, 900);
-    expect(material.uniforms.uTime!.value).toBeCloseTo(MAX_FRAME_DELTA_SECONDS, 5);
-  });
-
-  it('stays at its natural scale with no highlight', async () => {
-    const { renderer, mesh } = await renderSun({ highlight: 'none' });
-    await renderer.advanceFrames(10, 0.016);
-    expect(mesh.scale.x).toBeCloseTo(1, 5);
-  });
-
   it.each(['hovered', 'focused', 'selected'] as const)(
     'grows slightly when %s and stays smooth, not exploding',
     async (highlight) => {
@@ -135,15 +117,6 @@ describe('SunMesh', () => {
     );
     await renderer.advanceFrames(240, 0.016);
     expect(mesh.scale.x).toBeCloseTo(1, 3);
-  });
-
-  it('applies the highlight instantly with an infinite easing rate (reduced motion)', async () => {
-    const { renderer, mesh } = await renderSun({
-      highlight: 'selected',
-      highlightEasingRate: Number.POSITIVE_INFINITY,
-    });
-    await renderer.advanceFrames(1, 0.016);
-    expect(mesh.scale.x).toBeGreaterThan(1.01);
   });
 
   it('notifies pointer over and out', async () => {

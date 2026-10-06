@@ -12,16 +12,16 @@ pnpm dev            # desenvolvimento em http://localhost:3000
 pnpm build && pnpm start
 ```
 
-| Comando                                                 | O que faz                                                            |
-| ------------------------------------------------------- | -------------------------------------------------------------------- |
-| `pnpm lint` / `pnpm typecheck`                          | ESLint (inclui regra de nomes com 2+ letras) e TypeScript strict     |
-| `pnpm test`                                             | Vitest + React Testing Library + `@react-three/test-renderer`        |
-| `pnpm test:e2e`                                         | Playwright (builda e serve a versão de produção na porta 3100) + axe |
-| `node scripts/screenshot.mjs <nome> [largura] [altura]` | Screenshot de um servidor de produção já rodando                     |
-| `node scripts/lighthouse.mjs [mobile\|desktop]`         | Lighthouse no servidor de produção                                   |
-| `node scripts/bundle-size.mjs` / `bundle-analyze.mjs`   | Tamanho dos chunks e dono de cada byte (source maps)                 |
-| `node scripts/measure-fps.mjs`                          | Frames por segundo em 5 s (WebGL por software: números pessimistas)  |
-| `node scripts/optimize-textures.mjs`                    | Converte a textura original (`assets-src/`) em WebP                  |
+| Comando                                                 | O que faz                                                                                                                    |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lint` / `pnpm typecheck`                          | ESLint (inclui regra de nomes com 2+ letras) e TypeScript strict                                                             |
+| `pnpm test`                                             | Vitest + React Testing Library + `@react-three/test-renderer`                                                                |
+| `pnpm test:e2e`                                         | Playwright (builda e serve a versão de produção na porta 3100) + axe; roda só localmente, o CI não o executa (veja `ci.yml`) |
+| `node scripts/screenshot.mjs <nome> [largura] [altura]` | Screenshot de um servidor de produção já rodando                                                                             |
+| `node scripts/lighthouse.mjs [mobile\|desktop]`         | Lighthouse no servidor de produção                                                                                           |
+| `node scripts/bundle-size.mjs` / `bundle-analyze.mjs`   | Tamanho dos chunks e dono de cada byte (source maps)                                                                         |
+| `node scripts/measure-fps.mjs`                          | Frames por segundo em 5 s (WebGL por software: números pessimistas)                                                          |
+| `node scripts/optimize-textures.mjs`                    | Converte a textura original (`assets-src/`) em WebP                                                                          |
 
 ## Arquitetura
 
@@ -31,14 +31,14 @@ src/
   content/                dados: corpos celestes, painel "Sobre", créditos, descrição da cena
   design-system/          UI compartilhada
     tokens/               tokens (Tailwind v4 @theme + variáveis) e valores usados pela cena
-    atoms/                Button, IconButton, Input, Textarea, Heading, Text, Label, Link, PlanetDot, ícones, VisuallyHidden
+    atoms/                Button, IconButton, Heading, Text, Label, Link, PlanetDot, ícones, VisuallyHidden
   features/
     solar-scene/          cena 3D: components/ (Sol, corona, estrelas, câmera...), hooks/, lib/, shaders/, constants.ts
-    content-panel/        painel modal: components/, sections/ (about, contact + formulário), hooks/, lib/
+    content-panel/        painel modal: components/, sections/ (about, contact em etapas), hooks/, lib/
     quick-access-menu/    menu orbital + orbit-layout (função pura)
     portfolio/            composição: PortfolioExperience, fallback, dica, controles de teclado
   services/               entrega da mensagem de contato (interface ContactDelivery; hoje um placeholder)
-  hooks/                  hooks usados por 2+ features (navegação por setas, ociosidade do navegador)
+  hooks/                  hooks usados por 2+ features (navegação por setas, ociosidade, tamanho da janela, movimento reduzido)
   lib/                    domínio e utilitários usados por 2+ features (corpo celeste, interaction-state, join-class-names...)
 ```
 

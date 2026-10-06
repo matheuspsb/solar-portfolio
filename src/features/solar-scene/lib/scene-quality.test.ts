@@ -2,18 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { getSceneQuality } from './scene-quality';
 
 describe('getSceneQuality', () => {
-  it('gives the highest tier to desktop widths', () => {
-    expect(getSceneQuality(1440).tier).toBe('high');
-  });
-
-  it('gives a medium tier to tablets', () => {
-    expect(getSceneQuality(820).tier).toBe('medium');
-  });
-
-  it('gives the low tier to phones', () => {
-    expect(getSceneQuality(375).tier).toBe('low');
-  });
-
   it('renders fewer stars and lower pixel ratio as the tier drops', () => {
     const high = getSceneQuality(1920);
     const low = getSceneQuality(360);

@@ -207,14 +207,10 @@ abstract only when genuinely reused).
   recomputed every frame, so the camera tracks a moving planet. Damped over the shortest arc (`stepAngleToward`, rate
   `cameraFocusEasingRate`); instant with reduced motion. A user drag (OrbitControls `start`) cancels the following until a new focus
   (`nonce` in `useCameraTarget`) arrives. Pure math in `lib/camera-focus.ts`. Click, Tab/arrows and the menu all go through `useCameraTarget`.
-- **Contact form (superseded by the stepped panel below).** react-hook-form + zod, one shared schema (`lib/contact-message.ts`) for the browser and the server.
 - **Delivery is a placeholder.** `app/actions.ts` is a Next Server Action that calls `createContactMessageHandler(unconfiguredContactDelivery)`
   (`services/contact.ts`): it re-validates, delivers through the `ContactDelivery` interface and answers a generic error when delivery
   throws (no internals leaked). The default delivery **drops the message**; implement `ContactDelivery` (e-mail, CRM, database) and swap it
   in `app/actions.ts` (marked `TODO(integration)`). Rate limiting / spam protection (honeypot, captcha) are not included and should come with the integration.
-- **Form pieces:** atoms `Input`/`Textarea` (ref as prop, `aria-invalid` styling, new `danger-400` token), `FormField` (label, error tied
-  by `aria-describedby`) colocated with the contact section because only it uses it; `RuledHeading` moved to `content-panel/components`
-  because About and Contact both use it. Form copy lives in `content/contact.ts` (`form`).
 
 ## Contact panel in steps with the comet and the "Correio de Hermes" delivery (design handoff 3b)
 
@@ -250,3 +246,13 @@ abstract only when genuinely reused).
 - **Bundle.** `SectionView` lazy-loads the contact section, so react-hook-form and zod stay out of the initial JS (about 195 KB gzip).
 - **Known simplification.** The protocol shown on the receipt (`MSG-XXXX`) is derived from the lengths of name and message, as in the design;
   it is decorative, not an id from the server. Delivery itself is still the no-op placeholder (`services/contact.ts`).
+
+## CI and test hygiene
+
+- **CI (`.github/workflows/ci.yml`).** Runs on pull requests and on pushes to `prod`: lint, typecheck, `prettier --check`, unit tests and build.
+  The Playwright job is disabled (kept as a commented block with a `TODO(ci)`): the tests that capture the WebGL canvas time out on the 2-vCPU
+  GitHub runners, where WebGL is rasterized on the CPU. The suite passes locally (`pnpm test:e2e`, about 2 minutes).
+- **Test pruning.** Three audits removed tests that only checked native behavior (a button that is clickable, a ref that is forwarded), copied
+  constants or copy into the assertion, or repeated what a higher-level test already proves. The rule is in `CLAUDE.md` (section 4.1): keep a
+  test when it protects a rule or a behavior that would break for the visitor (focus, accessibility, validation, math with edge cases,
+  legally required attribution), and delete the lower-level duplicate when a higher-level test covers it.

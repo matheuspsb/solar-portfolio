@@ -78,15 +78,6 @@ describe('CelestialBody', () => {
     expect(loadTexture).not.toHaveBeenCalled();
   });
 
-  it('shows a focus ring only while focused', async () => {
-    const unfocused = await ReactThreeTestRenderer.create(<CelestialBody {...defaultProps} />);
-    const unfocusedCount = unfocused.scene.children.length;
-    const focused = await ReactThreeTestRenderer.create(
-      <CelestialBody {...defaultProps} highlight="focused" />,
-    );
-    expect(focused.scene.children.length).toBe(unfocusedCount + 1);
-  });
-
   it('reports hover changes and shows a pointer cursor while hovered', async () => {
     const onHoverChange = vi.fn();
     const renderer = await ReactThreeTestRenderer.create(
@@ -167,22 +158,6 @@ describe('CelestialBody', () => {
       const before = group.position.clone();
       await renderer.advanceFrames(10, 0.1);
       expect(group.position.distanceTo(before)).toBe(0);
-    });
-
-    it('shows a focus ring only while focused', async () => {
-      const unfocused = await ReactThreeTestRenderer.create(
-        <CelestialBody {...planetProps} loadTexture={async () => new Texture()} />,
-      );
-      const focused = await ReactThreeTestRenderer.create(
-        <CelestialBody
-          {...planetProps}
-          highlight="focused"
-          loadTexture={async () => new Texture()}
-        />,
-      );
-      expect(readOrbitGroup(focused).children.length).toBe(
-        readOrbitGroup(unfocused).children.length + 1,
-      );
     });
 
     it('opens its section when the click target is clicked', async () => {

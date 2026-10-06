@@ -8,10 +8,6 @@ describe('getUnderlinePercent', () => {
 });
 
 describe('getRingOffset', () => {
-  it('is a full ring offset (empty) with no characters', () => {
-    expect(getRingOffset({ count: 0, max: 500 })).toBe(100);
-  });
-
   it('fills proportionally to the characters typed', () => {
     expect(getRingOffset({ count: 250, max: 500 })).toBe(50);
   });

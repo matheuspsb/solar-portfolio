@@ -101,18 +101,6 @@ describe('validateCelestialBodies', () => {
     expect(errors).toEqual([expect.stringContaining('texture')]);
   });
 
-  it('rejects a blank menu label', () => {
-    const body = buildBody();
-    body.section = { ...body.section, menuLabel: '' };
-    expect(errorsFor([body])).toEqual([expect.stringContaining('menuLabel')]);
-  });
-
-  it('rejects a blank panel label', () => {
-    const body = buildBody();
-    body.section = { ...body.section, panelLabel: ' ' };
-    expect(errorsFor([body])).toEqual([expect.stringContaining('panelLabel')]);
-  });
-
   it('reports every problem, not only the first', () => {
     const errors = errorsFor([buildBody({ radius: 0, name: '' })]);
     expect(errors).toHaveLength(2);

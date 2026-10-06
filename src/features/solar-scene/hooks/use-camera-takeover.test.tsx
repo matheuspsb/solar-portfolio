@@ -7,11 +7,6 @@ function createFakeControls() {
 }
 
 describe('useCameraTakeover', () => {
-  it('starts without a takeover', () => {
-    const { result } = renderHook(() => useCameraTakeover(createFakeControls(), 0));
-    expect(result.current.current).toBe(false);
-  });
-
   it('flags a takeover when the visitor starts dragging', () => {
     const controls = createFakeControls();
     const { result } = renderHook(() => useCameraTakeover(controls, 0));

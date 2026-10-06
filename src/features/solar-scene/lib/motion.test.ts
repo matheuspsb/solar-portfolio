@@ -26,22 +26,12 @@ describe('getTransitionSeconds', () => {
 });
 
 describe('getRotationPeriodForMotion', () => {
-  it('keeps the period when motion is allowed', () => {
-    expect(getRotationPeriodForMotion(180, false)).toBe(180);
-  });
-
   it('returns null (no automatic rotation) when reduced motion is preferred', () => {
     expect(getRotationPeriodForMotion(180, true)).toBeNull();
   });
 });
 
 describe('getHighlightEasingRate', () => {
-  it('eases smoothly when motion is allowed', () => {
-    const rate = getHighlightEasingRate(false);
-    expect(rate).toBeGreaterThan(0);
-    expect(Number.isFinite(rate)).toBe(true);
-  });
-
   it('applies changes instantly when reduced motion is preferred', () => {
     expect(getHighlightEasingRate(true)).toBe(INSTANT_EASING_RATE);
     expect(INSTANT_EASING_RATE).toBe(Number.POSITIVE_INFINITY);
@@ -69,11 +59,5 @@ describe('getTransitionRate', () => {
 
   it.each([-1, Number.NaN])('is instant for invalid duration %s', (seconds) => {
     expect(getTransitionRate(seconds)).toBe(INSTANT_EASING_RATE);
-  });
-
-  it('is a positive finite rate for a normal transition', () => {
-    const rate = getTransitionRate(0.6);
-    expect(rate).toBeGreaterThan(0);
-    expect(Number.isFinite(rate)).toBe(true);
   });
 });

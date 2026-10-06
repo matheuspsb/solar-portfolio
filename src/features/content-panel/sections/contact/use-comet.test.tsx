@@ -161,16 +161,6 @@ describe('useComet', () => {
     expect(result.current.head).toBe(0.17);
   });
 
-  it('finishes at once for a zero duration', async () => {
-    const { result } = setup({ initialProgress: 0 });
-    let arrival: Promise<boolean> = Promise.resolve(false);
-    act(() => {
-      arrival = result.current.travelTo(0.5, 0);
-    });
-    expect(result.current.head).toBe(0.5);
-    await expect(arrival).resolves.toBe(true);
-  });
-
   it('cancels its frame on unmount and settles a pending travel as not arrived', async () => {
     const { result, unmount, clock } = setup({ initialProgress: 0 });
     let arrival: Promise<boolean> = Promise.resolve(true);

@@ -16,10 +16,6 @@ describe('createSeededRandom', () => {
       expect(value).toBeLessThan(1);
     }
   });
-
-  it('differs between seeds', () => {
-    expect(createSeededRandom(1)()).not.toBe(createSeededRandom(2)());
-  });
 });
 
 describe('generateStarPositions', () => {
@@ -39,12 +35,6 @@ describe('generateStarPositions', () => {
       const distance = Math.hypot(positions[index]!, positions[index + 1]!, positions[index + 2]!);
       expect(distance).toBeCloseTo(radius, 3);
     }
-  });
-
-  it('is reproducible with the same random source', () => {
-    const first = generateStarPositions({ count: 20, radius: 10, random: createSeededRandom(9) });
-    const second = generateStarPositions({ count: 20, radius: 10, random: createSeededRandom(9) });
-    expect(Array.from(first)).toEqual(Array.from(second));
   });
 
   it('distributes stars on both hemispheres', () => {
