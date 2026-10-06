@@ -75,6 +75,12 @@
 - Formulário de contato (react-hook-form + zod) com Server Action. **Pendente de integração:** a entrega (`services/contact.ts`) descarta a mensagem.
 - Validação: lint, typecheck, 669 testes unitários, 48 e2e (incl. axe no painel com erros do formulário, 320 px) e build passando.
 
+## Contato em etapas (cometa + Correio de Hermes)
+
+- Painel de contato refeito conforme o handoff 3b: três perguntas (Nome, E-mail, Mensagem), cometa percorrendo o arco com rastro, planetas que acendem com onda, linha do campo que enche, ✓ no e-mail válido, tremida na validação, anel contador de 500, cometa saindo com linhas de velocidade e a entrega com envelope alado, brilho em Mercúrio, carimbo "Entregue" e recibo.
+- Validação: lint, typecheck, 774 testes unitários, 54 e2e (incluindo axe nas telas de erro e de entrega, 320/375 px e movimento reduzido) e build passando.
+- Métricas: JS inicial ~195 KB gzip (formulário e zod em chunk preguiçoso); Lighthouse mobile 69-71 (TBT 1,5-2,0 s, mesma causa de antes), desktop 91-93, acessibilidade/boas práticas/SEO 100.
+
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 
 Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A arquitetura atual já é orientada a dados; o que muda:

@@ -51,8 +51,8 @@ Decisões de projeto:
 
 - **Câmera e órbitas.** A câmera gira em torno do Sol até o corpo focado ou selecionado (Tab, setas, clique, menu), para que ele nunca
   fique atrás do Sol; os planetas continuam orbitando com o painel aberto (só `prefers-reduced-motion` pausa a cena).
-- **Formulário de contato.** react-hook-form + zod; o mesmo schema (`lib/contact-message.ts`) valida no navegador e na Server Action
-  (`app/actions.ts`). A entrega é um placeholder que descarta a mensagem: implemente `ContactDelivery` (`services/contact.ts`) e troque em `app/actions.ts`.
+- **Contato em etapas.** Uma pergunta por vez (react-hook-form + zod; o mesmo schema de `lib/contact-message.ts` valida no navegador e na Server Action
+  `app/actions.ts`), com um cometa que percorre o arco de progresso e, ao enviar, a cena "Correio de Hermes" (envelope voando até Mercúrio). A entrega é um placeholder que descarta a mensagem: implemente `ContactDelivery` (`services/contact.ts`) e troque em `app/actions.ts`.
 - **Planetas são dados.** Mercúrio (a seção "Contato") é só um item em `content/celestial-bodies.ts` com `kind: 'planet'` e uma `orbit`; a cena
   desenha a órbita, o planeta e o enquadramento a partir disso.
 - **Corpos celestes são dados.** `content/celestial-bodies.ts` é uma lista tipada e validada (`lib/celestial-body.ts`). Cena, menu e

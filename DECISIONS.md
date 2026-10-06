@@ -207,9 +207,7 @@ abstract only when genuinely reused).
   recomputed every frame, so the camera tracks a moving planet. Damped over the shortest arc (`stepAngleToward`, rate
   `cameraFocusEasingRate`); instant with reduced motion. A user drag (OrbitControls `start`) cancels the following until a new focus
   (`nonce` in `useCameraTarget`) arrives. Pure math in `lib/camera-focus.ts`. Click, Tab/arrows and the menu all go through `useCameraTarget`.
-- **Contact form.** `react-hook-form` + `zod` (+ `@hookform/resolvers`); zod was chosen over yup for its TypeScript inference and because
-  one schema (`lib/contact-message.ts`) is shared by the browser (friendly Portuguese errors, `mode: 'onTouched'`, focus on the first
-  invalid field) and the server (never trusts the client). Limits: name 100, e-mail 254, message 10 to 2000 characters, all trimmed.
+- **Contact form (superseded by the stepped panel below).** react-hook-form + zod, one shared schema (`lib/contact-message.ts`) for the browser and the server.
 - **Delivery is a placeholder.** `app/actions.ts` is a Next Server Action that calls `createContactMessageHandler(unconfiguredContactDelivery)`
   (`services/contact.ts`): it re-validates, delivers through the `ContactDelivery` interface and answers a generic error when delivery
   throws (no internals leaked). The default delivery **drops the message**; implement `ContactDelivery` (e-mail, CRM, database) and swap it
@@ -217,3 +215,38 @@ abstract only when genuinely reused).
 - **Form pieces:** atoms `Input`/`Textarea` (ref as prop, `aria-invalid` styling, new `danger-400` token), `FormField` (label, error tied
   by `aria-describedby`) colocated with the contact section because only it uses it; `RuledHeading` moved to `content-panel/components`
   because About and Contact both use it. Form copy lives in `content/contact.ts` (`form`).
+
+## Contact panel in steps with the comet and the "Correio de Hermes" delivery (design handoff 3b)
+
+- **What replaced what.** The single-page form (`ContactForm`, `FormField`, `Input`, `Textarea`) was deleted. The panel asks Nome, E-mail and
+  Mensagem one at a time; a comet travels an arc with three planets (progress), and a successful send ends on a delivery scene (envelope with
+  wings flying to Mercury, "Entregue" stamp, receipt). Copy lives in `content/contact.ts` (typed by `lib/contact-content.ts`), with
+  `{firstName}`/`{email}` placeholders filled by `fillTemplate`.
+- **Structure (all in `features/content-panel/sections/contact/`).** Pure and tested: `arc-geometry` (quadratic arc, trail segments, planet
+  state), `comet-motion` (easeInOutCubic, tween frame, frame-rate independent tail chase), `contact-flow` (reducer: step, status
+  asking/sending/done, error, field motion), `receipt`, `delivery-geometry`, `answer-progress`, `action-presentation`, `stage-scale`. Hooks:
+  `use-comet` (rAF tween with an injectable `FrameScheduler`, returns a promise per travel) and `use-element-width`. Presentational:
+  `ArcJourney`, `JourneyPlanet`, `WarpLines`, `DeliveryScene` (+ `MercuryPlanet`, `FlyingEnvelope`, `DeliveryStamp`), `QuestionHeading`,
+  `AnswerField`, `AnswerFooter`, `StepActions`, `LinkedInCard`, `DeliveryReceipt`, `JourneyStage`. `ContactSection` is the organism that wires
+  react-hook-form (values and the final `zodResolver` pass), the reducer and the comet.
+- **Validation.** One schema, per-field messages from the design ("Digite seu nome para continuar.", "Esse e-mail parece incompleto.",
+  "Escreva uma mensagem antes de enviar."). `validateContactField` validates a single step; the message limit is now 500 (counter ring) and the
+  minimum is 1 non-blank character, as in the design. The server action re-validates everything.
+- **Send order.** The comet exits and the request runs in parallel; the delivery scene only plays when the result is ok. On a failure (or a
+  thrown submitter) the comet flies back from the exit point to the message planet, the error appears in the live note line and the text is kept.
+  A `ref` lock plus the reducer guard prevent double submits.
+- **Motion and reduced motion.** Keyframes and `animate-*` utilities live in `design-system/tokens/journey-motion.css` (delays through
+  `--animation-delay`), always applied with `motion-safe:`; JS-driven parts (comet, ripples, warp, envelope) also check
+  `usePrefersReducedMotion` (promoted to shared `hooks/` because the panel and the scene both use it): positions jump, the delivery scene shows
+  its final state and no animation runs (e2e checks zero running animations).
+- **Responsiveness.** The drawings use the design's 450 px coordinate space inside a box that is scaled with `transform: scale(width / 450)`
+  (measured with a `ResizeObserver`), and the stage height transitions between 150 and 340 px.
+- **Accessibility.** The question is the panel's `h2` (`aria-label` with the whole sentence; the animated words are `aria-hidden`), the input
+  label is the question, the hint/error line is the field's `aria-describedby` (errors use `role="alert"`), the decorative arc and scene are
+  `aria-hidden`, finished planets are real buttons ("Voltar para NOME"), focus goes to the next field on every step change (and back to the
+  field after an error or a failed send) and to the confirmation heading on delivery. Colors from the design that failed AA on the dark
+  background (`#5d586f`, `#4d4960`, `#6f6a82`) use `ink-400` (`#7f7a92`); the error color is the design's `#f07f6a` (`danger-400`).
+- **Layout.** `ContentPanel` no longer pads its body; each section brings its own padding so the contact stage can bleed to the panel edges.
+- **Bundle.** `SectionView` lazy-loads the contact section, so react-hook-form and zod stay out of the initial JS (about 195 KB gzip).
+- **Known simplification.** The protocol shown on the receipt (`MSG-XXXX`) is derived from the lengths of name and message, as in the design;
+  it is decorative, not an id from the server. Delivery itself is still the no-op placeholder (`services/contact.ts`).
