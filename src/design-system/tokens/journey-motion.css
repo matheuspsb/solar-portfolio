@@ -1,0 +1,321 @@
+@keyframes word-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes field-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes field-shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  20% {
+    transform: translateX(-9px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(3.4);
+    opacity: 0;
+  }
+}
+
+@keyframes dot-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 color-mix(in srgb, var(--color-ember-400) 33%, transparent),
+      0 0 14px color-mix(in srgb, var(--color-ember-400) 40%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 7px transparent,
+      0 0 22px color-mix(in srgb, var(--color-ember-400) 60%, transparent);
+  }
+}
+
+@keyframes warp {
+  0% {
+    transform: translateX(8px) scaleX(0.2);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(280px) scaleX(1.4);
+    opacity: 0;
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes deliver {
+  0% {
+    offset-distance: 0%;
+    transform: scale(0);
+  }
+  10% {
+    transform: scale(1.2);
+  }
+  16% {
+    transform: scale(1);
+  }
+  30% {
+    offset-distance: 0%;
+    transform: scale(1);
+    animation-timing-function: var(--ease-flight);
+  }
+  90% {
+    offset-distance: 100%;
+    transform: scale(0.85);
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes trail-particle {
+  0%,
+  30% {
+    offset-distance: 0%;
+    opacity: 0;
+    animation-timing-function: var(--ease-flight);
+  }
+  36% {
+    opacity: 0.9;
+  }
+  88% {
+    opacity: 0.5;
+  }
+  90% {
+    offset-distance: 100%;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes draw-route {
+  0%,
+  30% {
+    stroke-dashoffset: 100;
+    animation-timing-function: var(--ease-flight);
+  }
+  90%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes wing-flap {
+  from {
+    transform: rotate(8deg);
+  }
+  to {
+    transform: rotate(-34deg);
+  }
+}
+
+@keyframes wings-in {
+  0%,
+  14% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  24%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes flash {
+  from {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+@keyframes mercury-glow {
+  0% {
+    box-shadow: 0 0 18px rgb(255 255 255 / 0.13);
+  }
+  35% {
+    box-shadow: 0 0 60px 14px color-mix(in srgb, var(--color-ember-400) 53%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 26px 2px color-mix(in srgb, var(--color-ember-400) 20%, transparent);
+  }
+}
+
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: scale(1.9) rotate(4deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.94) rotate(-13deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-12deg);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes launch-pad {
+  0%,
+  28% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  45%,
+  100% {
+    opacity: 0.25;
+    transform: scale(1.6);
+  }
+}
+
+@utility animate-word-in {
+  animation: word-in 600ms var(--ease-orbit-ring) var(--animation-delay, 0s) both;
+}
+
+@utility animate-field-in {
+  animation: field-in 600ms var(--ease-orbit-ring) 150ms both;
+}
+
+@utility animate-field-shake {
+  animation: field-shake 420ms ease;
+}
+
+@utility animate-ripple {
+  animation: ripple 1s ease-out forwards;
+}
+
+@utility animate-dot-pulse {
+  animation: dot-pulse 2.2s ease-in-out infinite;
+}
+
+@utility animate-warp {
+  animation: warp 900ms var(--ease-warp) var(--animation-delay, 0s) both;
+}
+
+@utility animate-pop {
+  animation: pop 450ms var(--ease-pop) both;
+}
+
+@utility animate-fade-up {
+  animation: fade-up 500ms ease var(--animation-delay, 0s) both;
+}
+
+@utility animate-deliver {
+  animation: deliver 2300ms linear forwards;
+}
+
+@utility animate-trail-particle {
+  animation: trail-particle 2300ms linear var(--animation-delay, 0s) forwards;
+}
+
+@utility animate-draw-route {
+  animation: draw-route 2300ms linear forwards;
+}
+
+@utility animate-wing-flap {
+  animation: wing-flap 160ms ease-in-out var(--animation-delay, 0s) infinite alternate;
+}
+
+@utility animate-wings-in {
+  animation: wings-in 2300ms linear both;
+}
+
+@utility animate-flash {
+  animation: flash 900ms ease-out 2080ms forwards;
+}
+
+@utility animate-mercury-glow {
+  animation: mercury-glow 1400ms ease 2050ms both;
+}
+
+@utility animate-stamp {
+  animation: stamp 550ms var(--ease-stamp) 2300ms both;
+}
+
+@utility animate-twinkle {
+  animation: twinkle var(--twinkle-duration, 3s) ease-in-out var(--animation-delay, 0s) infinite;
+}
+
+@utility animate-launch-pad {
+  animation: launch-pad 2300ms ease forwards;
+}

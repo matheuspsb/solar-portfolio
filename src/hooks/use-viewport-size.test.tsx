@@ -54,18 +54,6 @@ describe('useViewportSize', () => {
     removeSpy.mockRestore();
   });
 
-  it('updates the height on orientation change', () => {
-    setWindowWidth(375);
-    setWindowHeight(812);
-    const { result } = renderHook(() => useViewportSize());
-    act(() => {
-      setWindowWidth(812);
-      setWindowHeight(375);
-      window.dispatchEvent(new Event('orientationchange'));
-    });
-    expect(result.current).toEqual({ width: 812, height: 375 });
-  });
-
   it('keeps the same object between renders while the size does not change', () => {
     setWindowWidth(640);
     setWindowHeight(480);

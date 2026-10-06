@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './journey-motion.css';
 
 /*
  * Design tokens. Tailwind v4 turns each --color-*, --text-*, --radius-*, etc. into a utility class.
@@ -13,6 +14,7 @@
   --color-panel-start: #0c0b14;
   --color-panel-end: #08070d;
   --color-chip: #12101b;
+  --color-field: #14121c;
   --color-surface: rgb(12 11 20 / 0.85);
   --color-surface-hover: rgb(28 26 38 / 0.85);
   --color-overlay: rgb(3 4 10 / 0.55);
@@ -22,6 +24,7 @@
   --color-line: #22202e;
   --color-line-chip: #2a2737;
   --color-line-control: #2c2939;
+  --color-line-planet: #3a3650;
 
   /* Ink (text). 400 is lighter than the original mock (#6f6a82) so small text reaches AA contrast. */
   --color-ink-100: #ece9f2;
@@ -31,7 +34,7 @@
   --color-ink-control: #cfcade;
 
   /* Accents */
-  --color-danger-400: #ff8f8f;
+  --color-danger-400: #f07f6a;
   --color-ember-200: #ffc988;
   --color-ember-300: #ffd59e;
   --color-ember-400: #f2b56b;
@@ -39,6 +42,12 @@
   --color-ember-700: #b0631f;
   --color-on-ember: #170e04;
   --color-nebula-300: #9fb4e8;
+  --color-paper-100: #f6e7cf;
+  --color-paper-300: #dcc196;
+  --color-mercury-light: #e4dfd6;
+  --color-mercury-mid: #a39d94;
+  --color-mercury-shade: #5a5550;
+  --color-mercury-dark: #34312e;
   --color-focus-ring: #7cc4ff;
 
   /* Stack "planets" */
@@ -70,6 +79,13 @@
   --text-credit: 0.71875rem;
   --text-eyebrow: 0.6875rem;
   --text-label: 0.625rem;
+  --text-question: 1.875rem;
+  --text-answer: 1.375rem;
+  --text-message: 1.125rem;
+  --text-action: 0.96875rem;
+  --text-stamp-small: 0.5rem;
+  --text-stamp-date: 0.5625rem;
+  --text-stamp-name: 1.0625rem;
 
   --tracking-label: 0.16em;
   --tracking-role: 0.06em;
@@ -88,11 +104,20 @@
   --shadow-planet-strong: 0 0 14px currentColor;
   --shadow-planet-toggle: 0 0 12px color-mix(in srgb, currentColor 53%, transparent);
   --shadow-emblem: 0 0 22px rgb(224 112 42 / 0.53);
+  --shadow-ember-bar: 0 0 10px color-mix(in srgb, var(--color-ember-400) 53%, transparent);
+  --shadow-ember-planet: 0 0 12px color-mix(in srgb, var(--color-ember-400) 60%, transparent);
+  --shadow-envelope: 0 0 16px color-mix(in srgb, var(--color-ember-400) 67%, transparent);
+  --shadow-spark: 0 0 8px var(--color-ember-400);
+  --shadow-mercury: 0 0 18px rgb(255 255 255 / 0.13);
 
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-panel: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-orbit-ring: cubic-bezier(0.2, 1, 0.3, 1);
   --ease-orbit-item: cubic-bezier(0.2, 1.25, 0.4, 1);
+  --ease-pop: cubic-bezier(0.2, 1.4, 0.4, 1);
+  --ease-stamp: cubic-bezier(0.2, 1.2, 0.4, 1);
+  --ease-warp: cubic-bezier(0.5, 0, 0.9, 0.4);
+  --ease-flight: cubic-bezier(0.55, 0, 0.3, 1);
 }
 
 :root {
@@ -100,6 +125,7 @@
   --z-panel: 30;
   --size-touch-target: 2.75rem;
   --size-panel-width: 28.25rem;
+  --size-message-field: 13.125rem;
 
   /* Motion durations are plain variables (not @theme) so the reduced-motion override below applies. */
   --duration-fast: 120ms;
