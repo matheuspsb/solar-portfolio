@@ -3,6 +3,7 @@ import {
   CONTACT_MESSAGE_LIMITS,
   contactMessageSchema,
   parseContactMessage,
+  validateContactField,
 } from './contact-message';
 
 const valid = {
@@ -42,7 +43,13 @@ describe('contactMessageSchema', () => {
 
   describe('name', () => {
     it.each(['', '   '])('rejects an empty name %j with a clear message', (name) => {
-      expect(errorFor({ ...valid, name }, 'name')).toBe('Informe seu nome.');
+      expect(errorFor({ ...valid, name }, 'name')).toBe('Digite seu nome para continuar.');
+    });
+
+    it('asks for at least two characters, counting only trimmed ones', () => {
+      expect(errorFor({ ...valid, name: ' A ' }, 'name')).toBe('Use pelo menos 2 caracteres.');
+      expect(validateContactField('name', 'A')).toBe('Use pelo menos 2 caracteres.');
+      expect(contactMessageSchema.safeParse({ ...valid, name: ' Al ' }).success).toBe(true);
     });
 
     it('accepts names with accents, apostrophes and hyphens', () => {
@@ -60,13 +67,13 @@ describe('contactMessageSchema', () => {
 
   describe('email', () => {
     it.each(['', '   '])('asks for the e-mail when it is empty (%j)', (email) => {
-      expect(errorFor({ ...valid, email }, 'email')).toBe('Informe seu e-mail.');
+      expect(errorFor({ ...valid, email }, 'email')).toBe('Esse e-mail parece incompleto.');
     });
 
     it.each(['ana', 'ana@', '@empresa.com', 'ana@empresa', 'ana empresa@x.com', 'ana@@x.com'])(
       'rejects the invalid e-mail %j',
       (email) => {
-        expect(errorFor({ ...valid, email }, 'email')).toBe('Informe um e-mail válido.');
+        expect(errorFor({ ...valid, email }, 'email')).toBe('Esse e-mail parece incompleto.');
       },
     );
 
@@ -85,16 +92,13 @@ describe('contactMessageSchema', () => {
 
   describe('message', () => {
     it.each(['', '    '])('rejects an empty message %j', (message) => {
-      expect(errorFor({ ...valid, message }, 'message')).toBe('Escreva uma mensagem.');
+      expect(errorFor({ ...valid, message }, 'message')).toBe(
+        'Escreva uma mensagem antes de enviar.',
+      );
     });
 
-    it('requires a minimum length and counts only trimmed characters', () => {
-      const tooShort = 'a'.repeat(CONTACT_MESSAGE_LIMITS.messageMin - 1);
-      expect(errorFor({ ...valid, message: `   ${tooShort}   ` }, 'message')).toContain(
-        'pelo menos',
-      );
-      const atMinimum = 'a'.repeat(CONTACT_MESSAGE_LIMITS.messageMin);
-      expect(contactMessageSchema.safeParse({ ...valid, message: atMinimum }).success).toBe(true);
+    it('accepts a one-character message, counting only trimmed characters', () => {
+      expect(contactMessageSchema.safeParse({ ...valid, message: '  a  ' }).success).toBe(true);
     });
 
     it('rejects a message over the limit and accepts exactly the limit', () => {
@@ -136,10 +140,31 @@ describe('parseContactMessage', () => {
     expect(result.success).toBe(false);
     if (result.success) return;
     expect(Object.keys(result.fieldErrors).sort()).toEqual(['email', 'message', 'name']);
-    expect(result.fieldErrors.name).toBe('Informe seu nome.');
+    expect(result.fieldErrors.name).toBe('Digite seu nome para continuar.');
   });
 
   it('never throws on garbage', () => {
     expect(() => parseContactMessage(undefined)).not.toThrow();
+  });
+});
+
+describe('validateContactField', () => {
+  it('returns null for a valid value', () => {
+    expect(validateContactField('name', 'Ana')).toBeNull();
+    expect(validateContactField('email', 'ana@empresa.com')).toBeNull();
+    expect(validateContactField('message', 'Oi!')).toBeNull();
+  });
+
+  it.each([
+    ['name', '  ', 'Digite seu nome para continuar.'],
+    ['email', 'ana@', 'Esse e-mail parece incompleto.'],
+    ['email', '', 'Esse e-mail parece incompleto.'],
+    ['message', '', 'Escreva uma mensagem antes de enviar.'],
+  ] as const)('explains the invalid %s %j', (field, value, message) => {
+    expect(validateContactField(field, value)).toBe(message);
+  });
+
+  it.each([undefined, null, 42])('treats the non-string %j as invalid', (value) => {
+    expect(validateContactField('name', value)).not.toBeNull();
   });
 });

@@ -1,3 +1,5 @@
+import type { ContactContent } from './contact-content';
+
 export type PlanetTone = 'cyan' | 'white' | 'blue' | 'green' | 'orchid' | 'amber' | 'periwinkle';
 
 export type PlanetSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -17,24 +19,6 @@ export type AboutContent = {
   location: { name: string; coordinates: string };
   stack: readonly StackItem[];
   links: ReadonlyArray<{ label: string; href: string }>;
-};
-
-export type ContactFormContent = {
-  heading: string;
-  nameLabel: string;
-  emailLabel: string;
-  messageLabel: string;
-  submitLabel: string;
-  submittingLabel: string;
-  successMessage: string;
-};
-
-export type ContactContent = {
-  type: 'contact';
-  headline: string;
-  summary: string;
-  channels: ReadonlyArray<{ label: string; href: string }>;
-  form: ContactFormContent;
 };
 
 export type SectionContent = AboutContent | ContactContent;
