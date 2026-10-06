@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react';
 import { joinClassNames } from '@/lib/join-class-names';
 
 type ButtonProps = ComponentProps<'button'> & {
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'muted';
 };
 
 const baseClasses =
@@ -12,6 +12,7 @@ const variantClasses = {
   primary: 'border-transparent bg-ember-400 text-on-ember hover:enabled:bg-ember-200',
   secondary:
     'border-line-control bg-transparent text-ink-100 hover:enabled:border-ember-400 hover:enabled:bg-surface-hover',
+  muted: 'border-line-chip bg-field text-ink-300 hover:enabled:brightness-110',
 } as const;
 
 export function Button({ variant = 'primary', type = 'button', className, ...rest }: ButtonProps) {
