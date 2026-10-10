@@ -4,15 +4,13 @@ import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { Suspense, lazy } from 'react';
 import { sceneTokens } from '@/styles/scene-tokens';
-import type { CelestialBodyConfig } from '@/domain/celestial-body';
-import type { Highlight } from '@/domain/interaction-state';
 import {
   getFrameloop,
   getHighlightEasingRate,
   getRotationPeriodForMotion,
   getTrackerEasingRate,
 } from '../../lib/motion';
-import type { SceneQuality } from '../../lib/scene-quality';
+import type { SceneSettings } from '../../lib/scene-settings';
 import { MIN_ZOOM_DISTANCE, getMaxZoomDistance } from '../../lib/zoom';
 import {
   CAMERA_FIELD_OF_VIEW,
@@ -42,26 +40,10 @@ const SceneEffects = lazy(() =>
   import('./SceneEffects').then((module) => ({ default: module.SceneEffects })),
 );
 
-type SolarSystemSceneProps = {
-  quality: SceneQuality;
-  cameraDistance: number;
-  viewOffsetPixels: number;
-  viewOffsetEasingRate: number;
-  cameraFocusEasingRate: number;
-  cameraTarget: SceneProps['cameraTarget'];
-  prefersReducedMotion: boolean;
-  bodies: readonly CelestialBodyConfig[];
-  highlightOf: (id: string) => Highlight;
-  onHoverChange: (id: string, isHovered: boolean) => void;
-  onSelect: (id: string) => void;
-  onContextLost: () => void;
-  onContextRestored: () => void;
-  isActive: boolean;
-  description: string;
-  trackedBodyId: string | null;
-  onTrackFrame: SceneProps['onTrackFrame'];
-  onRevealChange: SceneProps['onRevealChange'];
-};
+type SolarSystemSceneProps = SceneProps &
+  SceneSettings & {
+    prefersReducedMotion: boolean;
+  };
 
 export function SolarSystemScene({
   quality,
