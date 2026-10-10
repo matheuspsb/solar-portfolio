@@ -18,29 +18,29 @@ import type {
   ContactSubmitResult,
 } from '@/domain/contact-message';
 import { useContactSubmitter } from '../../hooks/contact-submitter';
-import { getActionPresentation } from './action-presentation';
-import { AnswerFooter } from './AnswerFooter';
-import { AnswerField } from './AnswerField';
-import { ArcJourney } from './ArcJourney';
-import { COMET_ENTRY_PROGRESS, COMET_EXIT_PROGRESS, STEP_PROGRESS } from './arc-geometry';
+import { getActionPresentation } from './question/action-presentation';
+import { AnswerFooter } from './question/AnswerFooter';
+import { AnswerField } from './question/AnswerField';
+import { ArcJourney } from './journey/ArcJourney';
+import { COMET_ENTRY_PROGRESS, COMET_EXIT_PROGRESS, STEP_PROGRESS } from './journey/arc-geometry';
 import {
   COMET_ADVANCE_MS,
   COMET_ENTRY_MS,
   COMET_EXIT_MS,
   COMET_RETURN_EXTRA_STEP_MS,
   COMET_RETURN_MS,
-} from './comet-motion';
-import { contactFlowReducer, createInitialFlowState } from './contact-flow';
-import type { ContactStepIndex } from './contact-flow';
-import { DeliveryReceipt } from './DeliveryReceipt';
-import { DeliveryScene } from './DeliveryScene';
-import { JourneyStage } from './JourneyStage';
+} from './journey/comet-motion';
+import { contactFlowReducer, createInitialFlowState } from './question/contact-flow';
+import type { ContactStepIndex } from './question/contact-flow';
+import { DeliveryReceipt } from './delivery/DeliveryReceipt';
+import { DeliveryScene } from './delivery/DeliveryScene';
+import { JourneyStage } from './journey/JourneyStage';
 import { LinkedInCard } from './LinkedInCard';
-import { QuestionHeading } from './QuestionHeading';
-import { buildProtocol, fillTemplate, formatStampDate, getFirstName } from './receipt';
-import { StepActions } from './StepActions';
-import { useComet } from './use-comet';
-import type { FrameScheduler } from './use-comet';
+import { QuestionHeading } from './question/QuestionHeading';
+import { buildProtocol, fillTemplate, formatStampDate, getFirstName } from './delivery/receipt';
+import { StepActions } from './question/StepActions';
+import { useComet } from './journey/use-comet';
+import type { FrameScheduler } from './journey/use-comet';
 
 const LAST_STEP: ContactStepIndex = 2;
 const EMPTY_MESSAGE: ContactMessage = { name: '', email: '', message: '' };

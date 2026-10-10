@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { createSeededRandom, generateStarPositions } from '../lib/star-field';
+import { createSeededRandom, generateStarPositions } from '../../lib/star-field';
 import { sceneTokens } from '@/styles/scene-tokens';
 
 const STAR_FIELD_RADIUS = 90;

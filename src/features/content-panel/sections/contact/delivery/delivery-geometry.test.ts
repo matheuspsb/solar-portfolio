@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DELIVERY_SCENE_WIDTH, getStarPositions, getWarpLines } from './delivery-geometry';
-import { DELIVERY_HEIGHT } from './arc-geometry';
+import { DELIVERY_HEIGHT } from '../journey/arc-geometry';
 
 describe('getStarPositions', () => {
   it('creates the requested number of stars', () => {

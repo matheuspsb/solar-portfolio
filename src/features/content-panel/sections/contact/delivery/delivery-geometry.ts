@@ -1,5 +1,5 @@
-import { ARC_WIDTH, DELIVERY_HEIGHT } from './arc-geometry';
-import type { Point } from './arc-geometry';
+import { ARC_WIDTH, DELIVERY_HEIGHT } from '../journey/arc-geometry';
+import type { Point } from '../journey/arc-geometry';
 
 export const DELIVERY_SCENE_WIDTH = ARC_WIDTH;
 export const DELIVERY_ROUTE = 'M 78 282 Q 104 96 318 104';

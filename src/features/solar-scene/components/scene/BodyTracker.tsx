@@ -2,9 +2,9 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef, useState } from 'react';
 import { Vector3 } from 'three';
 import type { ScreenFrame } from '@/lib/screen-frame';
-import { dampValue } from '../lib/damp';
-import { getBodySceneName } from '../lib/body-scene-name';
-import { projectSphere } from '../lib/project-sphere';
+import { dampValue } from '../../lib/damp';
+import { getBodySceneName } from '../../lib/body-scene-name';
+import { projectSphere } from '../../lib/project-sphere';
 
 const SETTLED_DISTANCE_PIXELS = 0.05;
 

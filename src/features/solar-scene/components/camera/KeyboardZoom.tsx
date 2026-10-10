@@ -1,6 +1,6 @@
 import { useThree } from '@react-three/fiber';
 import { useEffect } from 'react';
-import { getZoomKeyDirection, getZoomedDistance } from '../lib/zoom';
+import { getZoomKeyDirection, getZoomedDistance } from '../../lib/zoom';
 
 type KeyboardZoomProps = {
   minDistance: number;

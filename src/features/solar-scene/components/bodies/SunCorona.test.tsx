@@ -2,7 +2,7 @@ import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Raycaster, Vector3 } from 'three';
 import type { Mesh, ShaderMaterial, SphereGeometry } from 'three';
 import { describe, expect, it } from 'vitest';
-import { MAX_FRAME_DELTA_SECONDS } from '../lib/rotation';
+import { MAX_FRAME_DELTA_SECONDS } from '../../lib/rotation';
 import { SunCorona } from './SunCorona';
 
 async function renderCorona(props: Partial<React.ComponentProps<typeof SunCorona>> = {}) {

@@ -1,13 +1,13 @@
 import { useFrame, useThree } from '@react-three/fiber';
-import { useCameraTakeover } from '../hooks/use-camera-takeover';
-import { getBodySceneName } from '../lib/body-scene-name';
+import { useCameraTakeover } from '../../hooks/use-camera-takeover';
+import { getBodySceneName } from '../../lib/body-scene-name';
 import {
   getAzimuth,
   getFocusAzimuth,
   setAzimuth,
   stepAngleToward,
   wrapAngle,
-} from '../lib/camera-focus';
+} from '../../lib/camera-focus';
 
 const SETTLED_ANGLE_RADIANS = 0.002;
 

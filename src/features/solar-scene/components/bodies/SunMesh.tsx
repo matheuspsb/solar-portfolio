@@ -4,14 +4,14 @@ import type { Mesh, ShaderMaterial, Texture } from 'three';
 import { sceneTokens } from '@/styles/scene-tokens';
 import { getHighlightGlow } from '@/domain/interaction-state';
 import type { Highlight } from '@/domain/interaction-state';
-import { useBodyMotion } from '../hooks/use-body-motion';
-import { useBodyPointerHandlers } from '../hooks/use-body-pointer-handlers';
-import { clampFrameDelta } from '../lib/rotation';
+import { useBodyMotion } from '../../hooks/use-body-motion';
+import { useBodyPointerHandlers } from '../../hooks/use-body-pointer-handlers';
+import { clampFrameDelta } from '../../lib/rotation';
 import {
   createSunSurfaceUniforms,
   sunSurfaceFragmentShader,
   sunSurfaceVertexShader,
-} from '../shaders/sun-surface';
+} from '../../shaders/sun-surface';
 
 const SPHERE_SEGMENTS = 96;
 

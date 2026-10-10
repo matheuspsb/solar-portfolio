@@ -2,7 +2,7 @@ import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { useThree } from '@react-three/fiber';
 import { describe, expect, it } from 'vitest';
 import type { Camera, Group } from 'three';
-import { getAzimuth, wrapAngle } from '../lib/camera-focus';
+import { getAzimuth, wrapAngle } from '../../lib/camera-focus';
 import { CameraFocus } from './CameraFocus';
 
 const SIDE_OFFSET = 0.5;

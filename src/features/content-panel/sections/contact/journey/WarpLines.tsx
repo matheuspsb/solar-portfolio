@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
-import { WARP_ORIGIN, getWarpLines } from './delivery-geometry';
-import type { WarpLine } from './delivery-geometry';
+import { WARP_ORIGIN, getWarpLines } from '../delivery/delivery-geometry';
+import type { WarpLine } from '../delivery/delivery-geometry';
 
 const WARP_LINE_COUNT = 22;
 const WARP_LINES = getWarpLines(WARP_LINE_COUNT);

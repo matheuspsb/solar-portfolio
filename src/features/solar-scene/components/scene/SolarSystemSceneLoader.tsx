@@ -3,18 +3,18 @@
 import dynamic from 'next/dynamic';
 import { useIdleReady } from '@/hooks/use-idle-ready';
 import { useViewportSize } from '@/hooks/use-viewport-size';
-import type { SceneProps } from '../types';
+import type { SceneProps } from '../../types';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 
-import { getBodyExtent } from '../lib/body-extent';
-import { getSceneSettings } from '../lib/scene-settings';
+import { getBodyExtent } from '../../lib/body-extent';
+import { getSceneSettings } from '../../lib/scene-settings';
 import {
   SYSTEM_SCREEN_FILL,
   CAMERA_FIELD_OF_VIEW,
   CAMERA_FOCUS_TRANSITION_SECONDS,
   PANEL_SHIFT_TRANSITION_SECONDS,
   PANEL_WIDTH_PIXELS,
-} from '../constants';
+} from '../../constants';
 
 const SolarSystemScene = dynamic(
   () => import('./SolarSystemScene').then((module) => module.SolarSystemScene),

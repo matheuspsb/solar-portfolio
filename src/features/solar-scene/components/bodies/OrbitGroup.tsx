@@ -3,8 +3,8 @@ import { useRef } from 'react';
 import type { ReactNode } from 'react';
 import type { Group } from 'three';
 import type { Orbit } from '@/domain/celestial-body';
-import { getOrbitPosition } from '../lib/orbit';
-import { advanceRotation } from '../lib/rotation';
+import { getOrbitPosition } from '../../lib/orbit';
+import { advanceRotation } from '../../lib/rotation';
 
 type OrbitGroupProps = {
   name: string;

@@ -3,8 +3,8 @@ import type { Mesh, Texture } from 'three';
 import { sceneTokens } from '@/styles/scene-tokens';
 import { getHighlightGlow } from '@/domain/interaction-state';
 import type { Highlight } from '@/domain/interaction-state';
-import { useBodyMotion } from '../hooks/use-body-motion';
-import { useBodyPointerHandlers } from '../hooks/use-body-pointer-handlers';
+import { useBodyMotion } from '../../hooks/use-body-motion';
+import { useBodyPointerHandlers } from '../../hooks/use-body-pointer-handlers';
 
 const SPHERE_SEGMENTS = 64;
 const MIN_HIT_RADIUS = 0.9;

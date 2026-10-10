@@ -3,12 +3,12 @@ import { useRef, useState } from 'react';
 import { AdditiveBlending, BackSide } from 'three';
 import type { ShaderMaterial } from 'three';
 import { sceneTokens } from '@/styles/scene-tokens';
-import { clampFrameDelta } from '../lib/rotation';
+import { clampFrameDelta } from '../../lib/rotation';
 import {
   createSunCoronaUniforms,
   sunCoronaFragmentShader,
   sunCoronaVertexShader,
-} from '../shaders/sun-corona';
+} from '../../shaders/sun-corona';
 
 const CORONA_RADIUS_RATIO = 1.38;
 const CORONA_INTENSITY = 1.5;

@@ -2,7 +2,7 @@ import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
 import type { Mesh, ShaderMaterial } from 'three';
 import { describe, expect, it, vi } from 'vitest';
-import { FULL_TURN_RADIANS } from '../lib/rotation';
+import { FULL_TURN_RADIANS } from '../../lib/rotation';
 import { SunMesh } from './SunMesh';
 
 async function renderSun(props: Partial<React.ComponentProps<typeof SunMesh>> = {}) {

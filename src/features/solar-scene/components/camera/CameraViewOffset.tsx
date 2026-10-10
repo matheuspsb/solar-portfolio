@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import type { Camera, PerspectiveCamera } from 'three';
-import { dampValue } from '../lib/damp';
+import { dampValue } from '../../lib/damp';
 
 const SETTLED_DISTANCE_PIXELS = 0.5;
 

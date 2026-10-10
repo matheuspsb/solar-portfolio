@@ -3,7 +3,7 @@ import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { describe, expect, it, vi } from 'vitest';
 import type { Group } from 'three';
 import type { ScreenFrame } from '@/lib/screen-frame';
-import { INSTANT_EASING_RATE } from '../lib/motion';
+import { INSTANT_EASING_RATE } from '../../lib/motion';
 import { BodyTracker } from './BodyTracker';
 
 const BODIES = [

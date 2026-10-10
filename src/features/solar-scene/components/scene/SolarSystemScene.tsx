@@ -11,24 +11,24 @@ import {
   getHighlightEasingRate,
   getRotationPeriodForMotion,
   getTrackerEasingRate,
-} from '../lib/motion';
-import type { SceneQuality } from '../lib/scene-quality';
-import { MIN_ZOOM_DISTANCE, getMaxZoomDistance } from '../lib/zoom';
+} from '../../lib/motion';
+import type { SceneQuality } from '../../lib/scene-quality';
+import { MIN_ZOOM_DISTANCE, getMaxZoomDistance } from '../../lib/zoom';
 import {
   CAMERA_FIELD_OF_VIEW,
   CAMERA_FOCUS_SIDE_OFFSET_RADIANS,
   SCENE_REVEAL_MAX_WAIT_MS,
-} from '../constants';
-import { useSceneReveal } from '../hooks/use-scene-reveal';
-import type { SceneProps } from '../types';
+} from '../../constants';
+import { useSceneReveal } from '../../hooks/use-scene-reveal';
+import type { SceneProps } from '../../types';
 import { BodyTracker } from './BodyTracker';
-import { CameraDistance } from './CameraDistance';
-import { CameraFocus } from './CameraFocus';
-import { CameraViewOffset } from './CameraViewOffset';
-import { KeyboardZoom } from './KeyboardZoom';
+import { CameraDistance } from '../camera/CameraDistance';
+import { CameraFocus } from '../camera/CameraFocus';
+import { CameraViewOffset } from '../camera/CameraViewOffset';
+import { KeyboardZoom } from '../camera/KeyboardZoom';
 import { SceneLights } from './SceneLights';
 import { StarField } from './StarField';
-import { CelestialBody } from './CelestialBody';
+import { CelestialBody } from '../bodies/CelestialBody';
 
 const CAMERA_POSITION: [number, number, number] = [0, 4, 9.5];
 const CAMERA_NEAR = 0.1;
