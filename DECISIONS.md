@@ -374,3 +374,14 @@ Layers, cheapest first:
   `bodies/` (celestial body, Sun, corona, planet, orbit and focus ring) and `camera/` (distance, focus, view offset and keyboard zoom).
 - **Only paths changed.** A script moved 69 files with `git mv` (history is kept) and rewrote the relative imports. The delivery scene still
   imports the stage dimensions from `journey/arc-geometry`; a shared `stage` module is a candidate for a later cleanup.
+
+## Folder structure, phase 3: sections as features
+
+- **`about-section` and `contact-section` are features.** `content-panel` is now only the modal shell (panel, header, focus trap, attribution
+  note); deleting a section no longer touches it. Each section feature exposes a single component through its `index.ts`.
+- **`SectionView` moved to `features/portfolio`.** It maps `content.type` to a section, so it belongs to the composition layer, the only one
+  allowed to import several features. The contact section stays lazy, so react-hook-form and zod are still out of the initial JS (about 198 KB gzip,
+  checked on a clean production build).
+- **`ContactSubmitterProvider` / `useContactSubmitter` moved to `src/hooks/`.** `portfolio` mounts it and `contact-section` reads it, which makes it
+  shared code. Keeping it out of the section barrel also keeps that barrel exporting only the lazy component.
+- **`RuledHeading`** moved with the About section, its only user. ESLint knows the two new features; only paths and imports changed.

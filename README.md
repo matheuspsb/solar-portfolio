@@ -37,10 +37,12 @@ src/
   styles/                 tokens.css (tema Tailwind v4), motion/ (animações), scene-tokens.ts (valores para o three.js)
   features/
     solar-scene/          cena 3D: components/{scene,bodies,camera}/, hooks/, lib/, shaders/, constants.ts
-    content-panel/        painel modal: components/, sections/ (about; contact em etapas: journey/, question/, delivery/), hooks/, lib/
+    content-panel/        painel modal (casca): components/, hooks/, lib/
+    about-section/        seção "Sobre"
+    contact-section/      seção de contato em etapas: journey/, question/, delivery/
     quick-access-menu/    menu orbital + orbit-layout (função pura)
     target-lock/          overlay do hover "alvo travado" (cantoneiras, linha de telemetria, ficha); não conhece o 3D
-    portfolio/            composição: PortfolioExperience, fallback, dica, controles de teclado
+    portfolio/            composição: PortfolioExperience, SectionView, PortfolioProviders, fallback, dica, controles de teclado
   services/               entrega da mensagem de contato por e-mail (Resend atrás da interface ContactDelivery)
   hooks/                  hooks usados por 2+ features (navegação por setas, ociosidade, tamanho da janela, movimento reduzido)
   domain/                 tipos e regras do produto usados por 2+ features (corpo celeste, contato, anti-bot, interação)

@@ -7,7 +7,7 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 ## Já resolvido nesta varredura
 
 - **`onSendContactMessage`** passava por `PortfolioExperience → SectionView → ContactSection` sem ser usada nos dois primeiros.
-  Agora a Server Action entra por `ContactSubmitterProvider` (feature `content-panel`) e o `ContactSection` lê com `useContactSubmitter()`.
+  Agora a Server Action entra por `ContactSubmitterProvider` (`hooks/contact-submitter`, montado em `features/portfolio`) e o `ContactSection` lê com `useContactSubmitter()`.
 - **`targetingCopy`** passava pela página e por `PortfolioExperience` até o `TargetCard`. Como é texto estático, a solução é a mais simples: o
   `TargetCard` importa `content/targeting.ts` direto e monta o `kicker` a partir do `code` do corpo (uma primeira versão com contexto era exagero).
 - O provider do envio é montado por `PortfolioProviders` (`features/portfolio`), usado em `app/page.tsx`. Ele existe porque a página é um
@@ -57,7 +57,7 @@ cameraTarget, description, trackedBodyId, onTrackFrame`). Ele só usa `bodies` e
 
 ### T5 (B) `ContactSection` concentra responsabilidades demais
 
-- **Onde:** `features/content-panel/sections/contact/ContactSection.tsx` (323 linhas).
+- **Onde:** `features/contact-section/ContactSection.tsx` (323 linhas).
 - **O que acontece:** o mesmo componente orquestra o formulário (react-hook-form), a máquina de estados, o cometa, o envio com travas e a
   montagem de todas as peças visuais, além de ter props só para teste (`frameScheduler`, `getNow`).
 - **Proposta:** extrair um hook `useContactJourney` (estado + submissão + movimento do cometa) que devolve um modelo pronto para renderizar, e
