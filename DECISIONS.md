@@ -364,3 +364,13 @@ Layers, cheapest first:
   feature that uses them and move to `components/` only when 2+ features share them.
 - **Supersedes** the folder names in the earlier "Folder structure" section above (`design-system/{tokens, atoms}`, `lib/` as a catch-all).
   Next phases are in the plan discussed with the owner: subfolders inside `contact` and `solar-scene`, then sections as features.
+
+## Folder structure, phase 2: subfolders in `contact` and `solar-scene`
+
+- **`content-panel/sections/contact/` (40 files)** now has the section root (`ContactSection`, `LinkedInCard`) and three folders by what they draw:
+  `journey/` (arc, planets, comet, stage, geometry and motion), `question/` (heading, field, footer, actions, flow state) and `delivery/`
+  (scene, stamp, envelope, Mercury, receipt, geometry).
+- **`solar-scene/components/` (21 files)** is split into `scene/` (the canvas, loader, lights, stars, effects, error boundary and body tracker),
+  `bodies/` (celestial body, Sun, corona, planet, orbit and focus ring) and `camera/` (distance, focus, view offset and keyboard zoom).
+- **Only paths changed.** A script moved 69 files with `git mv` (history is kept) and rewrote the relative imports. The delivery scene still
+  imports the stage dimensions from `journey/arc-geometry`; a shared `stage` module is a candidate for a later cleanup.

@@ -167,8 +167,8 @@ src/
     icons/                  # ícones SVG
   styles/                   # tokens.css (tema Tailwind), motion/ (keyframes e utilitários de animação), scene-tokens.ts (espelho para o three.js)
   features/                 # cada feature é dona dos seus componentes, hooks e funções
-    solar-scene/            # cena 3D (components/, hooks/, lib/, shaders/, constants.ts, index.ts)
-    content-panel/          # painel modal e seções (components/, sections/, hooks/, lib/, index.ts)
+    solar-scene/            # cena 3D (components/{scene,bodies,camera}/, hooks/, lib/, shaders/, constants.ts, index.ts)
+    content-panel/          # painel modal e seções (components/, sections/{about,contact/{journey,question,delivery}}/, hooks/, lib/, index.ts)
     quick-access-menu/      # menu orbital (componentes + orbit-layout, index.ts)
     target-lock/            # overlay do hover "alvo travado" (components/, hooks/, lib/, index.ts)
     portfolio/              # camada de composição: junta as outras features (PortfolioExperience)

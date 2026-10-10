@@ -36,8 +36,8 @@ src/
   components/             UI compartilhada: Button, IconButton, Heading, Text, Label, Link, PlanetDot, VisuallyHidden, icons/
   styles/                 tokens.css (tema Tailwind v4), motion/ (animações), scene-tokens.ts (valores para o three.js)
   features/
-    solar-scene/          cena 3D: components/ (Sol, corona, estrelas, câmera...), hooks/, lib/, shaders/, constants.ts
-    content-panel/        painel modal: components/, sections/ (about, contact em etapas), hooks/, lib/
+    solar-scene/          cena 3D: components/{scene,bodies,camera}/, hooks/, lib/, shaders/, constants.ts
+    content-panel/        painel modal: components/, sections/ (about; contact em etapas: journey/, question/, delivery/), hooks/, lib/
     quick-access-menu/    menu orbital + orbit-layout (função pura)
     target-lock/          overlay do hover "alvo travado" (cantoneiras, linha de telemetria, ficha); não conhece o 3D
     portfolio/            composição: PortfolioExperience, fallback, dica, controles de teclado
