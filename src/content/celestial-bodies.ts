@@ -20,6 +20,7 @@ const sun: CelestialBodyConfig = {
   rotationPeriodSeconds: SUN_ROTATION_PERIOD_SECONDS,
   orbit: null,
   texture: { url: '/textures/sun.webp', smallUrl: '/textures/sun-small.webp' },
+  targeting: { code: '001', description: 'Estrela tipo G · centro do sistema', anchor: 'top-left' },
   section: {
     menuLabel: 'Sobre',
     menuTone: 'amber',
@@ -41,6 +42,7 @@ const mercury: CelestialBodyConfig = {
     phaseRadians: MERCURY_ORBIT_PHASE_RADIANS,
   },
   texture: { url: '/textures/mercury.webp', smallUrl: '/textures/mercury-small.webp' },
+  targeting: { code: '002', description: 'Planeta mensageiro · 0,39 UA', anchor: 'bottom-left' },
   section: {
     menuLabel: 'Contato',
     menuTone: 'periwinkle',

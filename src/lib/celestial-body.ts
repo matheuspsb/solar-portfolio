@@ -36,6 +36,14 @@ export type Orbit = {
   phaseRadians: number;
 };
 
+export type TargetingAnchor = 'top-left' | 'bottom-left';
+
+export type TargetingConfig = {
+  code: string;
+  description: string;
+  anchor: TargetingAnchor;
+};
+
 export type CelestialBodyConfig = {
   id: string;
   name: string;
@@ -44,6 +52,7 @@ export type CelestialBodyConfig = {
   rotationPeriodSeconds: number;
   orbit: Orbit | null;
   texture: BodyTexture | null;
+  targeting: TargetingConfig;
   section: {
     menuLabel: string;
     menuTone: PlanetTone;
@@ -102,6 +111,10 @@ function validateBody(body: CelestialBodyConfig, label: string, starRadius: numb
   }
   if (body.texture && (isBlank(body.texture.url) || isBlank(body.texture.smallUrl))) {
     errors.push(`${label}: texture urls must not be blank`);
+  }
+  if (isBlank(body.targeting.code)) errors.push(`${label}: targeting code must not be blank`);
+  if (isBlank(body.targeting.description)) {
+    errors.push(`${label}: targeting description must not be blank`);
   }
   if (isBlank(body.section.menuLabel)) errors.push(`${label}: section menuLabel must not be blank`);
   if (isBlank(body.section.panelLabel))
