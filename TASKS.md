@@ -90,3 +90,174 @@ cameraTarget, description, trackedBodyId, onTrackFrame`). Ele só usa `bodies` e
   por ele (ou por um único filho), então não contam como drilling.
 - `QuickAccessMenu`, `SceneFallback` e `SceneKeyboardControls` recebem listas já mapeadas pelo `PortfolioExperience`; cada um usa tudo que
   recebe.
+
+---
+
+# Varredura 2: ternários, responsabilidades, effects, vazamentos e re-renders
+
+Feita com análise estática (AST do TypeScript, contagens por arquivo) e leitura dos arquivos suspeitos. Nada foi alterado no código; cada item
+abaixo é uma task. Prioridade: **A** (vale fazer logo), **B** (melhora clara), **C** (opcional).
+
+## Resultado resumido
+
+| Tema                                      | Resultado                                                                                                        |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Ternários aninhados                       | **Nenhum** em `.ts` ou `.tsx` (checado pela AST, em lógica e em JSX).                                            |
+| Ternários dentro do JSX                   | 14 ocorrências; 4 delas em `ContactSection` repetem a mesma condição (T8).                                       |
+| Arquivos grandes que misturam lógica e UI | 6 candidatos (T9 a T14).                                                                                         |
+| `useEffect`                               | 20 no total: 14 legítimos (sincronizam com timer, listener, observer ou objeto 3D), 6 questionáveis (T15 a T20). |
+| Vazamento de memória                      | Nenhum timer, listener ou observer sem limpeza na maioria; 1 risco real (T21) e 1 limpeza redundante (T20).      |
+| Re-renders desnecessários                 | 1 problema relevante (T22) e 3 riscos menores (T23 a T25).                                                       |
+
+## Ternários e lógica dentro do JSX
+
+### T8 (B) `ContactSection` repete `isDone && delivery ? … : …` e mistura lógica no JSX
+
+- **Onde:** `contact/ContactSection.tsx:222`, `:244` (a mesma condição duas vezes, uma para a cena e outra para o corpo), `:258` e `:285`
+  (`attributes.multiline ? { current, max } : undefined` passado como prop).
+- **Proposta:** calcular antes do `return` uma variável de visão (`const deliveredView = isDone && delivery ? delivery : null`) e o
+  objeto `count`, e renderizar com `&&`/early return. Duas ramificações iguais lado a lado é sinal para extrair dois componentes
+  (`AskingView` e `DeliveredView`).
+- **Pronto quando:** nenhuma condição composta aparece repetida no JSX.
+
+### T9 (C) Lógica e ternários pequenos em props de malha
+
+- **Onde:** `PlanetMesh.tsx:49` e `:52` (`texture ? … : …` em `key` e em `emissive`), `SolarSystemScene.tsx:98` (`frameloop`).
+- **Proposta:** nomear o valor antes do JSX (`const materialKey = texture ? 'textured' : 'plain'`). Baixo risco, ganho de leitura.
+
+### T10 (C) `.map` com lógica dentro do JSX e handler de várias linhas
+
+- **Onde:** `quick-access-menu/QuickAccessMenu.tsx:131` (`items.map` com 3 statements: posição, estilo e delay calculados no JSX) e
+  `solar-scene/SolarSystemScene.tsx:109` (`onCreated` com 2 statements, registra listeners).
+- **Proposta:** pré-calcular uma lista de itens prontos (`getOrbitItems`) e extrair o handler do canvas para um hook (ver T21).
+
+## Arquivos com mais de uma responsabilidade
+
+### T11 (A) `ContactSection.tsx` (324 linhas)
+
+Já registrado como T5. Detalhe da varredura: 5 hooks, estado de formulário (RHF), máquina de estados, cometa, envio com travas, medição de
+tempo para o anti-bot e a montagem de 12 componentes. É o maior risco de manutenção do projeto. Extrair `useContactJourney` (estado, comet,
+envio) e deixar o componente só compondo.
+
+### T12 (B) `PortfolioExperience.tsx` (164 linhas)
+
+- **Mistura:** disponibilidade da cena, foco do teclado (`lastOpenedIdRef`), listas derivadas (`menuItems`, `keyboardItems`, `lockTargets`),
+  mensagens de interface (constantes `UNAVAILABLE_MESSAGE` etc.) e a composição de seis filhos.
+- **Proposta:** um hook `usePortfolioModel(bodies)` que devolve as listas e os handlers (`openBody`, `changeHover`, `focusLastOpenedBody`), e as
+  mensagens indo para `content/` (T6). O componente fica só com o JSX.
+
+### T13 (B) `QuickAccessMenu.tsx` (160 linhas)
+
+- **Mistura:** estado aberto/fechado, foco no primeiro item, clique fora (effect com listener), cálculo de geometria (posições, raio) e o JSX dos
+  anéis e itens.
+- **Proposta:** `useQuickAccessMenu` (abrir, fechar, foco, clique fora) e um componente de apresentação `OrbitRing` para anel, brilho e itens.
+
+### T14 (B) `SolarSystemScene.tsx` (176 linhas) e `use-comet.ts` (143 linhas)
+
+- **`SolarSystemScene`:** configuração do `Canvas`, ciclo de vida do WebGL (listeners de contexto), revelação, limpeza de hover e o mapa dos
+  corpos no mesmo componente. Separar `SceneCanvas` (config e ciclo de vida) e `SceneBodies` (lista).
+- **`use-comet`:** três responsabilidades no mesmo hook: o agendador de frames, o motor de interpolação (tween) e o estado React com
+  promessas. Extrair o motor para uma função/classe pura testável e deixar o hook só ligando ao React.
+- **`lib/celestial-body.ts` (159 linhas):** tipos de domínio e validação no mesmo arquivo; separar `types` e `validate`.
+
+## useEffect
+
+### Legítimos (sincronizam com algo de fora do React; manter)
+
+`use-modal-focus` (foco e Escape), `use-element-width` (ResizeObserver), `use-decoded-text`, `use-intent-target`, `use-scene-reveal`,
+`use-idle-ready`, `use-texture` (todos com timer ou carga assíncrona e limpeza), `KeyboardZoom`, `use-camera-takeover` (listener),
+`BodyTracker` (`invalidate` no modo sob demanda), `CameraDistance` (aplica a distância à câmera 3D), `DeliveryReceipt` (foco no título ao entrar:
+`autoFocus` não funciona em `<h2>`).
+
+### T15 (B) `AnswerField`: effect só para focar no mount
+
+- **Onde:** `contact/AnswerField.tsx:44`. `useEffect(() => { if (focusOnMount) controlRef.current?.focus() }, [focusOnMount])`.
+- **Proposta:** usar o atributo `autoFocus={focusOnMount}` no `<input>`/`<textarea>`, que o React já trata no mount. Remove o effect, o ref extra
+  e a função `attachControl` que só existia para isso (continua a necessidade de repassar o ref do RHF).
+
+### T16 (B) `QuickAccessMenu`: focar o primeiro item dentro de um effect
+
+- **Onde:** `QuickAccessMenu.tsx:49`. O foco no primeiro item acontece num effect que reage a `isOpen`.
+- **Proposta:** focar no próprio handler que abre o menu (evento, não efeito). O listener de clique fora fica no effect (legítimo), mas pode
+  virar um hook reutilizável `useDismissOnOutsidePointer(ref, onDismiss, isActive)`.
+
+### T17 (C) `CelestialBody`: effect que avisa o pai que a textura terminou
+
+- **Onde:** `CelestialBody.tsx:57` (`useEffect` que chama `onSettled(id)`).
+- **Padrão:** "effect para notificar o pai". Alternativa: avisar dentro do `useTexture`, na promessa que já resolve (`onSettled` como opção do
+  hook), sem passar pela renderização.
+
+### T18 (C) `SceneEffects`: effect de mount só para chamar `onReady`
+
+- **Onde:** `SceneEffects.tsx:13`. O componente é carregado com `lazy`; o sinal "pronto" pode vir da própria promessa do `import()`
+  (`.then(markEffectsReady)`) em vez de um effect no componente carregado.
+
+### T19 (C) `use-camera-takeover`: effect para zerar um ref quando muda o nonce
+
+- **Onde:** `use-camera-takeover.ts:10`. Padrão "resetar estado quando a prop muda". Alternativa: guardar o nonce junto do flag
+  (`{ nonce, takenOver }`) e derivar durante o render, sem effect.
+
+### T20 (C) `use-comet`: `isMountedRef` e effect de reduced motion
+
+- **Onde:** `use-comet.ts:131` (guarda `isMountedRef` para não chamar `setState` depois de desmontar). Desde o React 18 não há aviso de
+  `setState` após desmontagem, então o guarda é desnecessário; a limpeza do frame e da promessa continua necessária.
+- **Também:** `use-comet.ts:121` reage a `reducedMotion` com um effect. Pode ser tratado no `travelTo`/no loop, que já lê o valor.
+
+## Vazamentos de memória
+
+Auditoria de listeners, timers, `requestAnimationFrame`, observers e recursos 3D:
+
+- **OK:** `use-modal-focus`, `use-viewport-size`, `use-prefers-reduced-motion`, `KeyboardZoom`, `use-camera-takeover`, `use-element-width`,
+  `use-idle-ready`, `use-intent-target`, `use-decoded-text`, `use-scene-reveal` e `use-comet` (frame cancelado e promessa resolvida no
+  desmonte). Texturas são descartadas em `use-texture`; geometrias e materiais JSX são descartados pelo R3F na desmontagem.
+
+### T21 (A) Listeners do contexto WebGL nunca removidos e com closure possivelmente desatualizada
+
+- **Onde:** `SolarSystemScene.tsx:109-114`. `onCreated` registra `webglcontextlost` e `webglcontextrestored` no `gl.domElement` e nunca remove.
+- **Riscos:** (1) os handlers capturam `onContextLost`/`onContextRestored` da renderização em que o canvas foi criado; se a identidade mudar,
+  o canvas continua chamando a versão antiga; (2) em remontagens do `Canvas` acumulam-se listeners enquanto o elemento ainda existir.
+- **Proposta:** hook `useWebglContextEvents(gl, { onLost, onRestored })` com `useEffect` + cleanup, ou refs estáveis para os callbacks.
+- **Pronto quando:** existe teste de que perder e restaurar o contexto chama os callbacks atuais e que o desmonte remove os listeners.
+
+## Re-renders desnecessários
+
+### T22 (A) O cometa re-renderiza a seção de contato inteira a cada frame
+
+- **Onde:** `use-comet.ts` chama `setPosition` em todo frame (`commit`), e o hook vive em `ContactSection`. Enquanto o cometa viaja (cerca de
+  1 s por etapa, mais o rastro assentando) a seção inteira (formulário, planetas, campos, `useWatch` do RHF) re-renderiza a ~60 vezes por segundo.
+- **Por que importa:** é o maior custo de render evitável do projeto, e cresce com o conteúdo da seção.
+- **Proposta:** isolar o estado do cometa em quem o desenha. Opções: (a) o hook morar dentro de `ArcJourney`, com `ContactSection` só
+  chamando `travelTo` por um ref/handle; (b) guardar `head`/`tail` em refs e atualizar os atributos SVG direto por `ref` no frame (sem React no
+  caminho quente); (c) `useSyncExternalStore` em um store pequeno lido só por `ArcJourney`.
+- **Pronto quando:** o React Profiler mostra que, durante a viagem, só `ArcJourney` re-renderiza.
+
+### T23 (B) Cada mudança de hover, foco ou seleção re-renderiza a experiência inteira
+
+- **Onde:** o `useBodyInteraction` (reducer) vive em `PortfolioExperience`; cada hover/foco re-renderiza menu, controles de teclado, `TargetLock`
+  e a cena (o Loader e todos os `CelestialBody`).
+- **Observação:** não é por frame, só por evento, e o React Compiler memoiza as listas derivadas; o custo hoje é baixo. Vira problema se a cena
+  crescer (mais astros).
+- **Proposta:** medir com o Profiler antes de mexer. Se necessário, um store pequeno com seletores (Zustand) só para o estado de interação, que
+  é o caso em que uma store se justifica (ver `DECISIONS.md`); ou passar `highlight` por corpo em vez de `highlightOf` (função nova a cada render).
+
+### T24 (C) `TargetLock` re-renderiza a cada frame publicado
+
+- **Onde:** `useScreenFrame` assina o canal e re-renderiza o overlay quando o frame muda (Mercúrio em órbita com a câmera seguindo quase não muda;
+  com a câmera livre muda a cada frame). O trabalho por render é pequeno (layout puro e três filhos).
+- **Proposta:** só se aparecer no Profiler: mover o posicionamento para `ref` + `style.transform` fora do React, mantendo o React para o que muda
+  pouco (alvo, texto).
+
+### T25 (C) `useViewportSize` em três lugares dispara re-render em todo evento de resize
+
+- **Onde:** `QuickAccessMenu`, `SolarSystemSceneLoader`, `TargetLock`. Durante um redimensionamento contínuo os três re-renderizam a cada evento.
+- **Proposta:** limitar a taxa (throttle por frame) dentro do hook, ou derivar só o que cada um precisa (por exemplo, o menu só precisa da faixa de
+  largura que muda o raio da órbita).
+
+## Outras observações da varredura
+
+- **`StarField.tsx` usa `useMemo`** (a única ocorrência), contra a regra do projeto de não usá-lo com o React Compiler sem justificativa. Remover
+  ou registrar o motivo no `DECISIONS.md` (gera ~2600 posições; vale medir se o compilador já cobre).
+- **Casts `as ContactStepIndex` em 4 lugares** (`contact-flow.ts`, `ContactSection.tsx`): o índice da etapa é um número que o tipo não
+  garante. Trocar por uma função `toStepIndex(value)` que valida, ou modelar a etapa como união nomeada (`'name' | 'email' | 'message'`).
+- **`key` do planeta usa `label`** (`ArcJourney.tsx:75`): está certo enquanto os rótulos forem únicos; o dado deveria ter um `id` próprio.
+- **`console` só em `app/actions.ts`** com `eslint-disable` justificado (log de servidor), sem outros usos; nenhuma ação necessária.
