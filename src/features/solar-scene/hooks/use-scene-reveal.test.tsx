@@ -12,8 +12,11 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function setup(bodyIds: readonly string[] = ['sun', 'mercury']) {
-  return renderHook(() => useSceneReveal({ bodyIds, maxWaitMs: MAX_WAIT_MS }));
+function setup(
+  bodyIds: readonly string[] = ['sun', 'mercury'],
+  onRevealChange?: (isRevealed: boolean) => void,
+) {
+  return renderHook(() => useSceneReveal({ bodyIds, maxWaitMs: MAX_WAIT_MS, onRevealChange }));
 }
 
 describe('useSceneReveal', () => {
@@ -88,5 +91,41 @@ describe('useSceneReveal', () => {
     const { unmount } = setup();
     unmount();
     expect(vi.getTimerCount()).toBe(0);
+  });
+
+  describe('reveal notifications', () => {
+    it('reports the hidden state first', () => {
+      const onRevealChange = vi.fn();
+      setup(['sun', 'mercury'], onRevealChange);
+      expect(onRevealChange).toHaveBeenLastCalledWith(false);
+    });
+
+    it('tells the listener once the scene is revealed', () => {
+      const onRevealChange = vi.fn();
+      const { result } = setup(['sun'], onRevealChange);
+      act(() => {
+        result.current.markBodySettled('sun');
+        result.current.markEffectsReady();
+      });
+      expect(onRevealChange).toHaveBeenLastCalledWith(true);
+    });
+
+    it('tells the listener after the maximum wait, even with bodies still loading', () => {
+      const onRevealChange = vi.fn();
+      setup(['sun', 'mercury'], onRevealChange);
+      act(() => {
+        vi.advanceTimersByTime(MAX_WAIT_MS);
+      });
+      expect(onRevealChange).toHaveBeenLastCalledWith(true);
+    });
+
+    it('does not notify again when nothing changed', () => {
+      const onRevealChange = vi.fn();
+      const { result } = setup(['sun'], onRevealChange);
+      act(() => result.current.markBodySettled('sun'));
+      const callsAfterSettling = onRevealChange.mock.calls.length;
+      act(() => result.current.markBodySettled('sun'));
+      expect(onRevealChange).toHaveBeenCalledTimes(callsAfterSettling);
+    });
   });
 });

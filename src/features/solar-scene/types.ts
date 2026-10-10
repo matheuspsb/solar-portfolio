@@ -14,4 +14,5 @@ export type SceneProps = {
   description: string;
   trackedBodyId: string | null;
   onTrackFrame: (frame: ScreenFrame | null) => void;
+  onRevealChange?: (isRevealed: boolean) => void;
 };

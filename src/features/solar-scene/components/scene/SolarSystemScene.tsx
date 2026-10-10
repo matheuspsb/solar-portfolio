@@ -59,6 +59,7 @@ type SolarSystemSceneProps = {
   description: string;
   trackedBodyId: string | null;
   onTrackFrame: SceneProps['onTrackFrame'];
+  onRevealChange: SceneProps['onRevealChange'];
 };
 
 export function SolarSystemScene({
@@ -79,11 +80,13 @@ export function SolarSystemScene({
   description,
   trackedBodyId,
   onTrackFrame,
+  onRevealChange,
 }: SolarSystemSceneProps) {
   const maxZoomDistance = getMaxZoomDistance(cameraDistance);
   const reveal = useSceneReveal({
     bodyIds: bodies.map((body) => body.id),
     maxWaitMs: SCENE_REVEAL_MAX_WAIT_MS,
+    onRevealChange,
   });
   const clearHover = () => {
     for (const body of bodies) {
