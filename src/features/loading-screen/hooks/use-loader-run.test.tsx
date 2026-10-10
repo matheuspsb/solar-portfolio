@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
 import { MAX_LOADER_SECONDS } from '../lib/loader-clock';
+import { TOTAL_REAL_SECONDS } from '../lib/timeline';
 import { useLoaderRun } from './use-loader-run';
 
 const FRAME_MS = 1000 / 60;
@@ -50,9 +51,9 @@ function setup(initialProps: { isSceneReady: boolean }) {
 describe('useLoaderRun', () => {
   it('finishes after the whole animation once the scene is ready, and then stops asking for frames', () => {
     const { result, play, pendingCount } = setup({ isSceneReady: true });
-    play(3);
+    play(TOTAL_REAL_SECONDS - 1);
     expect(result.current.isFinished).toBe(false);
-    play(5);
+    play(2);
     expect(result.current.isFinished).toBe(true);
     expect(result.current.percent).toBe(100);
     expect(pendingCount()).toBe(0);

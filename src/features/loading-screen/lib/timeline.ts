@@ -10,11 +10,11 @@ export type Stage = StageDefinition & {
 };
 
 const STAGE_DEFINITIONS: readonly StageDefinition[] = [
-  { name: 'start', designSeconds: 2.2, realSeconds: 1.0 },
-  { name: 'hyperspace', designSeconds: 2.6, realSeconds: 1.4 },
-  { name: 'nebula', designSeconds: 3.0, realSeconds: 1.2 },
-  { name: 'ignition', designSeconds: 1.8, realSeconds: 1.1 },
-  { name: 'orbits', designSeconds: 2.8, realSeconds: 1.5 },
+  { name: 'start', designSeconds: 2.2, realSeconds: 1.1 },
+  { name: 'hyperspace', designSeconds: 2.6, realSeconds: 1.6 },
+  { name: 'nebula', designSeconds: 3.0, realSeconds: 1.5 },
+  { name: 'ignition', designSeconds: 1.8, realSeconds: 1.2 },
+  { name: 'orbits', designSeconds: 2.8, realSeconds: 1.8 },
   { name: 'finale', designSeconds: 1.6, realSeconds: 0.8 },
 ];
 

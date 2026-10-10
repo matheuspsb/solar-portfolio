@@ -93,6 +93,8 @@ function setup({
   return userEvent.setup();
 }
 
+const LONGER_THAN_THE_LOADER_SECONDS = 10;
+
 function createManualFrameScheduler() {
   let currentTime = 0;
   let nextHandle = 1;
@@ -365,7 +367,7 @@ describe('PortfolioExperience', () => {
     it('lets the visitor through without waiting for a scene that cannot start', async () => {
       const frames = createManualFrameScheduler();
       setup({ hasWebGL: false, loaderScheduler: frames.scheduler });
-      frames.play(8);
+      frames.play(LONGER_THAN_THE_LOADER_SECONDS);
       expect(
         screen.queryByRole('dialog', { name: loaderContent.progressLabel }),
       ).not.toBeInTheDocument();

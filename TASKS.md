@@ -267,7 +267,7 @@ Auditoria de listeners, timers, `requestAnimationFrame`, observers e recursos 3D
 ### T27 (C) Pausar o render da cena enquanto o loader a cobre
 
 - **Onde:** `solar-scene/components/scene/SolarSystemScene.tsx` (`frameloop`) e `portfolio/PortfolioExperience.tsx`.
-- **Problema:** durante os ~7 s do loader a cena 3D renderiza (com bloom) por trás de uma camada opaca. Em GPU real o custo é pequeno; em celular fraco ele compete com o loader.
+- **Problema:** durante os ~8 s do loader a cena 3D renderiza (com bloom) por trás de uma camada opaca. Em GPU real o custo é pequeno; em celular fraco ele compete com o loader.
 - **Proposta:** `frameloop="demand"` até a cena ser revelada e o loader terminar, invalidando uma vez ao liberar. Medir com `scripts/measure-loader.mjs first` antes e depois.
 
 ## Outras observações da varredura

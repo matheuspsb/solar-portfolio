@@ -5,9 +5,11 @@ import { loaderContent } from '@/content/loader';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
 import { LOADER_SEEN_KEY } from '@/lib/loader-seen';
 import type { SeenStorage } from '@/lib/loader-seen';
+import { TOTAL_REAL_SECONDS } from '../lib/timeline';
 import { LoadingGate } from './LoadingGate';
 
 const FRAME_MS = 1000 / 60;
+const FULL_RUN_SECONDS = TOTAL_REAL_SECONDS + 1;
 
 function createManualScheduler() {
   let currentTime = 0;
@@ -117,7 +119,7 @@ describe('LoadingGate', () => {
   it('remembers the visit once and leaves the screen after a full run', () => {
     const storage = createStorage();
     const { play } = setup({ storage });
-    play(8);
+    play(FULL_RUN_SECONDS);
     expect(dialog()).toBeNull();
     expect(storage.writes).toBe(1);
   });
@@ -152,7 +154,7 @@ describe('LoadingGate', () => {
     const user = userEvent.setup();
     const storage = createStorage();
     const { play } = setup({ storage });
-    play(8);
+    play(FULL_RUN_SECONDS);
     await user.keyboard('{Escape}');
     expect(storage.writes).toBe(1);
   });
@@ -162,7 +164,7 @@ describe('LoadingGate', () => {
     ['missing', null],
   ])('still runs and finishes when the storage is %s', (_name, storage) => {
     const { play } = setup({ storage });
-    play(8);
+    play(FULL_RUN_SECONDS);
     expect(dialog()).toBeNull();
   });
 
