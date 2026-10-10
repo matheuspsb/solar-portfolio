@@ -1,7 +1,7 @@
 import nextVitals from 'eslint-config-next/core-web-vitals';
 import nextTypescript from 'eslint-config-next/typescript';
 
-const features = ['content-panel', 'portfolio', 'quick-access-menu', 'solar-scene'];
+const features = ['content-panel', 'portfolio', 'quick-access-menu', 'solar-scene', 'target-lock'];
 
 const restrictImports = (patterns) => ({
   'no-restricted-imports': ['error', { patterns }],

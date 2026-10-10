@@ -40,6 +40,7 @@ src/
     solar-scene/          cena 3D: components/ (Sol, corona, estrelas, câmera...), hooks/, lib/, shaders/, constants.ts
     content-panel/        painel modal: components/, sections/ (about, contact em etapas), hooks/, lib/
     quick-access-menu/    menu orbital + orbit-layout (função pura)
+    target-lock/          overlay do hover "alvo travado" (cantoneiras, linha de telemetria, ficha); não conhece o 3D
     portfolio/            composição: PortfolioExperience, fallback, dica, controles de teclado
   services/               entrega da mensagem de contato por e-mail (Resend atrás da interface ContactDelivery)
   hooks/                  hooks usados por 2+ features (navegação por setas, ociosidade, tamanho da janela, movimento reduzido)
@@ -55,6 +56,7 @@ Decisões de projeto:
 
 - **Câmera e órbitas.** A câmera gira em torno do Sol até o corpo focado ou selecionado (Tab, setas, clique, menu), para que ele nunca
   fique atrás do Sol; os planetas continuam orbitando com o painel aberto (só `prefers-reduced-motion` pausa a cena).
+- **Hover "Alvo travado".** Ao passar o mouse (ou focar com Tab) num astro, cantoneiras de mira travam nele e uma linha leva até uma ficha com o nome decodificado. A cena projeta o astro em 2D (`BodyTracker`) e publica por um canal (`lib/screen-frame.ts`); o overlay (`features/target-lock`) só desenha. No toque, o primeiro toque mostra o alvo e o segundo abre a seção.
 - **Contato em etapas.** Uma pergunta por vez (react-hook-form + zod; o mesmo schema de `lib/contact-message.ts` valida no navegador e na Server Action
   `app/actions.ts`), com um cometa que percorre o arco de progresso e, ao enviar, a cena "Correio de Hermes" (envelope voando até Mercúrio). A mensagem é enviada por e-mail pelo Resend (`services/`); configure as variáveis do `.env.example`.
 - **Planetas são dados.** Mercúrio (a seção "Contato") é só um item em `content/celestial-bodies.ts` com `kind: 'planet'` e uma `orbit`; a cena
@@ -76,5 +78,5 @@ Decisões de projeto:
 - **Falhas.** Sem WebGL, erro na cena ou perda de contexto: aparece um aviso com botões para as seções, e o menu continua
   funcionando.
 
-Veja `DECISIONS.md` (versões, React Compiler, Tailwind, pin do `three`), `PROGRESS.md` (histórico, métricas, próxima fase) e
+Tarefas futuras e débitos conhecidos estão em `TASKS.md`. Veja `DECISIONS.md` (versões, React Compiler, Tailwind, pin do `three`), `PROGRESS.md` (histórico, métricas, próxima fase) e
 `CREDITS.md` (textura do Sol: Solar System Scope, CC BY 4.0, com crédito visível no painel).

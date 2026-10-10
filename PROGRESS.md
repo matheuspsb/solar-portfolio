@@ -86,6 +86,11 @@
 - A Server Action agora entrega por e-mail pelo Resend (`services/`), com o cliente injetável nos testes, escape de HTML, `reply-to` com o e-mail do visitante e log do erro real só no servidor. 706 testes unitários, lint, typecheck, build e e2e do contato passando (o e2e usa `CONTACT_DELIVERY=disabled`).
 - **Pendente (só você pode fazer):** gerar a chave no Resend, preencher `.env.local` e cadastrar as variáveis na Vercel. Proteção contra bots: honeypot + tempo mínimo + sinais obrigatórios implementados (`lib/bot-guard.ts`, 726 testes unitários); falta o limite por IP no painel da Vercel (veja DECISIONS.md, camada 2).
 
+## Hover "Alvo travado"
+
+- Substituiu o rótulo genérico dos astros pelo overlay do handoff 5a (cantoneiras, linha de telemetria, ficha com nome decodificado), com a projeção 3D→2D na cena e a nova feature `target-lock`; toque em dois passos; leve brilho no astro em hover/foco.
+- Validação: lint, typecheck, 796 testes unitários, 57 e2e (incluindo teclado, movimento reduzido e celular de 360 px) e build passando. JS inicial ~198 KB gzip; Lighthouse mobile 69-70, desktop 84-89, acessibilidade/boas práticas/SEO 100.
+
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 
 Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A arquitetura atual já é orientada a dados; o que muda:

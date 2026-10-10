@@ -294,3 +294,60 @@ Layers, cheapest first:
    serverless because instances do not share memory. The IP comes from `headers()` (`x-forwarded-for` / `x-real-ip`), trustworthy only behind a
    proxy that sets it (Vercel does); self-hosted setups need a trusted proxy configuration.
 4. **Optional: captcha** (for example Cloudflare Turnstile) only if spam persists.
+
+## Hover "Alvo travado" on the bodies (design handoff 5a)
+
+- **What replaced what.** The generic pill that said "Sol · Sobre" / "Mercúrio · Contato" (`BodyHint`, `getHintLabel`) is gone. Hovering or
+  focusing a body now locks on it: four corner brackets (`lockOn`), a telemetry polyline that draws itself, and a text card (kicker, name decoded
+  letter by letter, description, call to open the section). Only variant 5a of the handoff was built.
+- **Where it lives.** A new feature, `features/target-lock/` (overlay only, no 3D knowledge), plus a bridge in `solar-scene` and the composition in
+  `portfolio` (the only place allowed to join features). Pure and tested: `telemetry-layout` (line geometry and edge flipping), `lock-frame`
+  (box and corner size), `scramble-text`. Hooks: `use-intent-target` (80 ms to show, 150 ms to hide, immediate switch between bodies, no exit in
+  between), `use-decoded-text` (30 ms ticks, one letter every two ticks, masked at first so nothing flashes the final name), `use-screen-frame`.
+- **3D to 2D bridge.** `solar-scene/components/BodyTracker` runs inside the canvas: each frame it projects the tracked body (`project-sphere`:
+  center and radius in CSS pixels, using the camera, so the panel view offset and the follow camera are respected), eases it (rate 17, about 0.25
+  per 60 fps frame, instant with reduced motion) and publishes it only when it changes. The overlay never lives in the render loop: the frames
+  travel through `lib/screen-frame.ts` (`createFrameChannel`, a tiny external store read with `useSyncExternalStore`), created in `portfolio` and
+  shared by both sides, so features still do not import each other. The target does not glide from the previous body when it changes.
+- **Data, not hard-coded.** Each body has `targeting: { code, description, anchor }` (`lib/celestial-body.ts`, validated). Accent color is the
+  body's existing `menuTone`, the CTA is its `menuLabel`, the name is `name` upper-cased. Generic copy ("ALVO TRAVADO", "Clique para abrir", "→")
+  is in `content/targeting.ts` and reaches the overlay through `PortfolioExperience`. The anchor is per body (Sun up and left, Mercury down and
+  left); when the card would leave the screen the layout flips to the other side, then to the card above the line, falling back to the preferred
+  side only if nothing fits.
+- **Rules from the handoff.** One target at a time; the lock is dropped the moment a section opens and comes back only after it closes (the overlay
+  is unmounted while a panel is open); keyboard focus shows the same lock (`focusedId` wins over `hoveredId`); the overlay is `aria-hidden` and
+  `pointer-events-none` (the buttons already have names such as "Sol: abrir seção Sobre"); with reduced motion there is no scale, rotation, line
+  drawing or decoding, only a 200 ms fade (`animate-target-fade`).
+- **Touch.** A touch has no hover: the first tap on a body arms it (shows the lock), the second tap on the same body opens it, tapping empty
+  space (`onPointerMissed`) clears it. The browser's `pointerout` after a finger lifts is ignored for touch so the lock does not vanish between
+  taps (`use-body-pointer-handlers`).
+- **Brightness on hover.** A highlighted body glows a little (`getHighlightGlow` 0.12): a `uGlow` multiplier in the Sun surface shader and
+  `emissiveIntensity` on the planet; the cursor already turns into a pointer and the body already scales slightly.
+- **Motion tokens.** `design-system/tokens/target-motion.css` holds `lock-on`, `draw-line`, the card entrance and the reduced-motion fade.
+- **Not done.** The decoded name has no per-letter sound or anything beyond the handoff. The card size is a constant (176 x 92 px) used for the
+  edge check, not measured from the DOM.
+
+## Two visual bugs found after the hover work
+
+- **Mercury turned pale on hover.** The glow used a plain white `emissive`, which adds the same light to every pixel and washes the texture out.
+  The planet now uses its own texture as `emissiveMap` (white emissive, so the glow is proportional to each pixel and keeps the surface detail);
+  without a texture it glows in its fallback color.
+- **On reload the orbit ring showed first and the lighting arrived late.** The ring is drawn at once, while the Sun and Mercury textures and the
+  lazy bloom chunk arrive later, so the scene looked like it was lighting up behind the ring. The canvas is now revealed (fade, `duration-slow`,
+  instant with reduced motion) only when every body has settled its texture (loaded, failed or none: `CelestialBody.onSettled`) and the effects
+  are mounted (`SceneEffects.onReady`), through `use-scene-reveal`. A 4 s cap (`SCENE_REVEAL_MAX_WAIT_MS`) reveals it anyway, so a stuck load never
+  leaves a blank screen. Measured on a production build: opacity stays near 0 until about 1.2 s, then fades in over about 0.3 s.
+
+## Prop drilling: a context for the contact submitter only
+
+- **Problem.** `onSendContactMessage` went through `PortfolioExperience` and `SectionView` only to reach `ContactSection`, and `targetingCopy` went
+  through the page and `PortfolioExperience` to reach `TargetCard`.
+- **Contact submitter: a context.** It is an injectable dependency (the Server Action in production, a fake in tests), so
+  `ContactSubmitterProvider` / `useContactSubmitter` (`content-panel`) is the right tool. The hook throws a clear error outside the provider
+  instead of returning a silent default. The provider is mounted by `PortfolioProviders` (`features/portfolio`, a client component):
+  `app/page.tsx` is a Server Component and cannot import a feature barrel directly, because that would pull client-only hooks into the server
+  graph (this broke the first attempt at the build).
+- **Targeting copy: no context.** A first version used a second provider for this static text, which was over-engineering. `TargetCard` now
+  imports `content/targeting.ts` directly (features may import `content/`); the kicker is built there from the body's `code`.
+- **Not a context.** Interaction state (hover, focus, selection) stays as props: it changes often and a context would re-render every consumer.
+- **Follow-ups.** The full scan of the other drilling cases is in `TASKS.md`.

@@ -93,6 +93,8 @@ Cada iteração pega **um** item pequeno do backlog e passa pelas quatro etapas.
   - viewport muito estreita, redimensionamento, rotação de tela;
   - abrir o painel pelo menu e fechar pela cena, e vice-versa.
 - Teste **comportamento observável**, não detalhes de implementação. Consulte por papel e nome acessível (`getByRole`), não por classe CSS ou `data-testid` quando houver alternativa.
+- **Não teste texto.** Nenhum teste afirma o conteúdo de uma mensagem, título ou rótulo (copy muda e não quebra nada para o usuário). Textos só servem
+  para localizar elementos (`getByRole` com `name`); para "apareceu um erro" use `role="alert"` e `aria-invalid`, para "entrou na etapa" use a presença do campo.
 - Não teste o que o navegador ou uma biblioteca já garante (átomo que só repassa props a `<input>`, digitar em campo nativo, ref que o formulário
   já exercita). Se o comportamento já é provado por um teste de nível mais alto, apague o teste de baixo nível redundante.
 - Proibido: teste que só verifica que "renderiza sem quebrar", snapshot gigante sem intenção, asserção sobre mock que você mesmo configurou, teste escrito só para subir cobertura.
@@ -168,6 +170,7 @@ src/
     solar-scene/            # cena 3D (components/, hooks/, lib/, shaders/, constants.ts, index.ts)
     content-panel/          # painel modal e seções (components/, sections/, hooks/, lib/, index.ts)
     quick-access-menu/      # menu orbital (componentes + orbit-layout, index.ts)
+    target-lock/            # overlay do hover "alvo travado" (components/, hooks/, lib/, index.ts)
     portfolio/              # camada de composição: junta as outras features (PortfolioExperience)
   hooks/                    # hooks usados por 2+ features
   lib/                      # funções puras e tipos usados por 2+ features (domínio, utilitários)
