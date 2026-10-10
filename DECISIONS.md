@@ -405,3 +405,9 @@ Layers, cheapest first:
 - **Problem.** `useComet` guardava `head` e `tail` em `useState` e os atualizava a cada frame; como o hook vive em `ContactSection`, o formulário inteiro re-renderizava ~60 vezes por segundo durante a viagem.
 - **Decision.** A posição vive em um store externo mínimo (`journey/comet-store`, com `subscribe`, `getSnapshot` e `set` que ignora valores iguais). `useComet` devolve o store e o `travelTo`; o `ArcJourney` lê com `useSyncExternalStore` (`use-comet-position`). Só ele re-renderiza durante a viagem. Foi escolhida a opção (c) da task porque mantém o desenho em React e não exige mexer em atributos SVG por ref.
 - **WebGL.** Na mesma rodada, `useWebglContextEvents` substituiu o `onCreated` da cena (listeners agora com cleanup e callbacks sempre atuais).
+
+## Scene props forwarded as a block (T1)
+
+- **Problem.** `SolarSystemSceneLoader` desestruturava as 12 props de `SceneProps` e repassava 10 delas, uma a uma, sem usá-las; cada prop nova de interação pedia edição no tipo, no Loader e na cena.
+- **Decision.** O Loader recebe `sceneProps` inteiro, lê só `bodies` e `isActive` (para calcular as configurações) e repassa tudo em bloco: `<SolarSystemScene {...sceneProps} {...settings} prefersReducedMotion />`. As props da cena passam a ser `SceneProps & SceneSettings & { prefersReducedMotion }`, sem lista duplicada. Agrupar em objetos (`interaction`, `lifecycle`, `tracking`) foi descartado: mudaria o contrato público e os testes sem ganho adicional, e o repasse dentro da cena até as malhas é o T2.
+- **Testes.** Refatoração sem mudança de comportamento: nenhum teste novo (um teste de "repassa todas as props" testaria implementação). A cobertura vem dos testes de `PortfolioExperience` e dos e2e da cena.
