@@ -1,6 +1,5 @@
 import { Suspense, lazy } from 'react';
 import type { SectionContent } from '@/lib/celestial-body';
-import type { ContactMessageSubmitter } from '@/lib/contact-message';
 import { AboutSection } from './about/AboutSection';
 
 const ContactSection = lazy(() =>
@@ -10,21 +9,16 @@ const ContactSection = lazy(() =>
 type SectionViewProps = {
   content: SectionContent;
   emblemTextureUrl: string | null;
-  onSubmitContactMessage: ContactMessageSubmitter;
 };
 
-export function SectionView({
-  content,
-  emblemTextureUrl,
-  onSubmitContactMessage,
-}: SectionViewProps) {
+export function SectionView({ content, emblemTextureUrl }: SectionViewProps) {
   switch (content.type) {
     case 'about':
       return <AboutSection content={content} emblemTextureUrl={emblemTextureUrl} />;
     case 'contact':
       return (
         <Suspense fallback={null}>
-          <ContactSection content={content} onSubmitMessage={onSubmitContactMessage} />
+          <ContactSection content={content} />
         </Suspense>
       );
   }

@@ -17,6 +17,7 @@ import type {
   ContactSubmission,
   ContactSubmitResult,
 } from '@/lib/contact-message';
+import { useContactSubmitter } from '../../hooks/contact-submitter';
 import { getActionPresentation } from './action-presentation';
 import { AnswerFooter } from './AnswerFooter';
 import { AnswerField } from './AnswerField';
@@ -73,7 +74,6 @@ type Delivery = { message: ContactMessage; deliveredAt: Date };
 
 type ContactSectionProps = {
   content: ContactContent;
-  onSubmitMessage: ContactMessageSubmitter;
   frameScheduler?: FrameScheduler;
   getNow?: () => Date;
 };
@@ -96,10 +96,10 @@ async function deliverSafely(
 
 export function ContactSection({
   content,
-  onSubmitMessage,
   frameScheduler,
   getNow = () => new Date(),
 }: ContactSectionProps) {
+  const submitMessage = useContactSubmitter();
   const reducedMotion = usePrefersReducedMotion();
   const [flow, dispatch] = useReducer(contactFlowReducer, undefined, createInitialFlowState);
   const [delivery, setDelivery] = useState<Delivery | null>(null);
@@ -149,7 +149,7 @@ export function ContactSection({
     };
     const [, result] = await Promise.all([
       comet.travelTo(COMET_EXIT_PROGRESS, COMET_EXIT_MS),
-      deliverSafely(onSubmitMessage, submission),
+      deliverSafely(submitMessage, submission),
     ]);
     if (result.ok) {
       setDelivery({ message, deliveredAt: getNow() });

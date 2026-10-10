@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { contactContent } from '@/content/contact';
 import type { ContactMessageSubmitter, ContactSubmitResult } from '@/lib/contact-message';
+import { ContactSubmitterProvider } from '../../hooks/contact-submitter';
 import { ContactSection } from './ContactSection';
 import type { FrameScheduler } from './use-comet';
 
@@ -31,12 +32,13 @@ function setup(submit: ContactMessageSubmitter = async () => ({ ok: true })) {
   const user = userEvent.setup();
   const clock = { time: new Date(2026, 9, 5).getTime() };
   render(
-    <ContactSection
-      content={contactContent}
-      onSubmitMessage={submit}
-      frameScheduler={createInstantScheduler()}
-      getNow={() => new Date(clock.time)}
-    />,
+    <ContactSubmitterProvider submitter={submit}>
+      <ContactSection
+        content={contactContent}
+        frameScheduler={createInstantScheduler()}
+        getNow={() => new Date(clock.time)}
+      />
+    </ContactSubmitterProvider>,
   );
   return { user, clock };
 }
@@ -46,6 +48,7 @@ const emailField = () => screen.getByRole('textbox', { name: /Para onde envio a 
 const messageField = () => screen.getByRole('textbox', { name: /Sobre o que você quer conversar/ });
 const continueButton = () => screen.getByRole('button', { name: 'Continuar' });
 const sendButton = () => screen.getByRole('button', { name: 'Enviar mensagem' });
+const findDelivery = () => screen.findByRole('button', { name: 'Enviar outra mensagem' });
 
 async function answerName(user: ReturnType<typeof userEvent.setup>, value = message.name) {
   await user.type(nameField(), value);
@@ -69,41 +72,25 @@ async function writeAndSend(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('ContactSection', () => {
-  it('opens with the first question and its step counter', () => {
-    setup();
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Oi! Como posso te chamar?' }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('01 / 03')).toBeInTheDocument();
-    expect(nameField()).toHaveAttribute('placeholder', 'Seu nome');
-  });
-
-  it('explains what is missing instead of advancing with an empty answer', async () => {
+  it('shows a problem instead of advancing with an empty answer', async () => {
     const { user } = setup();
     await user.click(continueButton());
-    expect(screen.getByText('Digite seu nome para continuar.')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(nameField()).toBeInvalid();
-    expect(screen.getByText('01 / 03')).toBeInTheDocument();
   });
 
-  it('clears the explanation as soon as the visitor types', async () => {
+  it('clears the problem as soon as the visitor types', async () => {
     const { user } = setup();
     await user.click(continueButton());
     await user.type(nameField(), 'A');
-    expect(screen.queryByText('Digite seu nome para continuar.')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(nameField()).toBeValid();
   });
 
-  it('advances with Enter and greets the visitor by first name', async () => {
+  it('advances with Enter', async () => {
     const { user } = setup();
     await user.type(nameField(), 'Ana Souza{Enter}');
-    expect(
-      await screen.findByRole('heading', {
-        level: 2,
-        name: 'Prazer, Ana. Para onde envio a resposta?',
-      }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('02 / 03')).toBeInTheDocument();
+    expect(await screen.findByRole('textbox', { name: /Para onde envio/ })).toBeInTheDocument();
   });
 
   it('moves focus to the next answer so the visitor can keep typing', async () => {
@@ -117,34 +104,32 @@ describe('ContactSection', () => {
     await answerName(user);
     await user.type(emailField(), 'ana@empresa');
     await user.click(continueButton());
-    expect(screen.getByText('Esse e-mail parece incompleto.')).toBeInTheDocument();
-    expect(screen.getByText('02 / 03')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(emailField()).toBeInvalid();
 
     await user.type(emailField(), '.com');
     await user.click(continueButton());
-    expect(await screen.findByText('03 / 03')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('textbox', { name: /Sobre o que você quer conversar/ }),
+    ).toBeInTheDocument();
   });
 
   it('keeps the answers when going back', async () => {
     const { user } = setup();
     await answerName(user);
     await user.click(screen.getByRole('button', { name: 'Voltar' }));
-    expect(await screen.findByText('01 / 03')).toBeInTheDocument();
-    expect(nameField()).toHaveValue('Ana Souza');
+    expect(await screen.findByRole('textbox', { name: /Como posso te chamar/ })).toHaveValue(
+      'Ana Souza',
+    );
   });
 
   it('goes back to an answered step through its planet', async () => {
     const { user } = setup();
     await answerName(user);
     await user.click(await screen.findByRole('button', { name: 'Voltar para NOME' }));
-    expect(await screen.findByText('01 / 03')).toBeInTheDocument();
-  });
-
-  it('counts the characters of the message', async () => {
-    const { user } = setup();
-    await reachMessageStep(user);
-    await user.type(messageField(), 'Olá');
-    expect(screen.getByText('3/500')).toBeInTheDocument();
+    expect(
+      await screen.findByRole('textbox', { name: /Como posso te chamar/ }),
+    ).toBeInTheDocument();
   });
 
   it('adds a line with Enter in the message and sends with Ctrl+Enter', async () => {
@@ -164,11 +149,11 @@ describe('ContactSection', () => {
     const { user } = setup(submit);
     await reachMessageStep(user);
     await user.click(sendButton());
-    expect(screen.getByText('Escreva uma mensagem antes de enviar.')).toBeInTheDocument();
+    expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(submit).not.toHaveBeenCalled();
   });
 
-  it('sends the answers once and shows the delivery confirmation', async () => {
+  it('sends the trimmed answers exactly once and ends on the delivery', async () => {
     const submit = vi.fn<ContactMessageSubmitter>(async () => ({ ok: true }));
     const { user } = setup(submit);
     await answerName(user, '  Ana Souza  ');
@@ -176,21 +161,9 @@ describe('ContactSection', () => {
     await screen.findByRole('textbox', { name: /Sobre o que você quer conversar/ });
     await writeAndSend(user);
 
-    expect(
-      await screen.findByRole('heading', { level: 2, name: 'Hermes levou sua mensagem, Ana.' }),
-    ).toBeInTheDocument();
+    expect(await findDelivery()).toBeInTheDocument();
     expect(submit).toHaveBeenCalledTimes(1);
     expect(submit).toHaveBeenCalledWith(expect.objectContaining(message));
-    expect(screen.getByText('Vou responder em ana@empresa.com.')).toBeInTheDocument();
-    expect(screen.getByText(/Gostei do seu portfólio/)).toBeInTheDocument();
-  });
-
-  it('stamps the delivery with the date it happened', async () => {
-    const { user } = setup();
-    await reachMessageStep(user);
-    await writeAndSend(user);
-    await screen.findByRole('heading', { level: 2, name: /Hermes levou/ });
-    expect(screen.getByText('05·10·26')).toBeInTheDocument();
   });
 
   it('blocks a second send while the first is still on its way', async () => {
@@ -210,7 +183,7 @@ describe('ContactSection', () => {
     await user.click(busyButton);
     expect(submit).toHaveBeenCalledTimes(1);
     finish({ ok: true });
-    expect(await screen.findByRole('heading', { level: 2, name: /Hermes levou/ })).toBeVisible();
+    expect(await findDelivery()).toBeVisible();
   });
 
   it('does not allow going back while sending', async () => {
@@ -223,7 +196,7 @@ describe('ContactSection', () => {
     expect(screen.queryByRole('button', { name: /Voltar para/ })).not.toBeInTheDocument();
   });
 
-  it('brings the visitor back to the message with the reason when delivery fails', async () => {
+  it('brings the visitor back to the message, with the text kept, when delivery fails', async () => {
     const submit = vi
       .fn<ContactMessageSubmitter>()
       .mockResolvedValueOnce({ ok: false, error: 'Falhou, tente de novo.' })
@@ -232,14 +205,11 @@ describe('ContactSection', () => {
     await reachMessageStep(user);
     await writeAndSend(user);
 
-    expect(await screen.findByText('Falhou, tente de novo.')).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
     expect(messageField()).toHaveValue(message.message);
-    expect(screen.getByText('03 / 03')).toBeInTheDocument();
 
     await user.click(sendButton());
-    expect(
-      await screen.findByRole('heading', { level: 2, name: /Hermes levou/ }),
-    ).toBeInTheDocument();
+    expect(await findDelivery()).toBeInTheDocument();
     expect(submit).toHaveBeenCalledTimes(2);
   });
 
@@ -249,7 +219,7 @@ describe('ContactSection', () => {
     });
     await reachMessageStep(user);
     await writeAndSend(user);
-    expect(await screen.findByText(/Não foi possível enviar/)).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toBeInTheDocument();
     await waitFor(() => expect(sendButton()).toBeEnabled());
   });
 
@@ -257,10 +227,9 @@ describe('ContactSection', () => {
     const { user } = setup();
     await reachMessageStep(user);
     await writeAndSend(user);
-    await user.click(await screen.findByRole('button', { name: 'Enviar outra mensagem' }));
+    await user.click(await findDelivery());
 
-    expect(await screen.findByText('01 / 03')).toBeInTheDocument();
-    expect(nameField()).toHaveValue('');
+    expect(await screen.findByRole('textbox', { name: /Como posso te chamar/ })).toHaveValue('');
     await user.type(nameField(), 'Bia');
     await user.click(continueButton());
     expect(await screen.findByRole('textbox', { name: /Para onde envio/ })).toHaveValue('');

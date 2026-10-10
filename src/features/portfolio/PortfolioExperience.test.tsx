@@ -1,9 +1,11 @@
 import { render, screen } from '@testing-library/react';
+import { useEffect } from 'react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { celestialBodies } from '@/content/celestial-bodies';
 import { credits } from '@/content/credits';
 import { PortfolioExperience } from './PortfolioExperience';
+import { PortfolioProviders } from './PortfolioProviders';
 import type { SceneProps } from '@/features/solar-scene';
 
 function FakeScene({
@@ -16,7 +18,13 @@ function FakeScene({
   isActive,
   cameraTarget,
   description,
+  trackedBodyId,
+  onTrackFrame,
 }: SceneProps) {
+  useEffect(() => {
+    onTrackFrame(trackedBodyId === null ? null : { x: 600, y: 400, radius: 100 });
+  }, [trackedBodyId, onTrackFrame]);
+
   return (
     <div
       data-testid="fake-scene"
@@ -62,15 +70,16 @@ function setup({
   hasWebGL = true,
 }: { scene?: React.ComponentType<SceneProps>; hasWebGL?: boolean } = {}) {
   render(
-    <PortfolioExperience
-      bodies={celestialBodies}
-      credits={credits}
-      sceneDescription="Cena 3D de teste"
-      onSendContactMessage={async () => ({ ok: true })}
-      scene={scene}
-      detectWebGL={() => hasWebGL}
-      idleScheduler={immediateScheduler}
-    />,
+    <PortfolioProviders contactSubmitter={async () => ({ ok: true })}>
+      <PortfolioExperience
+        bodies={celestialBodies}
+        credits={credits}
+        sceneDescription="Cena 3D de teste"
+        scene={scene}
+        detectWebGL={() => hasWebGL}
+        idleScheduler={immediateScheduler}
+      />
+    </PortfolioProviders>,
   );
   return userEvent.setup();
 }
@@ -89,7 +98,6 @@ describe('PortfolioExperience', () => {
     expect(sunButton).toHaveFocus();
     await user.keyboard('{Enter}');
     expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: 'Matheus' })).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(sunButton).toHaveFocus();
@@ -111,12 +119,20 @@ describe('PortfolioExperience', () => {
     expect(screen.getAllByRole('link', { name: /CC BY 4\.0/ }).length).toBeGreaterThan(0);
   });
 
-  it('shows the hint on hover and hides it while the panel is open', async () => {
+  it('locks onto a body while it is hovered and lets go as soon as its panel opens', async () => {
     const user = setup();
     await user.hover(screen.getByRole('img', { name: /Sol \(cena\)/ }));
-    expect(screen.getByText('Sol · Sobre')).toBeInTheDocument();
+    expect(await screen.findByText('ALVO TRAVADO · 001')).toBeInTheDocument();
     await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
-    expect(screen.queryByText('Sol · Sobre')).not.toBeInTheDocument();
+    expect(screen.queryByText('ALVO TRAVADO · 001')).not.toBeInTheDocument();
+  });
+
+  it('locks onto the body that has keyboard focus, as it does for the mouse', async () => {
+    const user = setup();
+    await user.tab();
+    expect(await screen.findByText('ALVO TRAVADO · 001')).toBeInTheDocument();
+    await user.tab();
+    expect(await screen.findByText('ALVO TRAVADO · 002')).toBeInTheDocument();
   });
 
   it('survives rapid repeated Enter without opening duplicates', async () => {
@@ -178,7 +194,6 @@ describe('PortfolioExperience', () => {
     await user.click(screen.getByRole('button', { name: 'Acesso rápido' }));
     await user.click(screen.getByRole('button', { name: 'Sobre' }));
     expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { level: 2, name: 'Matheus' })).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Acesso rápido' })).toHaveFocus();

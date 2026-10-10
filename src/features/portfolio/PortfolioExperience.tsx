@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import type { ComponentType } from 'react';
 import { AttributionNote, ContentPanel, SectionView } from '@/features/content-panel';
 import { QuickAccessMenu } from '@/features/quick-access-menu';
@@ -11,15 +11,17 @@ import {
   useSceneAvailability,
 } from '@/features/solar-scene';
 import type { SceneProps, SceneStatus } from '@/features/solar-scene';
+import { TargetLock } from '@/features/target-lock';
 import type { IdleScheduler } from '@/hooks/use-idle-ready';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
-import type { ContactMessageSubmitter } from '@/lib/contact-message';
 import type { Credit } from '@/lib/credit';
-import { getBodyAccessibleLabel, getHintLabel } from './body-labels';
-import { BodyHint } from './BodyHint';
+import { createFrameChannel } from '@/lib/screen-frame';
+import { getBodyAccessibleLabel } from './body-labels';
+import { buildLockTargets } from './lock-targets';
 import { SceneFallback } from './SceneFallback';
 import { SceneKeyboardControls } from './SceneKeyboardControls';
 import type { SceneKeyboardControlsHandle } from './SceneKeyboardControls';
+import { getTrackedBodyId } from './tracked-body';
 import { useBodyInteraction } from './use-body-interaction';
 import { useCameraTarget } from './use-camera-target';
 
@@ -27,7 +29,6 @@ type PortfolioExperienceProps = {
   bodies: readonly CelestialBodyConfig[];
   credits: readonly Credit[];
   sceneDescription: string;
-  onSendContactMessage: ContactMessageSubmitter;
   scene?: ComponentType<SceneProps>;
   detectWebGL?: () => boolean;
   idleScheduler?: IdleScheduler;
@@ -48,7 +49,6 @@ export function PortfolioExperience({
   bodies,
   credits,
   sceneDescription,
-  onSendContactMessage,
   scene: SceneComponent = SolarSystemSceneLoader,
   detectWebGL: probeWebGL = detectWebGL,
   idleScheduler,
@@ -56,6 +56,7 @@ export function PortfolioExperience({
   const availability = useSceneAvailability(probeWebGL, idleScheduler);
   const keyboardControlsRef = useRef<SceneKeyboardControlsHandle>(null);
   const lastOpenedIdRef = useRef<string | null>(null);
+  const [frameChannel] = useState(createFrameChannel);
 
   const labeledBodies = bodies.map((body) => ({
     id: body.id,
@@ -77,6 +78,8 @@ export function PortfolioExperience({
   const canMountScene = availability.isChecked && availability.status !== 'unavailable';
   const retryHandler = availability.canRetry ? availability.retry : undefined;
   const selectedBody = bodies.find((body) => body.id === interaction.state.selectedId);
+  const trackedBodyId = getTrackedBodyId(interaction.state);
+  const lockTargets = buildLockTargets(bodies);
 
   const changeHover = (id: string, isHovered: boolean) => {
     if (isHovered) interaction.hover(id);
@@ -113,6 +116,8 @@ export function PortfolioExperience({
               isActive={selectedBody === undefined}
               cameraTarget={cameraTarget}
               description={sceneDescription}
+              trackedBodyId={trackedBodyId}
+              onTrackFrame={frameChannel.publish}
             />
           )}
         </SceneErrorBoundary>
@@ -133,7 +138,9 @@ export function PortfolioExperience({
           onItemBlur={interaction.blur}
           onItemActivate={openBody}
         />
-        <BodyHint label={getHintLabel(interaction.state, labeledBodies)} />
+        {selectedBody === undefined && (
+          <TargetLock targets={lockTargets} activeId={trackedBodyId} channel={frameChannel} />
+        )}
         <QuickAccessMenu items={menuItems} onSelectItem={openBody} />
       </div>
       <ContentPanel
@@ -148,7 +155,6 @@ export function PortfolioExperience({
           <SectionView
             content={selectedBody.section.content}
             emblemTextureUrl={selectedBody.texture?.smallUrl ?? null}
-            onSubmitContactMessage={onSendContactMessage}
           />
         )}
       </ContentPanel>
