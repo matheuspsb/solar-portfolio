@@ -27,6 +27,7 @@ import { CameraFocus } from '../camera/CameraFocus';
 import { CameraViewOffset } from '../camera/CameraViewOffset';
 import { KeyboardZoom } from '../camera/KeyboardZoom';
 import { SceneLights } from './SceneLights';
+import { WebglContextEvents } from './WebglContextEvents';
 import { StarField } from './StarField';
 import { CelestialBody } from '../bodies/CelestialBody';
 
@@ -109,15 +110,9 @@ export function SolarSystemScene({
       }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       onPointerMissed={clearHover}
-      onCreated={({ gl }) => {
-        gl.domElement.addEventListener('webglcontextlost', (event) => {
-          event.preventDefault();
-          onContextLost();
-        });
-        gl.domElement.addEventListener('webglcontextrestored', onContextRestored);
-      }}
     >
       <color attach="background" args={[sceneTokens.backgroundColor]} />
+      <WebglContextEvents onLost={onContextLost} onRestored={onContextRestored} />
       <CameraDistance distance={cameraDistance} />
       <CameraFocus
         targetId={cameraTarget.id}

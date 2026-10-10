@@ -13,6 +13,8 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - O provider do envio é montado por `PortfolioProviders` (`features/portfolio`), usado em `app/page.tsx`. Ele existe porque a página é um
   Server Component e não pode importar o barrel de uma feature inteira (arrastaria hooks de cliente para o servidor).
 
+- **T21, listeners do contexto WebGL.** `onCreated` registrava `webglcontextlost` e `webglcontextrestored` sem nunca remover e com os callbacks da primeira renderização. Agora o hook `useWebglContextEvents` (usado pelo componente `WebglContextEvents`, dentro do `Canvas`) registra com `useEffect`, remove no cleanup, troca de alvo se o canvas mudar e chama sempre a versão atual dos callbacks (`useEffectEvent`).
+
 ## Tasks abertas
 
 ### T1 (A) Props da cena atravessam o `SolarSystemSceneLoader` sem serem usadas
@@ -210,14 +212,6 @@ Auditoria de listeners, timers, `requestAnimationFrame`, observers e recursos 3D
 - **OK:** `use-modal-focus`, `use-viewport-size`, `use-prefers-reduced-motion`, `KeyboardZoom`, `use-camera-takeover`, `use-element-width`,
   `use-idle-ready`, `use-intent-target`, `use-decoded-text`, `use-scene-reveal` e `use-comet` (frame cancelado e promessa resolvida no
   desmonte). Texturas são descartadas em `use-texture`; geometrias e materiais JSX são descartados pelo R3F na desmontagem.
-
-### T21 (A) Listeners do contexto WebGL nunca removidos e com closure possivelmente desatualizada
-
-- **Onde:** `SolarSystemScene.tsx:109-114`. `onCreated` registra `webglcontextlost` e `webglcontextrestored` no `gl.domElement` e nunca remove.
-- **Riscos:** (1) os handlers capturam `onContextLost`/`onContextRestored` da renderização em que o canvas foi criado; se a identidade mudar,
-  o canvas continua chamando a versão antiga; (2) em remontagens do `Canvas` acumulam-se listeners enquanto o elemento ainda existir.
-- **Proposta:** hook `useWebglContextEvents(gl, { onLost, onRestored })` com `useEffect` + cleanup, ou refs estáveis para os callbacks.
-- **Pronto quando:** existe teste de que perder e restaurar o contexto chama os callbacks atuais e que o desmonte remove os listeners.
 
 ## Re-renders desnecessários
 
