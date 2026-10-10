@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import type { ComponentType } from 'react';
-import { AttributionNote, ContentPanel, SectionView } from '@/features/content-panel';
+import { AttributionNote, ContentPanel } from '@/features/content-panel';
 import { QuickAccessMenu } from '@/features/quick-access-menu';
 import {
   SceneErrorBoundary,
@@ -22,6 +22,7 @@ import { SceneFallback } from './SceneFallback';
 import { SceneKeyboardControls } from './SceneKeyboardControls';
 import type { SceneKeyboardControlsHandle } from './SceneKeyboardControls';
 import { getTrackedBodyId } from './tracked-body';
+import { SectionView } from './SectionView';
 import { useBodyInteraction } from './use-body-interaction';
 import { useCameraTarget } from './use-camera-target';
 

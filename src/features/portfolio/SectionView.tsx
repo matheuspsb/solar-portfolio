@@ -1,9 +1,9 @@
 import { Suspense, lazy } from 'react';
 import type { SectionContent } from '@/domain/celestial-body';
-import { AboutSection } from './about/AboutSection';
+import { AboutSection } from '@/features/about-section';
 
 const ContactSection = lazy(() =>
-  import('./contact/ContactSection').then((module) => ({ default: module.ContactSection })),
+  import('@/features/contact-section').then((module) => ({ default: module.ContactSection })),
 );
 
 type SectionViewProps = {

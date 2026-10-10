@@ -17,7 +17,7 @@ import type {
   ContactSubmission,
   ContactSubmitResult,
 } from '@/domain/contact-message';
-import { useContactSubmitter } from '../../hooks/contact-submitter';
+import { useContactSubmitter } from '@/hooks/contact-submitter';
 import { getActionPresentation } from './question/action-presentation';
 import { AnswerFooter } from './question/AnswerFooter';
 import { AnswerField } from './question/AnswerField';

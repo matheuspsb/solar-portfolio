@@ -8,7 +8,7 @@ import { Text } from '@/components/Text';
 import { DataCell } from './DataCell';
 import { DataGrid } from './DataGrid';
 import { OrbitEmblem } from './OrbitEmblem';
-import { RuledHeading } from '../../components/RuledHeading';
+import { RuledHeading } from './RuledHeading';
 import { StackList } from './StackList';
 
 const STACK_LABEL = 'Stack principal';

@@ -1,8 +1,8 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { ContactSubmitterProvider } from '@/features/content-panel';
 import type { ContactMessageSubmitter } from '@/domain/contact-message';
+import { ContactSubmitterProvider } from '@/hooks/contact-submitter';
 
 type PortfolioProvidersProps = {
   contactSubmitter: ContactMessageSubmitter;

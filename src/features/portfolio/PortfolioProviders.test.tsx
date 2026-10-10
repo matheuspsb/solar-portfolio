@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
-import { useContactSubmitter } from '@/features/content-panel';
+import { useContactSubmitter } from '@/hooks/contact-submitter';
 import { PortfolioProviders } from './PortfolioProviders';
 
 const contactSubmitter = async () => ({ ok: true as const });

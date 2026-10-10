@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { contactContent } from '@/content/contact';
 import type { ContactMessageSubmitter, ContactSubmitResult } from '@/domain/contact-message';
-import { ContactSubmitterProvider } from '../../hooks/contact-submitter';
+import { ContactSubmitterProvider } from '@/hooks/contact-submitter';
 import { ContactSection } from './ContactSection';
 import type { FrameScheduler } from './journey/use-comet';
 
