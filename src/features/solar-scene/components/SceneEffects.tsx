@@ -1,10 +1,19 @@
 import { Bloom, EffectComposer } from '@react-three/postprocessing';
+import { useEffect } from 'react';
 
 const BLOOM_INTENSITY = 1.1;
 const BLOOM_LUMINANCE_THRESHOLD = 0.55;
 const BLOOM_LUMINANCE_SMOOTHING = 0.4;
 
-export function SceneEffects() {
+type SceneEffectsProps = {
+  onReady: () => void;
+};
+
+export function SceneEffects({ onReady }: SceneEffectsProps) {
+  useEffect(() => {
+    onReady();
+  }, [onReady]);
+
   return (
     <EffectComposer multisampling={0}>
       <Bloom

@@ -1,5 +1,6 @@
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
+import type { ScreenFrame } from '@/lib/screen-frame';
 
 export type SceneProps = {
   bodies: readonly CelestialBodyConfig[];
@@ -11,4 +12,6 @@ export type SceneProps = {
   isActive: boolean;
   cameraTarget: { id: string | null; nonce: number };
   description: string;
+  trackedBodyId: string | null;
+  onTrackFrame: (frame: ScreenFrame | null) => void;
 };

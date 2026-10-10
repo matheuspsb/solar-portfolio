@@ -1,5 +1,5 @@
 import { useCursor } from '@react-three/drei';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { BodyKind, BodyTexture, Orbit } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
 import { useTexture } from '../hooks/use-texture';
@@ -25,6 +25,7 @@ type CelestialBodyProps = {
   highlightEasingRate: number;
   onHoverChange: (isHovered: boolean) => void;
   onSelect: () => void;
+  onSettled?: (id: string) => void;
   loadTexture?: TextureLoadFunction;
 };
 
@@ -46,11 +47,16 @@ export function CelestialBody({
   highlightEasingRate,
   onHoverChange,
   onSelect,
+  onSettled,
   loadTexture,
 }: CelestialBodyProps) {
   const [isPointerOver, setIsPointerOver] = useState(false);
   const textureUrl = pickTextureUrl(texture, prefersSmallTexture);
-  const { texture: loadedTexture } = useTexture(textureUrl, loadTexture);
+  const { texture: loadedTexture, status } = useTexture(textureUrl, loadTexture);
+  const isSettled = textureUrl === null || status === 'loaded' || status === 'error';
+  useEffect(() => {
+    if (isSettled) onSettled?.(id);
+  }, [isSettled, id, onSettled]);
   useCursor(isPointerOver);
 
   const changeHover = (isHovered: boolean) => {

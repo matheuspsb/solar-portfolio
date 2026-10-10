@@ -1,4 +1,5 @@
 const HIGHLIGHT_EASING_RATE = 10;
+const TRACKER_EASING_RATE = 17;
 
 export const INSTANT_EASING_RATE = Number.POSITIVE_INFINITY;
 
@@ -16,6 +17,10 @@ export function getRotationPeriodForMotion(
 
 export function getHighlightEasingRate(prefersReducedMotion: boolean): number {
   return prefersReducedMotion ? INSTANT_EASING_RATE : HIGHLIGHT_EASING_RATE;
+}
+
+export function getTrackerEasingRate(prefersReducedMotion: boolean): number {
+  return prefersReducedMotion ? INSTANT_EASING_RATE : TRACKER_EASING_RATE;
 }
 
 export function getFrameloop(prefersReducedMotion: boolean): 'always' | 'demand' {

@@ -6,11 +6,22 @@ import { Suspense, lazy } from 'react';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
 import type { CelestialBodyConfig } from '@/lib/celestial-body';
 import type { Highlight } from '@/lib/interaction-state';
-import { getFrameloop, getHighlightEasingRate, getRotationPeriodForMotion } from '../lib/motion';
+import {
+  getFrameloop,
+  getHighlightEasingRate,
+  getRotationPeriodForMotion,
+  getTrackerEasingRate,
+} from '../lib/motion';
 import type { SceneQuality } from '../lib/scene-quality';
 import { MIN_ZOOM_DISTANCE, getMaxZoomDistance } from '../lib/zoom';
-import { CAMERA_FIELD_OF_VIEW, CAMERA_FOCUS_SIDE_OFFSET_RADIANS } from '../constants';
+import {
+  CAMERA_FIELD_OF_VIEW,
+  CAMERA_FOCUS_SIDE_OFFSET_RADIANS,
+  SCENE_REVEAL_MAX_WAIT_MS,
+} from '../constants';
+import { useSceneReveal } from '../hooks/use-scene-reveal';
 import type { SceneProps } from '../types';
+import { BodyTracker } from './BodyTracker';
 import { CameraDistance } from './CameraDistance';
 import { CameraFocus } from './CameraFocus';
 import { CameraViewOffset } from './CameraViewOffset';
@@ -46,6 +57,8 @@ type SolarSystemSceneProps = {
   onContextRestored: () => void;
   isActive: boolean;
   description: string;
+  trackedBodyId: string | null;
+  onTrackFrame: SceneProps['onTrackFrame'];
 };
 
 export function SolarSystemScene({
@@ -64,13 +77,25 @@ export function SolarSystemScene({
   onContextRestored,
   isActive,
   description,
+  trackedBodyId,
+  onTrackFrame,
 }: SolarSystemSceneProps) {
   const maxZoomDistance = getMaxZoomDistance(cameraDistance);
+  const reveal = useSceneReveal({
+    bodyIds: bodies.map((body) => body.id),
+    maxWaitMs: SCENE_REVEAL_MAX_WAIT_MS,
+  });
+  const clearHover = () => {
+    for (const body of bodies) {
+      if (highlightOf(body.id) === 'hovered') onHoverChange(body.id, false);
+    }
+  };
 
   return (
     <Canvas
       role="img"
       aria-label={description}
+      className={`transition-opacity duration-slow ${reveal.isRevealed ? 'opacity-100' : 'opacity-0'}`}
       dpr={[1, quality.maxPixelRatio]}
       frameloop={getFrameloop(prefersReducedMotion)}
       camera={{
@@ -80,6 +105,7 @@ export function SolarSystemScene({
         far: CAMERA_FAR,
       }}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
+      onPointerMissed={clearHover}
       onCreated={({ gl }) => {
         gl.domElement.addEventListener('webglcontextlost', (event) => {
           event.preventDefault();
@@ -97,6 +123,12 @@ export function SolarSystemScene({
         sideOffset={CAMERA_FOCUS_SIDE_OFFSET_RADIANS}
       />
       <CameraViewOffset targetOffsetPixels={viewOffsetPixels} easingRate={viewOffsetEasingRate} />
+      <BodyTracker
+        targetId={trackedBodyId}
+        bodies={bodies}
+        easingRate={getTrackerEasingRate(prefersReducedMotion)}
+        onFrame={onTrackFrame}
+      />
       <SceneLights />
       <StarField starCount={quality.starCount} />
       {bodies.map((body) => (
@@ -117,10 +149,11 @@ export function SolarSystemScene({
           highlightEasingRate={getHighlightEasingRate(prefersReducedMotion)}
           onHoverChange={(isHovered) => onHoverChange(body.id, isHovered)}
           onSelect={() => onSelect(body.id)}
+          onSettled={reveal.markBodySettled}
         />
       ))}
       <Suspense fallback={null}>
-        <SceneEffects />
+        <SceneEffects onReady={reveal.markEffectsReady} />
       </Suspense>
       <KeyboardZoom
         minDistance={MIN_ZOOM_DISTANCE}

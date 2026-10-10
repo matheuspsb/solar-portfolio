@@ -55,6 +55,43 @@ describe('CelestialBody', () => {
     expect(loadTexture).toHaveBeenCalledWith('/small.webp');
   });
 
+  it('tells the scene it is ready once its texture has loaded, not before', async () => {
+    const onSettled = vi.fn();
+    let finishLoading: (loaded: Texture) => void = () => undefined;
+    const loadTexture = vi.fn(
+      () =>
+        new Promise<Texture>((resolve) => {
+          finishLoading = resolve;
+        }),
+    );
+    await ReactThreeTestRenderer.create(
+      <CelestialBody {...defaultProps} onSettled={onSettled} loadTexture={loadTexture} />,
+    );
+    expect(onSettled).not.toHaveBeenCalled();
+    await ReactThreeTestRenderer.act(async () => finishLoading(new Texture()));
+    expect(onSettled).toHaveBeenCalledWith('sun');
+  });
+
+  it('tells the scene it is ready even when the texture fails, so the scene does not wait forever', async () => {
+    const onSettled = vi.fn();
+    const loadTexture = vi.fn(async () => {
+      throw new Error('404');
+    });
+    await ReactThreeTestRenderer.create(
+      <CelestialBody {...defaultProps} onSettled={onSettled} loadTexture={loadTexture} />,
+    );
+    await ReactThreeTestRenderer.act(async () => undefined);
+    expect(onSettled).toHaveBeenCalledWith('sun');
+  });
+
+  it('is ready at once when it has no texture to wait for', async () => {
+    const onSettled = vi.fn();
+    await ReactThreeTestRenderer.create(
+      <CelestialBody {...defaultProps} texture={null} onSettled={onSettled} />,
+    );
+    expect(onSettled).toHaveBeenCalledWith('sun');
+  });
+
   it('keeps a visible solid sphere when the texture fails to load', async () => {
     const loadTexture = vi.fn(async () => {
       throw new Error('404');

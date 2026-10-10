@@ -31,6 +31,8 @@ export function SolarSystemSceneLoader({
   isActive,
   cameraTarget,
   description,
+  trackedBodyId,
+  onTrackFrame,
 }: SceneProps) {
   const isIdle = useIdleReady();
   const viewport = useViewportSize();
@@ -66,6 +68,8 @@ export function SolarSystemSceneLoader({
       onContextRestored={onContextRestored}
       isActive={isActive}
       description={description}
+      trackedBodyId={trackedBodyId}
+      onTrackFrame={onTrackFrame}
     />
   );
 }

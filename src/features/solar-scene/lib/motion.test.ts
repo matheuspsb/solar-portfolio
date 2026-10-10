@@ -4,6 +4,7 @@ import {
   getFrameloop,
   getHighlightEasingRate,
   getRotationPeriodForMotion,
+  getTrackerEasingRate,
   getTransitionRate,
   getTransitionSeconds,
 } from './motion';
@@ -35,6 +36,15 @@ describe('getHighlightEasingRate', () => {
   it('applies changes instantly when reduced motion is preferred', () => {
     expect(getHighlightEasingRate(true)).toBe(INSTANT_EASING_RATE);
     expect(INSTANT_EASING_RATE).toBe(Number.POSITIVE_INFINITY);
+  });
+});
+
+describe('getTrackerEasingRate', () => {
+  it('follows a moving body smoothly, and snaps to it with reduced motion', () => {
+    const smooth = getTrackerEasingRate(false);
+    expect(Number.isFinite(smooth)).toBe(true);
+    expect(smooth).toBeGreaterThan(0);
+    expect(getTrackerEasingRate(true)).toBe(INSTANT_EASING_RATE);
   });
 });
 
