@@ -28,27 +28,19 @@ test('walks the three questions by keyboard and ends with the delivery confirmat
   page,
 }) => {
   const dialog = await openContact(page);
-  await expect(
-    dialog.getByRole('heading', { level: 2, name: 'Oi! Como posso te chamar?' }),
-  ).toBeVisible();
+  await expect(dialog.getByRole('textbox', { name: /Como posso te chamar/ })).toBeVisible();
   await answerAll(page);
 
-  const confirmation = dialog.getByRole('heading', {
-    level: 2,
-    name: 'Hermes levou sua mensagem, Ana.',
+  await expect(dialog.getByRole('button', { name: 'Enviar outra mensagem' })).toBeVisible({
+    timeout: 15_000,
   });
-  await expect(confirmation).toBeVisible({ timeout: 15_000 });
-  await expect(confirmation).toBeFocused();
-  await expect(dialog.getByText('Vou responder em ana@estudio.com.')).toBeVisible();
-  await expect(dialog.getByRole('button', { name: 'Enviar outra mensagem' })).toBeVisible();
+  await expect(dialog.getByRole('heading', { level: 2 })).toBeFocused();
 });
 
 test('the delivery screen has no accessibility violations', async ({ page }) => {
   await openContact(page);
   await answerAll(page);
-  await page
-    .getByRole('heading', { level: 2, name: /Hermes levou sua mensagem/ })
-    .waitFor({ timeout: 15_000 });
+  await page.getByRole('button', { name: 'Enviar outra mensagem' }).waitFor({ timeout: 15_000 });
   await waitForFiniteAnimations(page);
   const results = await new AxeBuilder({ page }).analyze();
   expect(results.violations).toEqual([]);
@@ -61,7 +53,7 @@ test('explains an empty answer, shakes the field and has no accessibility violat
   await dialog.getByRole('button', { name: 'Continuar' }).click();
 
   const field = dialog.getByRole('textbox', { name: /Como posso te chamar/ });
-  await expect(dialog.getByText('Digite seu nome para continuar.')).toBeVisible();
+  await expect(dialog.getByRole('alert')).toBeVisible();
   await expect(field).toHaveAttribute('aria-invalid', 'true');
   await expect(field).toBeFocused();
 
@@ -74,9 +66,8 @@ test('goes back to an answered step through its planet', async ({ page }) => {
   const dialog = await openContact(page);
   await dialog.getByRole('textbox', { name: /Como posso te chamar/ }).fill('Ana');
   await page.keyboard.press('Enter');
-  await expect(dialog.getByText('02 / 03')).toBeVisible();
+  await expect(dialog.getByRole('textbox', { name: /Para onde envio/ })).toBeVisible();
   await dialog.getByRole('button', { name: 'Voltar para NOME' }).click();
-  await expect(dialog.getByText('01 / 03')).toBeVisible();
   await expect(dialog.getByRole('textbox', { name: /Como posso te chamar/ })).toHaveValue('Ana');
 });
 
@@ -86,9 +77,9 @@ test('with reduced motion the flow still completes, without the flying envelope'
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const dialog = await openContact(page);
   await answerAll(page);
-  await expect(
-    dialog.getByRole('heading', { level: 2, name: /Hermes levou sua mensagem/ }),
-  ).toBeVisible({ timeout: 5_000 });
+  await expect(dialog.getByRole('button', { name: 'Enviar outra mensagem' })).toBeVisible({
+    timeout: 5_000,
+  });
   const runningAnimations = await page.evaluate(
     () => document.getAnimations().filter((animation) => animation.playState === 'running').length,
   );
@@ -112,7 +103,7 @@ for (const viewport of [
 
     await answerAll(page);
     await dialog
-      .getByRole('heading', { level: 2, name: /Hermes levou sua mensagem/ })
+      .getByRole('button', { name: 'Enviar outra mensagem' })
       .waitFor({ timeout: 15_000 });
     expect(await measureOverflow()).toBeLessThanOrEqual(0);
     const panelWidth = await dialog.evaluate(

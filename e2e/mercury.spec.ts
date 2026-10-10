@@ -44,7 +44,7 @@ test('hovering and clicking Mercury in the scene opens Contact (reduced motion)'
   await expect(page.locator('canvas')).toBeVisible();
   await page.waitForTimeout(2500);
   await hoverMercury(page);
-  await expect(page.getByText('Mercúrio · Contato')).toBeVisible();
+  await expect(page.getByText('ALVO TRAVADO · 002')).toBeVisible();
   await page.mouse.down();
   await page.mouse.up();
   await expect(page.getByRole('dialog', { name: 'Contato' })).toBeVisible();

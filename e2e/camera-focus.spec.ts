@@ -12,7 +12,7 @@ test('swings the camera so Mercury is in view and clickable after focusing it wi
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('button', { name: 'Mercúrio: abrir seção Contato' })).toBeFocused();
   await page.keyboard.press('Tab');
-  await expect(page.getByText('Mercúrio · Contato')).toBeHidden();
+  await expect(page.getByText('ALVO TRAVADO · 002')).toBeHidden();
 
   await page.waitForTimeout(3000);
   await hoverMercury(page);
@@ -32,10 +32,10 @@ test('keeps Mercury in the same place on screen while it orbits (the camera foll
   await page.waitForTimeout(3000);
   await hoverMercury(page);
   await page.mouse.move(5, 5);
-  await expect(page.getByText('Mercúrio · Contato')).toBeHidden();
+  await expect(page.getByText('ALVO TRAVADO · 002')).toBeHidden();
   await page.waitForTimeout(8000);
   await hoverMercury(page);
-  await expect(page.getByText('Mercúrio · Contato')).toBeVisible();
+  await expect(page.getByText('ALVO TRAVADO · 002')).toBeVisible();
 });
 
 test('with reduced motion the camera jumps to Mercury at once', async ({ page }) => {
@@ -48,5 +48,5 @@ test('with reduced motion the camera jumps to Mercury at once', async ({ page })
   await page.keyboard.press('Tab');
   await page.waitForTimeout(300);
   await hoverMercury(page);
-  await expect(page.getByText('Mercúrio · Contato')).toBeVisible();
+  await expect(page.getByText('ALVO TRAVADO · 002')).toBeVisible();
 });

@@ -14,7 +14,7 @@ export async function hoverSun(page: Page) {
   await expect(async () => {
     await page.mouse.move(centerX + 4, centerY + 4, { steps: 3 });
     await page.mouse.move(centerX, centerY, { steps: 3 });
-    await expect(page.getByText('Sol · Sobre')).toBeVisible({ timeout: 1000 });
+    await expect(page.getByText('ALVO TRAVADO · 001')).toBeVisible({ timeout: 1000 });
   }).toPass({ timeout: 20_000 });
   return { centerX, centerY };
 }
@@ -71,7 +71,14 @@ export async function hoverMercury(page: Page) {
     for (let offsetY = 0.5; offsetY <= 0.85; offsetY += 0.05) {
       for (let offsetX = 0.45; offsetX <= 0.9; offsetX += 0.05) {
         await page.mouse.move(box.x + box.width * offsetX, box.y + box.height * offsetY);
-        if (await page.getByText('Mercúrio · Contato').isVisible()) return;
+        const cursor = await page.evaluate(() => document.body.style.cursor);
+        if (cursor !== 'pointer') continue;
+        const isMercury = await page
+          .getByText('ALVO TRAVADO · 002')
+          .waitFor({ state: 'visible', timeout: 400 })
+          .then(() => true)
+          .catch(() => false);
+        if (isMercury) return;
       }
     }
     throw new Error('Mercury was not found under the pointer');
