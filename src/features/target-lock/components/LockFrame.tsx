@@ -24,7 +24,7 @@ export function LockFrame({ frame }: LockFrameProps) {
       {cornerPositions.map((position) => (
         <span
           key={position}
-          className={`absolute border-(color:--lock-accent) ${position}`}
+          className={`absolute border-(--lock-accent) ${position}`}
           style={{ width: cornerSize, height: cornerSize }}
         />
       ))}

@@ -19,11 +19,11 @@ export function DeliveryStamp({ stamp, dateLabel }: DeliveryStampProps) {
       }}
     >
       <div className="flex size-22.5 flex-col items-center justify-center gap-0.5 rounded-ellipse border border-dashed border-ember-400/60 text-ember-400">
-        <span className="font-mono text-stamp-small tracking-[0.18em]">{stamp.top}</span>
+        <span className="font-mono text-stamp-small tracking-caps">{stamp.top}</span>
         <span className="text-stamp-name font-bold tracking-[0.04em]">{stamp.name}</span>
         <span className="my-0.5 h-px w-13.5 bg-ember-400/53" />
         <span className="font-mono text-stamp-date tracking-code">{dateLabel}</span>
-        <span className="font-mono text-stamp-small tracking-[0.18em]">{stamp.status}</span>
+        <span className="font-mono text-stamp-small tracking-caps">{stamp.status}</span>
       </div>
     </div>
   );

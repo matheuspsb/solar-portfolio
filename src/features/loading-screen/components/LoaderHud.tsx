@@ -24,9 +24,9 @@ export function LoaderHud({ hud, percent, isSceneReady }: LoaderHudProps) {
 
   return (
     <div style={{ opacity: hud.opacity }}>
-      <div className="absolute top-[6%] left-[5%] flex items-center gap-3 font-mono text-loader-label tracking-loader-brand text-ink-300">
+      <div className="absolute top-[6%] left-[5%] flex items-center gap-3 font-mono text-loader-label tracking-caps text-ink-300">
         <span
-          className="size-2.5 rounded-(--radius-ellipse) bg-ember-400 shadow-dot"
+          className="size-2.5 rounded-ellipse bg-ember-400 shadow-dot"
           style={{ opacity: hud.dotOpacity }}
         />
         <span>{loaderContent.brand}</span>
@@ -48,7 +48,7 @@ export function LoaderHud({ hud, percent, isSceneReady }: LoaderHudProps) {
             className="absolute top-[-2px] right-0 h-[7px] rounded-sm bg-linear-to-r from-transparent to-ember-300/40"
             style={{ width: TRACK_HEAD_GLOW_PIXELS }}
           />
-          <div className="absolute top-1/2 right-0 size-3.5 translate-x-1/2 -translate-y-1/2 rounded-(--radius-ellipse) bg-white shadow-ember-planet" />
+          <div className="absolute top-1/2 right-0 size-3.5 translate-x-1/2 -translate-y-1/2 rounded-ellipse bg-white shadow-ember-planet" />
         </div>
       </div>
       <div className="absolute top-[94.5%] left-[5%] flex items-center gap-4 font-mono text-loader-label tracking-loader-label text-ink-200">

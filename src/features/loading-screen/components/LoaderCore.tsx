@@ -26,7 +26,7 @@ export function LoaderCore({ core }: LoaderCoreProps) {
   return (
     <>
       <div
-        className="absolute rounded-(--radius-ellipse)"
+        className="absolute rounded-ellipse"
         style={{
           left: STAGE_CENTER_X - scaled * GLOW_HALF_SPAN,
           top: STAGE_CENTER_Y - scaled * GLOW_HALF_SPAN,

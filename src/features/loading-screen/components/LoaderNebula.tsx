@@ -23,7 +23,7 @@ export function LoaderNebula({ nebula }: LoaderNebulaProps) {
   return (
     <>
       <div
-        className="absolute rounded-(--radius-ellipse)"
+        className="absolute rounded-ellipse"
         style={{
           left: STAGE_CENTER_X - WARM_WIDTH / 2,
           top: STAGE_CENTER_Y - WARM_HEIGHT / 2,
@@ -35,7 +35,7 @@ export function LoaderNebula({ nebula }: LoaderNebulaProps) {
         }}
       />
       <div
-        className="absolute rounded-(--radius-ellipse)"
+        className="absolute rounded-ellipse"
         style={{
           left: STAGE_CENTER_X - COOL_OFFSET_X,
           top: STAGE_CENTER_Y - COOL_OFFSET_Y,

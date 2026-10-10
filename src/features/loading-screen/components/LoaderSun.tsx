@@ -31,7 +31,7 @@ export function LoaderSun({ sun, rays }: LoaderSunProps) {
   return (
     <>
       <div
-        className="absolute rounded-(--radius-ellipse)"
+        className="absolute rounded-ellipse"
         style={{
           left: STAGE_CENTER_X - radius * HALO_SPAN_RATIO,
           top: STAGE_CENTER_Y - radius * HALO_SPAN_RATIO,
@@ -57,7 +57,7 @@ export function LoaderSun({ sun, rays }: LoaderSunProps) {
         ))}
       </svg>
       <div
-        className="absolute rounded-(--radius-ellipse)"
+        className="absolute rounded-ellipse"
         style={{
           left: STAGE_CENTER_X - radius,
           top: STAGE_CENTER_Y - radius,
