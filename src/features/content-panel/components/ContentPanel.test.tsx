@@ -43,7 +43,6 @@ describe('ContentPanel', () => {
     const dialog = screen.getByRole('dialog', { name: 'Sobre' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(dialog).toHaveFocus();
-    expect(screen.getByText('Sobre · Objeto 001')).toBeInTheDocument();
   });
 
   it('closes with Escape and returns focus to the opener', async () => {

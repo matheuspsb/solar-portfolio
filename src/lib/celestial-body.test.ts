@@ -11,6 +11,7 @@ function buildBody(overrides: Partial<CelestialBodyConfig> = {}): CelestialBodyC
     rotationPeriodSeconds: 120,
     orbit: null,
     texture: { url: '/textures/sun.webp', smallUrl: '/textures/sun-small.webp' },
+    targeting: { code: '001', description: 'Estrela tipo G', anchor: 'top-left' },
     section: {
       menuLabel: 'Sobre',
       menuTone: 'amber',
@@ -77,6 +78,14 @@ describe('validateCelestialBodies', () => {
 
   it('rejects ids that are not URL/DOM safe', () => {
     expect(errorsFor([buildBody({ id: 'Sol Central' })])).toEqual([expect.stringContaining('id')]);
+  });
+
+  it.each([
+    ['code', { code: '  ', description: 'Estrela tipo G', anchor: 'top-left' as const }],
+    ['description', { code: '001', description: '', anchor: 'top-left' as const }],
+  ])('rejects a blank targeting %s', (field, targeting) => {
+    const errors = errorsFor([buildBody({ targeting })]);
+    expect(errors.some((message) => message.includes(`targeting ${field}`))).toBe(true);
   });
 
   it('rejects a blank name', () => {

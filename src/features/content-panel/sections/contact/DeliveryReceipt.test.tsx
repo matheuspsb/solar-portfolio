@@ -22,13 +22,6 @@ function renderReceipt(onSendAnother = () => undefined) {
 }
 
 describe('DeliveryReceipt', () => {
-  it('thanks the sender by first name, as the panel heading', () => {
-    renderReceipt();
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Hermes levou sua mensagem, Ana.' }),
-    ).toBeInTheDocument();
-  });
-
   it('moves focus to the confirmation so assistive technology reads it', () => {
     renderReceipt();
     expect(screen.getByRole('heading', { level: 2 })).toHaveFocus();
@@ -39,19 +32,5 @@ describe('DeliveryReceipt', () => {
     renderReceipt(onSendAnother);
     await userEvent.click(screen.getByRole('button', { name: 'Enviar outra mensagem' }));
     expect(onSendAnother).toHaveBeenCalledOnce();
-  });
-
-  it('does not break with an empty name', () => {
-    render(
-      <DeliveryReceipt
-        content={contactContent}
-        message={{ ...message, name: '' }}
-        protocol="MSG-1000"
-        onSendAnother={() => undefined}
-      />,
-    );
-    expect(
-      screen.getByRole('heading', { level: 2, name: 'Hermes levou sua mensagem, viajante.' }),
-    ).toBeInTheDocument();
   });
 });

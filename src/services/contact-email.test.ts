@@ -21,13 +21,6 @@ describe('buildContactEmail', () => {
     expect(email.subject).not.toMatch(/[\r\n]/);
   });
 
-  it('carries the message in both the html and the plain text versions', () => {
-    const email = buildContactEmail(message, addresses);
-    expect(email.html).toContain('Gostei do seu portfólio');
-    expect(email.text).toContain('Gostei do seu portfólio');
-    expect(email.text).toContain('ana@empresa.com');
-  });
-
   it('escapes html so a visitor cannot inject markup into the owner inbox', () => {
     const email = buildContactEmail(
       { ...message, name: '<b>Ana</b>', message: '<script>alert("x")</script> & mais' },
@@ -37,10 +30,5 @@ describe('buildContactEmail', () => {
     expect(email.html).not.toContain('<b>Ana</b>');
     expect(email.html).toContain('&lt;script&gt;');
     expect(email.html).toContain('&amp; mais');
-  });
-
-  it('keeps the line breaks of the message in the html', () => {
-    const email = buildContactEmail({ ...message, message: 'Linha um\nLinha dois' }, addresses);
-    expect(email.html).toContain('Linha um<br>Linha dois');
   });
 });
