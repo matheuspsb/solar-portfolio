@@ -2,7 +2,27 @@ import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import sharp from 'sharp';
 
+const SCENE_REVEAL_TIMEOUT_MS = 20_000;
+const FULLY_VISIBLE_OPACITY = 0.99;
+
+async function waitForSceneReveal(page: Page) {
+  await page.waitForFunction(
+    (threshold) => {
+      const canvas = document.querySelector('canvas');
+      if (!canvas) return false;
+      let opacity = 1;
+      for (let node: Element | null = canvas; node; node = node.parentElement) {
+        opacity *= Number(getComputedStyle(node).opacity);
+      }
+      return opacity >= threshold;
+    },
+    FULLY_VISIBLE_OPACITY,
+    { timeout: SCENE_REVEAL_TIMEOUT_MS },
+  );
+}
+
 export async function hoverSun(page: Page) {
+  await waitForSceneReveal(page);
   const viewport = page.viewportSize()!;
   const canvas = page.locator('canvas');
   await expect
@@ -66,6 +86,7 @@ export async function waitForFiniteAnimations(page: Page) {
 }
 
 export async function hoverMercury(page: Page) {
+  await waitForSceneReveal(page);
   const box = (await page.locator('canvas').boundingBox())!;
   await expect(async () => {
     for (let offsetY = 0.5; offsetY <= 0.85; offsetY += 0.05) {

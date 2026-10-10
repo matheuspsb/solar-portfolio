@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, openPage, test } from './fixtures';
 import type { Page } from '@playwright/test';
 import { expectComfortableFill, measureSunFill } from './helpers';
 
@@ -52,7 +52,7 @@ const phoneViewports = [
 
 for (const viewport of phoneViewports) {
   test(`the whole Sun fits a ${viewport.width}x${viewport.height} screen`, async ({ browser }) => {
-    const page = await browser.newPage({ viewport });
+    const page = await openPage(browser, { viewport });
     await waitForScene(page);
     expectComfortableFill(await measureSunFill(await captureCanvas(page)));
     await page.close();
@@ -68,7 +68,7 @@ test('reframes the Sun when the viewport is rotated while open', async ({ page }
 });
 
 test('has no horizontal scrolling on very narrow screens', async ({ browser }) => {
-  const page = await browser.newPage({ viewport: { width: 320, height: 568 } });
+  const page = await openPage(browser, { viewport: { width: 320, height: 568 } });
   await page.goto('/');
   await page.getByRole('button', { name: 'Acesso rápido' }).click();
   const overflow = await page.evaluate(

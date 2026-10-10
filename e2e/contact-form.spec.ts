@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, openPage, test } from './fixtures';
 import type { Page } from '@playwright/test';
 import { waitForFiniteAnimations } from './helpers';
 
@@ -93,7 +93,7 @@ for (const viewport of [
   test(`fits a ${viewport.width}px phone through the whole flow without horizontal scroll`, async ({
     browser,
   }) => {
-    const page = await browser.newPage({ viewport });
+    const page = await openPage(browser, { viewport });
     const dialog = await openContact(page);
     const measureOverflow = () =>
       page.evaluate(

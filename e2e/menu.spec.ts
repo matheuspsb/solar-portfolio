@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, openPage, test } from './fixtures';
 import { waitForFiniteAnimations } from './helpers';
 
 test('opens the About panel from the menu with the mouse and returns focus to the button', async ({
@@ -33,7 +33,7 @@ test('is positioned in the top-right corner on desktop and phone', async ({ brow
     { width: 1280, height: 800 },
     { width: 375, height: 700 },
   ]) {
-    const page = await browser.newPage({ viewport });
+    const page = await openPage(browser, { viewport });
     await page.goto('/');
     const box = (await page.getByRole('button', { name: 'Acesso rápido' }).boundingBox())!;
     expect(box.y).toBeLessThan(40);
@@ -59,7 +59,7 @@ test('keeps destinations unreachable while collapsed and on screen once expanded
     { width: 1280, height: 800 },
     { width: 375, height: 740 },
   ]) {
-    const page = await browser.newPage({ viewport });
+    const page = await openPage(browser, { viewport });
     await page.goto('/');
     const destination = page.getByRole('button', { name: 'Sobre', exact: true });
     await expect(destination).toHaveCount(0);
@@ -85,7 +85,7 @@ test('with reduced motion the destinations only fade (no flight along the arc)',
   browser,
 }) => {
   const readTransitionProperty = async (reducedMotion: 'reduce' | 'no-preference') => {
-    const page = await browser.newPage();
+    const page = await openPage(browser);
     await page.emulateMedia({ reducedMotion });
     await page.goto('/');
     await page.getByRole('button', { name: 'Acesso rápido' }).click();

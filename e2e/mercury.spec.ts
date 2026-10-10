@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, openPage, test } from './fixtures';
 import { hoverMercury, waitForFiniteAnimations } from './helpers';
 
 test('opens Contact from the Mercury keyboard control and returns focus to it', async ({
@@ -53,7 +53,7 @@ test('hovering and clicking Mercury in the scene opens Contact (reduced motion)'
 test('lists both destinations in the menu without leaving the screen on a narrow phone', async ({
   browser,
 }) => {
-  const page = await browser.newPage({ viewport: { width: 320, height: 640 } });
+  const page = await openPage(browser, { viewport: { width: 320, height: 640 } });
   await page.goto('/');
   await page.getByRole('button', { name: 'Acesso rápido' }).click();
   await page.waitForTimeout(1300);

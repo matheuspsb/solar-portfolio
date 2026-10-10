@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, openPage, test } from './fixtures';
 import type { Locator, Page } from '@playwright/test';
 import { clickSun, hoverSun } from './helpers';
 
@@ -21,7 +21,7 @@ async function expectInsideViewport(page: Page, locator: Locator) {
 }
 
 test('the card stays inside the screen on a small phone', async ({ browser }) => {
-  const page = await browser.newPage({ viewport: { width: 360, height: 640 } });
+  const page = await openPage(browser, { viewport: { width: 360, height: 640 } });
   await focusMercury(page);
   const cta = page.getByText('Clique para abrir Contato →');
   await expect(cta).toBeVisible();

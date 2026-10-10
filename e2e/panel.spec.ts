@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, openPage, test } from './fixtures';
 import { clickSun, waitForFiniteAnimations } from './helpers';
 
 test('opens the About panel with the keyboard and restores focus on Escape', async ({ page }) => {
@@ -36,6 +36,7 @@ test('opens by clicking the Sun and closes by clicking outside the panel', async
 
 test('keeps Tab inside the open panel', async ({ page }) => {
   await page.goto('/');
+  await expect(page.locator('canvas')).toBeVisible();
   await page.keyboard.press('Tab');
   await page.keyboard.press('Enter');
   const dialog = page.getByRole('dialog', { name: 'Sobre' });
@@ -64,8 +65,9 @@ test('has no detectable accessibility violations, closed and open', async ({ pag
 });
 
 test('the panel fills a phone viewport', async ({ browser }) => {
-  const page = await browser.newPage({ viewport: { width: 375, height: 700 } });
+  const page = await openPage(browser, { viewport: { width: 375, height: 700 } });
   await page.goto('/');
+  await expect(page.locator('canvas')).toBeVisible();
   await page.keyboard.press('Tab');
   await page.keyboard.press('Enter');
   const box = (await page.getByRole('dialog', { name: 'Sobre' }).boundingBox())!;

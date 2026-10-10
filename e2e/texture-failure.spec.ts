@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { expectComfortableFill, measureSunFill } from './helpers';
 
 test('shows a warm solid Sun and keeps working when the texture request fails', async ({

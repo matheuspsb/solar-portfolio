@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, openPage, test } from './fixtures';
 import type { Page } from '@playwright/test';
 import sharp from 'sharp';
 
@@ -52,7 +52,7 @@ test('the Sun slides left to stay visible next to the open panel on desktop', as
 });
 
 test('the Sun does not shift on phones, where the panel covers everything', async ({ browser }) => {
-  const page = await browser.newPage({ viewport: { width: 375, height: 740 } });
+  const page = await openPage(browser, { viewport: { width: 375, height: 740 } });
   await waitForScene(page);
   await page.getByRole('button', { name: 'Acesso rápido' }).click();
   await page.getByRole('button', { name: 'Sobre', exact: true }).click();
@@ -73,7 +73,7 @@ test('the panel slides in with the motion tokens, and instantly with reduced mot
   browser,
 }) => {
   const readAnimationDuration = async (reducedMotion: 'reduce' | 'no-preference') => {
-    const page = await browser.newPage();
+    const page = await openPage(browser);
     await page.emulateMedia({ reducedMotion });
     await page.goto('/');
     await openPanelFromMenu(page);

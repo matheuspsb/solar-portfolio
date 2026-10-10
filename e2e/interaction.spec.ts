@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { hoverSun } from './helpers';
 
 test('keyboard focus on the Sun shows the target lock and moving on hides it', async ({ page }) => {
