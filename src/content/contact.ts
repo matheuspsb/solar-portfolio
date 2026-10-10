@@ -1,4 +1,4 @@
-import type { ContactContent } from '@/lib/contact-content';
+import type { ContactContent } from '@/domain/contact-content';
 
 export const contactContent: ContactContent = {
   type: 'contact',

@@ -1,6 +1,10 @@
 import { useReducer } from 'react';
-import { getHighlight, initialInteractionState, interactionReducer } from '@/lib/interaction-state';
-import type { Highlight, InteractionState } from '@/lib/interaction-state';
+import {
+  getHighlight,
+  initialInteractionState,
+  interactionReducer,
+} from '@/domain/interaction-state';
+import type { Highlight, InteractionState } from '@/domain/interaction-state';
 
 type BodyInteraction = {
   state: InteractionState;

@@ -1,10 +1,10 @@
-import type { AboutContent } from '@/lib/celestial-body';
+import type { AboutContent } from '@/domain/celestial-body';
 import { formatBodyCount } from './format-count';
-import { ArrowUpRightIcon } from '@/design-system/atoms/ArrowUpRightIcon';
-import { Heading } from '@/design-system/atoms/Heading';
-import { Label } from '@/design-system/atoms/Label';
-import { Link } from '@/design-system/atoms/Link';
-import { Text } from '@/design-system/atoms/Text';
+import { ArrowUpRightIcon } from '@/components/icons/ArrowUpRightIcon';
+import { Heading } from '@/components/Heading';
+import { Label } from '@/components/Label';
+import { Link } from '@/components/Link';
+import { Text } from '@/components/Text';
 import { DataCell } from './DataCell';
 import { DataGrid } from './DataGrid';
 import { OrbitEmblem } from './OrbitEmblem';

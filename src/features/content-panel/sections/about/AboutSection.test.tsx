@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { AboutContent } from '@/lib/celestial-body';
+import type { AboutContent } from '@/domain/celestial-body';
 import { AboutSection } from './AboutSection';
 
 const content: AboutContent = {

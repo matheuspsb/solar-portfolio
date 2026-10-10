@@ -1,4 +1,4 @@
-import { Label } from '@/design-system/atoms/Label';
+import { Label } from '@/components/Label';
 
 type RuledHeadingProps = {
   level: 2 | 3 | 4;

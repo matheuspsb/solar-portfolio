@@ -33,9 +33,8 @@ descartada. Sem as variáveis e sem esse valor, o envio falha de propósito e o 
 src/
   app/                    rotas e layout (Next.js App Router); só compõe features
   content/                dados: corpos celestes, painel "Sobre", créditos, descrição da cena
-  design-system/          UI compartilhada
-    tokens/               tokens (Tailwind v4 @theme + variáveis) e valores usados pela cena
-    atoms/                Button, IconButton, Heading, Text, Label, Link, PlanetDot, ícones, VisuallyHidden
+  components/             UI compartilhada: Button, IconButton, Heading, Text, Label, Link, PlanetDot, VisuallyHidden, icons/
+  styles/                 tokens.css (tema Tailwind v4), motion/ (animações), scene-tokens.ts (valores para o three.js)
   features/
     solar-scene/          cena 3D: components/ (Sol, corona, estrelas, câmera...), hooks/, lib/, shaders/, constants.ts
     content-panel/        painel modal: components/, sections/ (about, contact em etapas), hooks/, lib/
@@ -44,11 +43,12 @@ src/
     portfolio/            composição: PortfolioExperience, fallback, dica, controles de teclado
   services/               entrega da mensagem de contato por e-mail (Resend atrás da interface ContactDelivery)
   hooks/                  hooks usados por 2+ features (navegação por setas, ociosidade, tamanho da janela, movimento reduzido)
-  lib/                    domínio e utilitários usados por 2+ features (corpo celeste, interaction-state, join-class-names...)
+  domain/                 tipos e regras do produto usados por 2+ features (corpo celeste, contato, anti-bot, interação)
+  lib/                    utilitários genéricos e puros (join-class-names, circular-navigation, screen-frame)
 ```
 
 **Como decidimos onde cada arquivo mora** (colocation, como recomendam a documentação do Next.js e o bulletproof-react): o que só uma
-feature usa fica dentro dela; só sobe para `lib/`, `hooks/` ou `design-system/` quando duas ou mais features usam. O ESLint impõe o sentido
+feature usa fica dentro dela; só sobe para `components/`, `styles/`, `domain/`, `lib/` ou `hooks/` quando duas ou mais features usam. O ESLint impõe o sentido
 das dependências: compartilhado não importa de features, uma feature não importa de outra (só `portfolio` compõe, pelo `index.ts` público)
 e nada importa de `app/`.
 
@@ -57,11 +57,11 @@ Decisões de projeto:
 - **Câmera e órbitas.** A câmera gira em torno do Sol até o corpo focado ou selecionado (Tab, setas, clique, menu), para que ele nunca
   fique atrás do Sol; os planetas continuam orbitando com o painel aberto (só `prefers-reduced-motion` pausa a cena).
 - **Hover "Alvo travado".** Ao passar o mouse (ou focar com Tab) num astro, cantoneiras de mira travam nele e uma linha leva até uma ficha com o nome decodificado. A cena projeta o astro em 2D (`BodyTracker`) e publica por um canal (`lib/screen-frame.ts`); o overlay (`features/target-lock`) só desenha. No toque, o primeiro toque mostra o alvo e o segundo abre a seção.
-- **Contato em etapas.** Uma pergunta por vez (react-hook-form + zod; o mesmo schema de `lib/contact-message.ts` valida no navegador e na Server Action
+- **Contato em etapas.** Uma pergunta por vez (react-hook-form + zod; o mesmo schema de `domain/contact-message.ts` valida no navegador e na Server Action
   `app/actions.ts`), com um cometa que percorre o arco de progresso e, ao enviar, a cena "Correio de Hermes" (envelope voando até Mercúrio). A mensagem é enviada por e-mail pelo Resend (`services/`); configure as variáveis do `.env.example`.
 - **Planetas são dados.** Mercúrio (a seção "Contato") é só um item em `content/celestial-bodies.ts` com `kind: 'planet'` e uma `orbit`; a cena
   desenha a órbita, o planeta e o enquadramento a partir disso.
-- **Corpos celestes são dados.** `content/celestial-bodies.ts` é uma lista tipada e validada (`lib/celestial-body.ts`). Cena, menu e
+- **Corpos celestes são dados.** `content/celestial-bodies.ts` é uma lista tipada e validada (`domain/celestial-body.ts`). Cena, menu e
   painel leem dessa lista; adicionar um planeta é adicionar um item (e, se for o caso, um tipo de conteúdo em `SectionView`).
 - **Lógica fora do JSX.** Regras e matemática estão em `lib/` (testadas com casos de borda: `NaN`, `Infinity`, delta enorme...);
   hooks orquestram; componentes só renderizam.

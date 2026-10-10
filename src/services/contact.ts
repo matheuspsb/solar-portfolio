@@ -1,7 +1,7 @@
-import { judgeSubmission } from '@/lib/bot-guard';
-import type { BotVerdict } from '@/lib/bot-guard';
-import { parseContactMessage } from '@/lib/contact-message';
-import type { ContactMessage, ContactSubmitResult } from '@/lib/contact-message';
+import { judgeSubmission } from '@/domain/bot-guard';
+import type { BotVerdict } from '@/domain/bot-guard';
+import { parseContactMessage } from '@/domain/contact-message';
+import type { ContactMessage, ContactSubmitResult } from '@/domain/contact-message';
 
 export type ContactDelivery = {
   deliver: (message: ContactMessage) => Promise<void>;

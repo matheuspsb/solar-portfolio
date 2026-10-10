@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
-import { Button } from '@/design-system/atoms/Button';
-import { Heading } from '@/design-system/atoms/Heading';
-import { Label } from '@/design-system/atoms/Label';
-import { Text } from '@/design-system/atoms/Text';
-import type { ContactContent } from '@/lib/contact-content';
-import type { ContactMessage } from '@/lib/contact-message';
+import { Button } from '@/components/Button';
+import { Heading } from '@/components/Heading';
+import { Label } from '@/components/Label';
+import { Text } from '@/components/Text';
+import type { ContactContent } from '@/domain/contact-content';
+import type { ContactMessage } from '@/domain/contact-message';
 import { fillTemplate, getFirstName } from './receipt';
 
 const KICKER_DELAY_SECONDS = 2.6;

@@ -1,7 +1,7 @@
 import { useImperativeHandle } from 'react';
 import type { Ref } from 'react';
 import { useArrowNavigation } from '@/hooks/use-arrow-navigation';
-import { VisuallyHidden } from '@/design-system/atoms/VisuallyHidden';
+import { VisuallyHidden } from '@/components/VisuallyHidden';
 
 export type SceneKeyboardControlsHandle = {
   focusItem: (id: string) => HTMLElement | null;

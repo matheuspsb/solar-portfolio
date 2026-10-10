@@ -1,5 +1,5 @@
 import { DoubleSide } from 'three';
-import { sceneTokens } from '@/design-system/tokens/scene-tokens';
+import { sceneTokens } from '@/styles/scene-tokens';
 
 const PATH_THICKNESS = 0.03;
 const PATH_OPACITY = 0.16;

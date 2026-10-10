@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Label } from '@/design-system/atoms/Label';
+import { Label } from '@/components/Label';
 
 type DataCellProps = {
   label: string;

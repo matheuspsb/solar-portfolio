@@ -1,4 +1,4 @@
-import type { Credit } from '@/lib/credit';
+import type { Credit } from '@/domain/credit';
 
 export const credits: readonly Credit[] = [
   {

@@ -1,4 +1,4 @@
-import type { StackItem } from '@/lib/celestial-body';
+import type { StackItem } from '@/domain/celestial-body';
 import { StackChip } from './StackChip';
 
 type StackListProps = {

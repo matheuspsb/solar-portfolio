@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { createSeededRandom, generateStarPositions } from '../lib/star-field';
-import { sceneTokens } from '@/design-system/tokens/scene-tokens';
+import { sceneTokens } from '@/styles/scene-tokens';
 
 const STAR_FIELD_RADIUS = 90;
 const STAR_FIELD_SEED = 20240611;

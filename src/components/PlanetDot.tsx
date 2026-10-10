@@ -1,4 +1,4 @@
-import type { PlanetSize, PlanetTone } from '@/lib/celestial-body';
+import type { PlanetSize, PlanetTone } from '@/domain/celestial-body';
 import { joinClassNames } from '@/lib/join-class-names';
 
 type PlanetDotSize = PlanetSize | 'orbit';

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { ContactSubmitterProvider } from '@/features/content-panel';
-import type { ContactMessageSubmitter } from '@/lib/contact-message';
+import type { ContactMessageSubmitter } from '@/domain/contact-message';
 
 type PortfolioProvidersProps = {
   contactSubmitter: ContactMessageSubmitter;

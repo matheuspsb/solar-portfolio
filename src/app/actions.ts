@@ -1,7 +1,7 @@
 'use server';
 
 import { Resend } from 'resend';
-import type { ContactSubmitResult } from '@/lib/contact-message';
+import type { ContactSubmitResult } from '@/domain/contact-message';
 import { createContactMessageHandler } from '@/services/contact';
 import { createContactDelivery } from '@/services/contact-delivery';
 import { readDeliveryConfig } from '@/services/delivery-config';

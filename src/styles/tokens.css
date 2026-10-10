@@ -1,6 +1,6 @@
 @import 'tailwindcss';
-@import './journey-motion.css';
-@import './target-motion.css';
+@import './motion/journey.css';
+@import './motion/target.css';
 
 /*
  * Design tokens. Tailwind v4 turns each --color-*, --text-*, --radius-*, etc. into a utility class.

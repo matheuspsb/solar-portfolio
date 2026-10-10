@@ -1,9 +1,9 @@
 import { useFrame } from '@react-three/fiber';
 import { useRef, useState } from 'react';
 import type { Mesh, ShaderMaterial, Texture } from 'three';
-import { sceneTokens } from '@/design-system/tokens/scene-tokens';
-import { getHighlightGlow } from '@/lib/interaction-state';
-import type { Highlight } from '@/lib/interaction-state';
+import { sceneTokens } from '@/styles/scene-tokens';
+import { getHighlightGlow } from '@/domain/interaction-state';
+import type { Highlight } from '@/domain/interaction-state';
 import { useBodyMotion } from '../hooks/use-body-motion';
 import { useBodyPointerHandlers } from '../hooks/use-body-pointer-handlers';
 import { clampFrameDelta } from '../lib/rotation';

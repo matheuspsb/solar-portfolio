@@ -1,4 +1,4 @@
-import type { InteractionState } from '@/lib/interaction-state';
+import type { InteractionState } from '@/domain/interaction-state';
 
 export function getTrackedBodyId(state: InteractionState): string | null {
   if (state.selectedId !== null) return null;

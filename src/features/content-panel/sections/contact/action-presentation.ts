@@ -1,4 +1,4 @@
-import type { ContactContent } from '@/lib/contact-content';
+import type { ContactContent } from '@/domain/contact-content';
 
 const CONTINUE_ICON = '→';
 const SEND_ICON = '↗';

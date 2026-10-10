@@ -1,4 +1,4 @@
-import type { TargetingAnchor } from '@/lib/celestial-body';
+import type { TargetingAnchor } from '@/domain/celestial-body';
 import type { ScreenFrame } from '@/lib/screen-frame';
 
 export const TARGET_CARD_SIZE = { width: 176, height: 92 } as const;

@@ -1,6 +1,6 @@
-import { Button } from '@/design-system/atoms/Button';
-import { Heading } from '@/design-system/atoms/Heading';
-import { Text } from '@/design-system/atoms/Text';
+import { Button } from '@/components/Button';
+import { Heading } from '@/components/Heading';
+import { Text } from '@/components/Text';
 
 type SceneFallbackProps = {
   title: string;

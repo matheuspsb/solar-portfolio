@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import type { ContactMessageSubmitter } from '@/lib/contact-message';
+import type { ContactMessageSubmitter } from '@/domain/contact-message';
 import { ContactSubmitterProvider, useContactSubmitter } from './contact-submitter';
 
 describe('useContactSubmitter', () => {

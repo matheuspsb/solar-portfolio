@@ -1,6 +1,6 @@
-import { CloseIcon } from '@/design-system/atoms/CloseIcon';
-import { IconButton } from '@/design-system/atoms/IconButton';
-import { Label } from '@/design-system/atoms/Label';
+import { CloseIcon } from '@/components/icons/CloseIcon';
+import { IconButton } from '@/components/IconButton';
+import { Label } from '@/components/Label';
 
 type PanelHeaderProps = {
   label: string;

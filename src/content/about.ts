@@ -1,4 +1,4 @@
-import type { AboutContent } from '@/lib/celestial-body';
+import type { AboutContent } from '@/domain/celestial-body';
 
 export const aboutContent: AboutContent = {
   type: 'about',

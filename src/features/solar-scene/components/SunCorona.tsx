@@ -2,7 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useRef, useState } from 'react';
 import { AdditiveBlending, BackSide } from 'three';
 import type { ShaderMaterial } from 'three';
-import { sceneTokens } from '@/design-system/tokens/scene-tokens';
+import { sceneTokens } from '@/styles/scene-tokens';
 import { clampFrameDelta } from '../lib/rotation';
 import {
   createSunCoronaUniforms,

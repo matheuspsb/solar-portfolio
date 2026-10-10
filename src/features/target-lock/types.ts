@@ -1,4 +1,4 @@
-import type { PlanetTone, TargetingAnchor } from '@/lib/celestial-body';
+import type { PlanetTone, TargetingAnchor } from '@/domain/celestial-body';
 
 export type LockTarget = {
   id: string;

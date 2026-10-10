@@ -3,20 +3,20 @@ import { useId, useReducer, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
-import { HONEYPOT_FIELD } from '@/lib/bot-guard';
-import type { ContactContent } from '@/lib/contact-content';
+import { HONEYPOT_FIELD } from '@/domain/bot-guard';
+import type { ContactContent } from '@/domain/contact-content';
 import {
   CONTACT_MESSAGE_LIMITS,
   contactMessageSchema,
   validateContactField,
-} from '@/lib/contact-message';
+} from '@/domain/contact-message';
 import type {
   ContactField,
   ContactMessage,
   ContactMessageSubmitter,
   ContactSubmission,
   ContactSubmitResult,
-} from '@/lib/contact-message';
+} from '@/domain/contact-message';
 import { useContactSubmitter } from '../../hooks/contact-submitter';
 import { getActionPresentation } from './action-presentation';
 import { AnswerFooter } from './AnswerFooter';

@@ -1,6 +1,6 @@
 import { Billboard } from '@react-three/drei';
 import { DoubleSide } from 'three';
-import { sceneTokens } from '@/design-system/tokens/scene-tokens';
+import { sceneTokens } from '@/styles/scene-tokens';
 
 const RING_GAP_RATIO = 1.12;
 const RING_THICKNESS_RATIO = 0.035;

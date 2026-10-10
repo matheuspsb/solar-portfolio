@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import type { ReactNode } from 'react';
-import '@/design-system/tokens/tokens.css';
-import { sceneTokens } from '@/design-system/tokens/scene-tokens';
+import '@/styles/tokens.css';
+import { sceneTokens } from '@/styles/scene-tokens';
 
 const bricolage = localFont({
   src: './fonts/bricolage-grotesque-latin.woff2',

@@ -1,8 +1,8 @@
 import { useFrame } from '@react-three/fiber';
 import type { RefObject } from 'react';
 import type { Object3D } from 'three';
-import { getHighlightScale } from '@/lib/interaction-state';
-import type { Highlight } from '@/lib/interaction-state';
+import { getHighlightScale } from '@/domain/interaction-state';
+import type { Highlight } from '@/domain/interaction-state';
 import { dampValue } from '../lib/damp';
 import { advanceRotation } from '../lib/rotation';
 

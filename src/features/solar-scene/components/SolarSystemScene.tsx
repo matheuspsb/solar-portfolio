@@ -3,9 +3,9 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { Suspense, lazy } from 'react';
-import { sceneTokens } from '@/design-system/tokens/scene-tokens';
-import type { CelestialBodyConfig } from '@/lib/celestial-body';
-import type { Highlight } from '@/lib/interaction-state';
+import { sceneTokens } from '@/styles/scene-tokens';
+import type { CelestialBodyConfig } from '@/domain/celestial-body';
+import type { Highlight } from '@/domain/interaction-state';
 import {
   getFrameloop,
   getHighlightEasingRate,

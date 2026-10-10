@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react';
-import type { SectionContent } from '@/lib/celestial-body';
+import type { SectionContent } from '@/domain/celestial-body';
 import { AboutSection } from './about/AboutSection';
 
 const ContactSection = lazy(() =>

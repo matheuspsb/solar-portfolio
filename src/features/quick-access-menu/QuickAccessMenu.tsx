@@ -2,7 +2,7 @@ import { useEffect, useEffectEvent, useId, useRef, useState } from 'react';
 import type { CSSProperties, FocusEvent } from 'react';
 import { useArrowNavigation } from '@/hooks/use-arrow-navigation';
 import { useViewportSize } from '@/hooks/use-viewport-size';
-import type { PlanetTone } from '@/lib/celestial-body';
+import type { PlanetTone } from '@/domain/celestial-body';
 import { joinClassNames } from '@/lib/join-class-names';
 import {
   formatObjectCode,

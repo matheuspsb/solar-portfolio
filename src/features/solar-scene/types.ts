@@ -1,5 +1,5 @@
-import type { CelestialBodyConfig } from '@/lib/celestial-body';
-import type { Highlight } from '@/lib/interaction-state';
+import type { CelestialBodyConfig } from '@/domain/celestial-body';
+import type { Highlight } from '@/domain/interaction-state';
 import type { ScreenFrame } from '@/lib/screen-frame';
 
 export type SceneProps = {

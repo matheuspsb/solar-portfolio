@@ -1,5 +1,5 @@
 import type { LockTarget } from '@/features/target-lock';
-import type { CelestialBodyConfig } from '@/lib/celestial-body';
+import type { CelestialBodyConfig } from '@/domain/celestial-body';
 
 export function buildLockTargets(bodies: readonly CelestialBodyConfig[]): LockTarget[] {
   return bodies.map((body) => ({

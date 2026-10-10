@@ -13,8 +13,8 @@ import {
 import type { SceneProps, SceneStatus } from '@/features/solar-scene';
 import { TargetLock } from '@/features/target-lock';
 import type { IdleScheduler } from '@/hooks/use-idle-ready';
-import type { CelestialBodyConfig } from '@/lib/celestial-body';
-import type { Credit } from '@/lib/credit';
+import type { CelestialBodyConfig } from '@/domain/celestial-body';
+import type { Credit } from '@/domain/credit';
 import { createFrameChannel } from '@/lib/screen-frame';
 import { getBodyAccessibleLabel } from './body-labels';
 import { buildLockTargets } from './lock-targets';

@@ -1,4 +1,4 @@
-import type { ContactContent } from '@/lib/contact-content';
+import type { ContactContent } from '@/domain/contact-content';
 import { STAMP_POSITION } from './delivery-geometry';
 
 const STAMP_ROTATION_DEGREES = -12;

@@ -1,4 +1,4 @@
-import type { CelestialBodyConfig } from '@/lib/celestial-body';
+import type { CelestialBodyConfig } from '@/domain/celestial-body';
 
 export function getBodyExtent({
   radius,

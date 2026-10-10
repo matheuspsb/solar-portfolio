@@ -1,4 +1,4 @@
-import { Button } from '@/design-system/atoms/Button';
+import { Button } from '@/components/Button';
 
 type StepActionsProps = {
   label: string;

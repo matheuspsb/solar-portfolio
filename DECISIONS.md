@@ -32,7 +32,7 @@ next 16.3.8 · react/react-dom 19.3.0 · three 0.186.1 · @react-three/fiber 9.8
 
 The user asked mid-session to "use tailwind", overriding the CLAUDE.md default of CSS Modules. Tailwind v4
 (`tailwindcss` + `@tailwindcss/postcss`) is used; design tokens live in the `@theme` block of
-`src/design-system/tokens/tokens.css` (single source of truth; utilities such as `bg-sun-400` derive from it).
+`src/styles/tokens.css` (single source of truth; utilities such as `bg-sun-400` derive from it).
 Components use utility classes that reference tokens only: no arbitrary hex/px values in components.
 The "colocated style file" rule becomes "styles are utility classes in the component file".
 Reduced-motion zeroes the duration tokens.
@@ -173,7 +173,7 @@ abstract only when genuinely reused).
 
 - **Why Mercury:** the messenger of the gods, the closest planet to the Sun (contact should be within reach) and the fastest orbit
   ("I answer quickly"); the handoff already called the contact link "transmissão".
-- **Data model (`lib/celestial-body.ts`):** `kind: 'star' | 'planet'` and `orbit: { radius, periodSeconds, phaseRadians } | null`
+- **Data model (`domain/celestial-body.ts`):** `kind: 'star' | 'planet'` and `orbit: { radius, periodSeconds, phaseRadians } | null`
   (a circular orbit around the star at the center; no `parentId`/moons/inclination yet, YAGNI). `validateCelestialBodies` now also requires
   exactly one star, no orbit for stars, an orbit for planets, positive finite radius/period, a finite phase, and an orbit that clears the
   star. `SectionContent` gained `ContactContent` (`headline`, `summary`, `channels`); `PlanetTone` gained `periwinkle` (the handoff's Contato color).
@@ -220,7 +220,7 @@ abstract only when genuinely reused).
   Rate limiting and spam protection (honeypot, captcha) are still not included.
 - **What replaced what.** The single-page form (`ContactForm`, `FormField`, `Input`, `Textarea`) was deleted. The panel asks Nome, E-mail and
   Mensagem one at a time; a comet travels an arc with three planets (progress), and a successful send ends on a delivery scene (envelope with
-  wings flying to Mercury, "Entregue" stamp, receipt). Copy lives in `content/contact.ts` (typed by `lib/contact-content.ts`), with
+  wings flying to Mercury, "Entregue" stamp, receipt). Copy lives in `content/contact.ts` (typed by `domain/contact-content.ts`), with
   `{firstName}`/`{email}` placeholders filled by `fillTemplate`.
 - **Structure (all in `features/content-panel/sections/contact/`).** Pure and tested: `arc-geometry` (quadratic arc, trail segments, planet
   state), `comet-motion` (easeInOutCubic, tween frame, frame-rate independent tail chase), `contact-flow` (reducer: step, status
@@ -235,7 +235,7 @@ abstract only when genuinely reused).
 - **Send order.** The comet exits and the request runs in parallel; the delivery scene only plays when the result is ok. On a failure (or a
   thrown submitter) the comet flies back from the exit point to the message planet, the error appears in the live note line and the text is kept.
   A `ref` lock plus the reducer guard prevent double submits.
-- **Motion and reduced motion.** Keyframes and `animate-*` utilities live in `design-system/tokens/journey-motion.css` (delays through
+- **Motion and reduced motion.** Keyframes and `animate-*` utilities live in `styles/journey-motion.css` (delays through
   `--animation-delay`), always applied with `motion-safe:`; JS-driven parts (comet, ripples, warp, envelope) also check
   `usePrefersReducedMotion` (promoted to shared `hooks/` because the panel and the scene both use it): positions jump, the delivery scene shows
   its final state and no animation runs (e2e checks zero running animations).
@@ -282,7 +282,7 @@ expensive operations such as sending e-mail.
 
 Layers, cheapest first:
 
-1. **Done: honeypot, minimum time and required signals** (`lib/bot-guard.ts`, checked by the handler after validation). The form carries a hidden
+1. **Done: honeypot, minimum time and required signals** (`domain/bot-guard.ts`, checked by the handler after validation). The form carries a hidden
    `homepage` input (`inert`, `aria-hidden`, out of the tab order) and the time since the panel opened (`elapsedMs`, measured in the browser, so
    there is no clock skew). The server treats a filled hidden field, less than 2 s (`MIN_FILL_MS`) or missing signals (a direct POST that skipped
    the form) as a bot: it answers `{ ok: true }` without sending anything, so a bot cannot tell it was blocked, and logs the reason
@@ -309,7 +309,7 @@ Layers, cheapest first:
   per 60 fps frame, instant with reduced motion) and publishes it only when it changes. The overlay never lives in the render loop: the frames
   travel through `lib/screen-frame.ts` (`createFrameChannel`, a tiny external store read with `useSyncExternalStore`), created in `portfolio` and
   shared by both sides, so features still do not import each other. The target does not glide from the previous body when it changes.
-- **Data, not hard-coded.** Each body has `targeting: { code, description, anchor }` (`lib/celestial-body.ts`, validated). Accent color is the
+- **Data, not hard-coded.** Each body has `targeting: { code, description, anchor }` (`domain/celestial-body.ts`, validated). Accent color is the
   body's existing `menuTone`, the CTA is its `menuLabel`, the name is `name` upper-cased. Generic copy ("ALVO TRAVADO", "Clique para abrir", "→")
   is in `content/targeting.ts` and reaches the overlay through `PortfolioExperience`. The anchor is per body (Sun up and left, Mercury down and
   left); when the card would leave the screen the layout flips to the other side, then to the card above the line, falling back to the preferred
@@ -323,7 +323,7 @@ Layers, cheapest first:
   taps (`use-body-pointer-handlers`).
 - **Brightness on hover.** A highlighted body glows a little (`getHighlightGlow` 0.12): a `uGlow` multiplier in the Sun surface shader and
   `emissiveIntensity` on the planet; the cursor already turns into a pointer and the body already scales slightly.
-- **Motion tokens.** `design-system/tokens/target-motion.css` holds `lock-on`, `draw-line`, the card entrance and the reduced-motion fade.
+- **Motion tokens.** `styles/target-motion.css` holds `lock-on`, `draw-line`, the card entrance and the reduced-motion fade.
 - **Not done.** The decoded name has no per-letter sound or anything beyond the handoff. The card size is a constant (176 x 92 px) used for the
   edge check, not measured from the DOM.
 
@@ -351,3 +351,16 @@ Layers, cheapest first:
   imports `content/targeting.ts` directly (features may import `content/`); the kicker is built there from the body's `code`.
 - **Not a context.** Interaction state (hover, focus, selection) stays as props: it changes often and a context would re-render every consumer.
 - **Follow-ups.** The full scan of the other drilling cases is in `TASKS.md`.
+
+## Folder structure, phase 1: `components`, `styles`, `domain`
+
+- **Why.** `design-system/` held only ten small components plus a mix of CSS themes, animations and a TypeScript mirror of the colors, and `lib/` mixed
+  product rules with generic helpers. The names promised more than the folders held and made it hard to know where to look.
+- **Change.** `design-system/atoms` became `components/` (icons in `components/icons/`); `design-system/tokens` became `styles/` (`tokens.css`,
+  `motion/journey.css`, `motion/target.css`, `scene-tokens.ts`); the product types and rules left `lib/` for `domain/` (`celestial-body`,
+  `contact-content`, `contact-message`, `bot-guard`, `credit`, `interaction-state`), and `lib/` kept only generic pure utilities
+  (`join-class-names`, `circular-navigation`, `screen-frame`). No code changed, only paths and imports.
+- **No `molecules/` or `organisms/`.** No composite component is shared by two features, so those folders would be empty. Composites live in the
+  feature that uses them and move to `components/` only when 2+ features share them.
+- **Supersedes** the folder names in the earlier "Folder structure" section above (`design-system/{tokens, atoms}`, `lib/` as a catch-all).
+  Next phases are in the plan discussed with the owner: subfolders inside `contact` and `solar-scene`, then sections as features.

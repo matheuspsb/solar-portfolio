@@ -1,6 +1,6 @@
-import { ArrowUpRightIcon } from '@/design-system/atoms/ArrowUpRightIcon';
-import { Link } from '@/design-system/atoms/Link';
-import type { ContactContent } from '@/lib/contact-content';
+import { ArrowUpRightIcon } from '@/components/icons/ArrowUpRightIcon';
+import { Link } from '@/components/Link';
+import type { ContactContent } from '@/domain/contact-content';
 
 type LinkedInCardProps = {
   linkedin: ContactContent['linkedin'];

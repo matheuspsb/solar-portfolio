@@ -84,7 +84,7 @@
 ## Envio por e-mail (Resend)
 
 - A Server Action agora entrega por e-mail pelo Resend (`services/`), com o cliente injetável nos testes, escape de HTML, `reply-to` com o e-mail do visitante e log do erro real só no servidor. 706 testes unitários, lint, typecheck, build e e2e do contato passando (o e2e usa `CONTACT_DELIVERY=disabled`).
-- **Pendente (só você pode fazer):** gerar a chave no Resend, preencher `.env.local` e cadastrar as variáveis na Vercel. Proteção contra bots: honeypot + tempo mínimo + sinais obrigatórios implementados (`lib/bot-guard.ts`, 726 testes unitários); falta o limite por IP no painel da Vercel (veja DECISIONS.md, camada 2).
+- **Pendente (só você pode fazer):** gerar a chave no Resend, preencher `.env.local` e cadastrar as variáveis na Vercel. Proteção contra bots: honeypot + tempo mínimo + sinais obrigatórios implementados (`domain/bot-guard.ts`, 726 testes unitários); falta o limite por IP no painel da Vercel (veja DECISIONS.md, camada 2).
 
 ## Hover "Alvo travado"
 
@@ -95,7 +95,7 @@
 
 Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A arquitetura atual já é orientada a dados; o que muda:
 
-1. **Dados.** Estender `CelestialBodyConfig` (`lib/celestial-body.ts`) com `kind: 'star' | 'planet' | 'moon'` e, para corpos em órbita,
+1. **Dados.** Estender `CelestialBodyConfig` (`domain/celestial-body.ts`) com `kind: 'star' | 'planet' | 'moon'` e, para corpos em órbita,
    `orbit: { parentId, radius, periodSeconds, phase, inclination }`. Validar em `validateCelestialBodies`: `parentId` existente, sem ciclos,
    raio de órbita > raio do pai, período finito > 0. Novos tipos de conteúdo entram em `SectionContent` e ganham um case em `SectionView`.
    Testes: ids duplicados, órbita sem pai, ciclo pai-filho, lista com planeta sem textura.

@@ -2,7 +2,7 @@
 
 import { createContext, use } from 'react';
 import type { ReactNode } from 'react';
-import type { ContactMessageSubmitter } from '@/lib/contact-message';
+import type { ContactMessageSubmitter } from '@/domain/contact-message';
 
 const ContactSubmitterContext = createContext<ContactMessageSubmitter | null>(null);
 

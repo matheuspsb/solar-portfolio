@@ -157,15 +157,15 @@ Não misture lógica com template: nada de cálculo, ternário aninhado ou trans
 - Sem código morto, sem `console.log` esquecido. **Sem comentários no código** (nem em testes, CSS ou configs), exceto `TODO(...)` e diretivas de ferramenta (`eslint-disable`, `@ts-expect-error`). O porquê vai em nomes claros, em `DECISIONS.md` e na mensagem de commit.
 - Sem `any`. Tipos explícitos nas fronteiras (props, retornos de hooks, configuração).
 
-### 5.4 Estrutura de pastas: features + design system
+### 5.4 Estrutura de pastas: features + compartilhado
 
 ```
 src/
   app/                      # rotas e layout do Next.js; só compõe features
   content/                  # dados do portfólio (corpos celestes, textos, créditos)
-  design-system/            # UI compartilhada por várias features
-    tokens/                 # cores, tipografia, raios, sombras, easing, durações
-    atoms/                  # Button, IconButton, Heading, Text, Label, Link, PlanetDot, ícones...
+  components/               # UI compartilhada por 2+ features: Button, IconButton, Heading, Text, Label, Link, PlanetDot...
+    icons/                  # ícones SVG
+  styles/                   # tokens.css (tema Tailwind), motion/ (keyframes e utilitários de animação), scene-tokens.ts (espelho para o three.js)
   features/                 # cada feature é dona dos seus componentes, hooks e funções
     solar-scene/            # cena 3D (components/, hooks/, lib/, shaders/, constants.ts, index.ts)
     content-panel/          # painel modal e seções (components/, sections/, hooks/, lib/, index.ts)
@@ -173,21 +173,22 @@ src/
     target-lock/            # overlay do hover "alvo travado" (components/, hooks/, lib/, index.ts)
     portfolio/              # camada de composição: junta as outras features (PortfolioExperience)
   hooks/                    # hooks usados por 2+ features
-  lib/                      # funções puras e tipos usados por 2+ features (domínio, utilitários)
+  domain/                   # tipos e regras do produto usados por 2+ features (corpo celeste, contato, anti-bot, interação)
+  lib/                      # utilitários genéricos e puros, sem regra de negócio (join-class-names, circular-navigation, screen-frame)
   services/                 # somente se necessário
 ```
 
 - **Colocation:** o que só uma feature usa fica dentro dela (componente, hook, função pura, teste). Só sobe para `lib/`, `hooks/` ou
-  `design-system/` quando **duas ou mais** features passam a usar. Apagar uma feature deve ser apagar uma pasta.
-- **Dependências em um sentido só:** código compartilhado (`lib`, `hooks`, `design-system`, `content`) não importa de `features/` nem de `app/`;
+  `components/`, `domain/` ou `styles/` quando **duas ou mais** features passam a usar. Apagar uma feature deve ser apagar uma pasta.
+- **Dependências em um sentido só:** código compartilhado (`components`, `styles`, `domain`, `lib`, `hooks`, `content`, `services`) não importa de `features/` nem de `app/`;
   uma feature não importa de outra nem de `app/`; só `features/portfolio` (composição) usa as demais, e apenas pelo `index.ts` público de cada uma.
   Isso é imposto por `no-restricted-imports` no ESLint (vale também para `services/`).
-- **Onde cada coisa nova mora (antes de criar um arquivo, responda):** (1) quem usa? Uma feature só: dentro dela. Duas ou mais: `lib/` (função pura,
-  tipo, schema), `hooks/` ou `design-system/`. (2) É integração externa (e-mail, API, banco)? Interface e implementação em `services/`, chamada
+- **Onde cada coisa nova mora (antes de criar um arquivo, responda):** (1) quem usa? Uma feature só: dentro dela. Duas ou mais: `domain/` (tipo, schema ou regra do produto), `lib/` (utilitário
+  genérico), `hooks/`, `components/` ou `styles/`. (2) É integração externa (e-mail, API, banco)? Interface e implementação em `services/`, chamada
   só por `app/` (Server Action ou rota) e injetada nas features por props; features nunca importam `services/`. (3) Schema compartilhado entre
-  navegador e servidor fica em `lib/`. (4) Componente usado por duas seções da mesma feature sobe para `components/` dessa feature, não para o
-  design system. Nunca crie `utils/`, `helpers/` ou `common/`.
-- Dentro do `design-system`, a hierarquia atômica continua: átomos não conhecem regra de negócio nem outros átomos do domínio. Nas features,
+  navegador e servidor fica em `domain/`. (4) Componente usado por duas seções da mesma feature sobe para `components/` dessa feature, não para o
+  `components/` global. Nunca crie `utils/`, `helpers/` ou `common/`.
+- Em `components/` ficam só peças pequenas e sem regra de negócio (átomos). Não existem `molecules/` nem `organisms/` globais: composições moram na feature que as usa e só sobem para `components/` se 2+ features as compartilharem. Nas features,
   componentes compostos ficam ao lado dos pequenos que usam; hooks orquestram e funções puras concentram a regra.
 - Todo valor visual vem de um token. Nada de cor ou espaçamento solto em componente.
 - Cada arquivo de componente fica ao lado do seu teste; estilos são classes Tailwind no próprio componente.

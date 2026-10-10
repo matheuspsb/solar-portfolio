@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
-import { Heading } from '@/design-system/atoms/Heading';
-import { Label } from '@/design-system/atoms/Label';
+import { Heading } from '@/components/Heading';
+import { Label } from '@/components/Label';
 
 const FIRST_WORD_DELAY_SECONDS = 0.08;
 const WORD_DELAY_STEP_SECONDS = 0.045;

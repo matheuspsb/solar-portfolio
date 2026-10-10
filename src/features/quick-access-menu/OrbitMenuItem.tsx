@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
-import type { PlanetTone } from '@/lib/celestial-body';
-import { Label } from '@/design-system/atoms/Label';
-import { PlanetDot } from '@/design-system/atoms/PlanetDot';
+import type { PlanetTone } from '@/domain/celestial-body';
+import { Label } from '@/components/Label';
+import { PlanetDot } from '@/components/PlanetDot';
 
 type OrbitMenuItemProps = Omit<ComponentProps<'button'>, 'children' | 'type'> & {
   label: string;

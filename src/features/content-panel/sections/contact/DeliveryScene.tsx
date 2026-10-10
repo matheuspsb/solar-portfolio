@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { ContactContent } from '@/lib/contact-content';
+import type { ContactContent } from '@/domain/contact-content';
 import { DELIVERY_HEIGHT } from './arc-geometry';
 import {
   DELIVERY_ROUTE,

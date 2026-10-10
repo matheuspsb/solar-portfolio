@@ -14,7 +14,8 @@ const forbidApp = {
 
 const forbidAllFeatures = {
   group: ['@/features', '@/features/**'],
-  message: 'Shared code (lib, hooks, design-system, content) must not depend on features.',
+  message:
+    'Shared code (components, styles, domain, lib, hooks, content, services) must not depend on features.',
 };
 
 const forbidDeepFeatureImports = {
@@ -67,9 +68,11 @@ const eslintConfig = [
   { files: ['src/app/**'], rules: restrictImports([forbidDeepFeatureImports]) },
   {
     files: [
+      'src/components/**',
+      'src/styles/**',
+      'src/domain/**',
       'src/lib/**',
       'src/hooks/**',
-      'src/design-system/**',
       'src/content/**',
       'src/services/**',
     ],

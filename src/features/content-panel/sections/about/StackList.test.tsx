@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import type { StackItem } from '@/lib/celestial-body';
+import type { StackItem } from '@/domain/celestial-body';
 import { StackList } from './StackList';
 
 const react: StackItem = { name: 'React', tone: 'cyan', size: 'lg' };

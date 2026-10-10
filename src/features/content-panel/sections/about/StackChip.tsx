@@ -1,5 +1,5 @@
-import type { StackItem } from '@/lib/celestial-body';
-import { PlanetDot } from '@/design-system/atoms/PlanetDot';
+import type { StackItem } from '@/domain/celestial-body';
+import { PlanetDot } from '@/components/PlanetDot';
 
 export function StackChip({ name, tone, size }: StackItem) {
   return (

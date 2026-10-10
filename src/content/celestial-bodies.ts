@@ -1,5 +1,5 @@
-import { assertValidCelestialBodies } from '@/lib/celestial-body';
-import type { CelestialBodyConfig } from '@/lib/celestial-body';
+import { assertValidCelestialBodies } from '@/domain/celestial-body';
+import type { CelestialBodyConfig } from '@/domain/celestial-body';
 import { aboutContent } from './about';
 import { contactContent } from './contact';
 

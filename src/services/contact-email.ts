@@ -1,4 +1,4 @@
-import type { ContactMessage } from '@/lib/contact-message';
+import type { ContactMessage } from '@/domain/contact-message';
 
 export type ContactEmail = {
   from: string;

@@ -1,5 +1,5 @@
 import type { ThreeEvent } from '@react-three/fiber';
-import { isClickGesture } from '@/lib/interaction-state';
+import { isClickGesture } from '@/domain/interaction-state';
 
 type BodyPointerCallbacks = {
   onPointerOver: () => void;

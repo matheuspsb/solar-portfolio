@@ -1,5 +1,5 @@
-import type { Credit } from '@/lib/credit';
-import { Link } from '@/design-system/atoms/Link';
+import type { Credit } from '@/domain/credit';
+import { Link } from '@/components/Link';
 
 type AttributionNoteProps = {
   credits: readonly Credit[];
