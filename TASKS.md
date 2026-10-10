@@ -14,6 +14,7 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
   Server Component e não pode importar o barrel de uma feature inteira (arrastaria hooks de cliente para o servidor).
 
 - **T21, listeners do contexto WebGL.** `onCreated` registrava `webglcontextlost` e `webglcontextrestored` sem nunca remover e com os callbacks da primeira renderização. Agora o hook `useWebglContextEvents` (usado pelo componente `WebglContextEvents`, dentro do `Canvas`) registra com `useEffect`, remove no cleanup, troca de alvo se o canvas mudar e chama sempre a versão atual dos callbacks (`useEffectEvent`).
+- **T22, o cometa re-renderizava a seção de contato inteira.** A posição do cometa saiu do estado do React: `useComet` guarda `head` e `tail` em um store externo (`comet-store`) e só o `ArcJourney` o lê, com `useCometPosition` (`useSyncExternalStore`). Durante a viagem a `ContactSection` não re-renderiza (teste no `use-comet.test.tsx`).
 
 ## Tasks abertas
 
@@ -214,16 +215,6 @@ Auditoria de listeners, timers, `requestAnimationFrame`, observers e recursos 3D
   desmonte). Texturas são descartadas em `use-texture`; geometrias e materiais JSX são descartados pelo R3F na desmontagem.
 
 ## Re-renders desnecessários
-
-### T22 (A) O cometa re-renderiza a seção de contato inteira a cada frame
-
-- **Onde:** `use-comet.ts` chama `setPosition` em todo frame (`commit`), e o hook vive em `ContactSection`. Enquanto o cometa viaja (cerca de
-  1 s por etapa, mais o rastro assentando) a seção inteira (formulário, planetas, campos, `useWatch` do RHF) re-renderiza a ~60 vezes por segundo.
-- **Por que importa:** é o maior custo de render evitável do projeto, e cresce com o conteúdo da seção.
-- **Proposta:** isolar o estado do cometa em quem o desenha. Opções: (a) o hook morar dentro de `ArcJourney`, com `ContactSection` só
-  chamando `travelTo` por um ref/handle; (b) guardar `head`/`tail` em refs e atualizar os atributos SVG direto por `ref` no frame (sem React no
-  caminho quente); (c) `useSyncExternalStore` em um store pequeno lido só por `ArcJourney`.
-- **Pronto quando:** o React Profiler mostra que, durante a viagem, só `ArcJourney` re-renderiza.
 
 ### T23 (B) Cada mudança de hover, foco ou seleção re-renderiza a experiência inteira
 

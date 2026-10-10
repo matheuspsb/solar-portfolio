@@ -7,7 +7,9 @@ import {
   getCometTrail,
   getPlanetState,
 } from './arc-geometry';
+import type { CometStore } from './comet-store';
 import { JourneyPlanet } from './JourneyPlanet';
+import { useCometPosition } from './use-comet-position';
 import { WarpLines } from './WarpLines';
 
 const BASE_ARC_PATH = 'M -10 128 Q 225 -10 460 128';
@@ -23,8 +25,7 @@ type ArcJourneyProps = {
   isDelivered: boolean;
   isSending: boolean;
   reducedMotion: boolean;
-  head: number;
-  tail: number;
+  comet: CometStore;
   canJump: boolean;
   onJump: (index: number) => void;
 };
@@ -35,11 +36,11 @@ export function ArcJourney({
   isDelivered,
   isSending,
   reducedMotion,
-  head,
-  tail,
+  comet,
   canJump,
   onJump,
 }: ArcJourneyProps) {
+  const { head, tail } = useCometPosition(comet);
   const headPoint = getArcPoint(head);
   const trail = getCometTrail({ head, tail });
   const progressPath = buildProgressPath(head);

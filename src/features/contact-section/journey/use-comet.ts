@@ -1,6 +1,8 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import { browserFrameScheduler } from '@/hooks/frame-scheduler';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
+import { createCometStore } from './comet-store';
+import type { CometStore } from './comet-store';
 import { chaseTail, getTweenFrame } from './comet-motion';
 
 const FALLBACK_FRAME_MS = 1000 / 60;
@@ -14,8 +16,6 @@ type Tween = {
   settle: (hasArrived: boolean) => void;
 };
 
-type CometPosition = { head: number; tail: number };
-
 type UseCometOptions = {
   initialProgress: number;
   reducedMotion: boolean;
@@ -23,7 +23,8 @@ type UseCometOptions = {
   scheduler?: FrameScheduler;
 };
 
-export type CometState = CometPosition & {
+export type CometState = {
+  position: CometStore;
   travelTo: (target: number, durationMs: number, from?: number) => Promise<boolean>;
 };
 
@@ -33,20 +34,12 @@ export function useComet({
   entry,
   scheduler = browserFrameScheduler,
 }: UseCometOptions): CometState {
-  const [position, setPosition] = useState<CometPosition>({
-    head: initialProgress,
-    tail: initialProgress,
-  });
-  const positionRef = useRef(position);
+  const [position] = useState(() =>
+    createCometStore({ head: initialProgress, tail: initialProgress }),
+  );
   const tweenRef = useRef<Tween | null>(null);
   const frameRef = useRef<number | null>(null);
   const lastFrameTimeRef = useRef<number | null>(null);
-  const isMountedRef = useRef(false);
-
-  const commit = (next: CometPosition) => {
-    positionRef.current = next;
-    if (isMountedRef.current) setPosition(next);
-  };
 
   const finishTween = (hasArrived: boolean) => {
     const tween = tweenRef.current;
@@ -59,7 +52,7 @@ export function useComet({
     const previousTime = lastFrameTimeRef.current ?? now - FALLBACK_FRAME_MS;
     lastFrameTimeRef.current = now;
 
-    let head = positionRef.current.head;
+    let head = position.getSnapshot().head;
     const tween = tweenRef.current;
     if (tween) {
       const frame = getTweenFrame({ ...tween, now });
@@ -67,11 +60,11 @@ export function useComet({
       if (frame.isFinished) finishTween(true);
     }
     const tail = chaseTail({
-      tail: positionRef.current.tail,
+      tail: position.getSnapshot().tail,
       head,
       deltaSeconds: (now - previousTime) / MILLISECONDS_PER_SECOND,
     });
-    commit({ head, tail });
+    position.set({ head, tail });
 
     if (tweenRef.current !== null || tail !== head) {
       frameRef.current = scheduler.request(runFrame);
@@ -83,11 +76,11 @@ export function useComet({
   const travelTo = (target: number, durationMs: number, from?: number): Promise<boolean> => {
     finishTween(false);
     if (reducedMotion || !(durationMs > 0)) {
-      commit({ head: target, tail: target });
+      position.set({ head: target, tail: target });
       return Promise.resolve(true);
     }
-    const startingPoint = from ?? positionRef.current.head;
-    if (from !== undefined) commit({ head: from, tail: from });
+    const startingPoint = from ?? position.getSnapshot().head;
+    if (from !== undefined) position.set({ head: from, tail: from });
 
     return new Promise<boolean>((settle) => {
       tweenRef.current = {
@@ -104,11 +97,11 @@ export function useComet({
   const settleForReducedMotion = () => {
     const tween = tweenRef.current;
     if (!reducedMotion || !tween) return;
-    commit({ head: tween.to, tail: tween.to });
+    position.set({ head: tween.to, tail: tween.to });
     finishTween(true);
   };
 
-  useEffect(settleForReducedMotion, [reducedMotion]);
+  useEffect(settleForReducedMotion, [reducedMotion, position]);
 
   const startEntry = useEffectEvent(() => {
     if (entry) void travelTo(entry.target, entry.durationMs);
@@ -119,14 +112,12 @@ export function useComet({
   }, []);
 
   useEffect(() => {
-    isMountedRef.current = true;
     return () => {
-      isMountedRef.current = false;
       if (frameRef.current !== null) scheduler.cancel(frameRef.current);
       frameRef.current = null;
       finishTween(false);
     };
   }, [scheduler]);
 
-  return { head: position.head, tail: position.tail, travelTo };
+  return { position, travelTo };
 }

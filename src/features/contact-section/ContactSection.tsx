@@ -232,8 +232,7 @@ export function ContactSection({
             isDelivered={isDone}
             isSending={isSending}
             reducedMotion={reducedMotion}
-            head={comet.head}
-            tail={comet.tail}
+            comet={comet.position}
             canJump={flow.status === 'asking'}
             onJump={(index) => goBackTo(index as ContactStepIndex)}
           />

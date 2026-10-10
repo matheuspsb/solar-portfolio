@@ -50,40 +50,41 @@ function setup(
     const frames = Math.ceil(milliseconds / 16);
     for (let frame = 0; frame < frames; frame += 1) act(() => clock.advance(16));
   };
-  return { ...hook, clock, run };
+  const position = () => hook.result.current.position.getSnapshot();
+  return { ...hook, clock, run, position };
 }
 
 describe('useComet', () => {
   it('starts resting at the initial progress, without scheduling work', () => {
-    const { result, clock } = setup({ initialProgress: 0.5 });
-    expect(result.current.head).toBe(0.5);
-    expect(result.current.tail).toBe(0.5);
+    const { position, clock } = setup({ initialProgress: 0.5 });
+    expect(position().head).toBe(0.5);
+    expect(position().tail).toBe(0.5);
     expect(clock.pendingCount()).toBe(0);
   });
 
   it('travels gradually and lands exactly on the target', async () => {
-    const { result, run } = setup();
+    const { result, position, run } = setup();
     let arrival: Promise<boolean> = Promise.resolve(false);
     act(() => {
       arrival = result.current.travelTo(0.17, 1000);
     });
     run(500);
-    expect(result.current.head).toBeGreaterThan(-0.12);
-    expect(result.current.head).toBeLessThan(0.17);
+    expect(position().head).toBeGreaterThan(-0.12);
+    expect(position().head).toBeLessThan(0.17);
     run(600);
-    expect(result.current.head).toBe(0.17);
+    expect(position().head).toBe(0.17);
     await expect(arrival).resolves.toBe(true);
   });
 
   it('lets the tail trail behind the head and catch up once it stops', () => {
-    const { result, run } = setup({ initialProgress: 0 });
+    const { result, position, run } = setup({ initialProgress: 0 });
     act(() => {
       void result.current.travelTo(0.5, 400);
     });
     run(200);
-    expect(result.current.tail).toBeLessThan(result.current.head);
+    expect(position().tail).toBeLessThan(position().head);
     run(5000);
-    expect(result.current.tail).toBe(0.5);
+    expect(position().tail).toBe(0.5);
   });
 
   it('stops scheduling frames once everything has settled', () => {
@@ -96,27 +97,27 @@ describe('useComet', () => {
   });
 
   it('can start from a given progress (a restart from the entry point)', () => {
-    const { result } = setup({ initialProgress: 0.8 });
+    const { result, position } = setup({ initialProgress: 0.8 });
     act(() => {
       void result.current.travelTo(0.17, 1000, -0.12);
     });
-    expect(result.current.head).toBe(-0.12);
-    expect(result.current.tail).toBe(-0.12);
+    expect(position().head).toBe(-0.12);
+    expect(position().tail).toBe(-0.12);
   });
 
   it('survives a huge pause between frames without overshooting', async () => {
-    const { result, clock } = setup({ initialProgress: 0 });
+    const { result, position, clock } = setup({ initialProgress: 0 });
     let arrival: Promise<boolean> = Promise.resolve(false);
     act(() => {
       arrival = result.current.travelTo(0.5, 1000);
     });
     act(() => clock.advance(600_000));
-    expect(result.current.head).toBe(0.5);
+    expect(position().head).toBe(0.5);
     await expect(arrival).resolves.toBe(true);
   });
 
   it('reports a travel that was replaced by a newer one as not arrived', async () => {
-    const { result, run } = setup({ initialProgress: 0 });
+    const { result, position, run } = setup({ initialProgress: 0 });
     let first: Promise<boolean> = Promise.resolve(true);
     act(() => {
       first = result.current.travelTo(0.5, 1000);
@@ -127,38 +128,38 @@ describe('useComet', () => {
     });
     await expect(first).resolves.toBe(false);
     run(700);
-    expect(result.current.head).toBe(0.17);
+    expect(position().head).toBe(0.17);
   });
 
   it('jumps straight to the target with reduced motion', async () => {
-    const { result, clock } = setup({ reducedMotion: true });
+    const { result, position, clock } = setup({ reducedMotion: true });
     let arrival: Promise<boolean> = Promise.resolve(false);
     act(() => {
       arrival = result.current.travelTo(0.5, 1000);
     });
-    expect(result.current.head).toBe(0.5);
-    expect(result.current.tail).toBe(0.5);
+    expect(position().head).toBe(0.5);
+    expect(position().tail).toBe(0.5);
     expect(clock.pendingCount()).toBe(0);
     await expect(arrival).resolves.toBe(true);
   });
 
   it('finishes a running travel at once when reduced motion is switched on', () => {
-    const { result, rerender, run } = setup({ initialProgress: 0 });
+    const { result, position, rerender, run } = setup({ initialProgress: 0 });
     act(() => {
       void result.current.travelTo(0.5, 1000);
     });
     run(200);
     rerender({ reducedMotion: true });
-    expect(result.current.head).toBe(0.5);
-    expect(result.current.tail).toBe(0.5);
+    expect(position().head).toBe(0.5);
+    expect(position().tail).toBe(0.5);
   });
 
   it('flies in to the entry target as soon as it mounts', () => {
-    const { result, run } = setup({ entry: { target: 0.17, durationMs: 500 } });
+    const { position, run } = setup({ entry: { target: 0.17, durationMs: 500 } });
     run(100);
-    expect(result.current.head).toBeGreaterThan(-0.12);
+    expect(position().head).toBeGreaterThan(-0.12);
     run(600);
-    expect(result.current.head).toBe(0.17);
+    expect(position().head).toBe(0.17);
   });
 
   it('cancels its frame on unmount and settles a pending travel as not arrived', async () => {
@@ -170,5 +171,21 @@ describe('useComet', () => {
     unmount();
     expect(clock.pendingCount()).toBe(0);
     await expect(arrival).resolves.toBe(false);
+  });
+
+  it('does not re-render the component that owns the comet while it travels', () => {
+    const clock = createManualScheduler();
+    let renderCount = 0;
+    const { result } = renderHook(() => {
+      renderCount += 1;
+      return useComet({ initialProgress: 0, reducedMotion: false, scheduler: clock.scheduler });
+    });
+    const rendersBeforeTravel = renderCount;
+    act(() => {
+      void result.current.travelTo(0.5, 1000);
+    });
+    for (let frame = 0; frame < 80; frame += 1) act(() => clock.advance(16));
+    expect(result.current.position.getSnapshot().head).toBe(0.5);
+    expect(renderCount).toBe(rendersBeforeTravel);
   });
 });

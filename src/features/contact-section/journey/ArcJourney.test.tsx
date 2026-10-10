@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { ArcJourney } from './ArcJourney';
 import { STEP_PROGRESS } from './arc-geometry';
+import { createCometStore } from './comet-store';
 
 const planets = [
   { label: 'NOME', jumpLabel: 'Voltar para NOME' },
@@ -10,7 +11,11 @@ const planets = [
   { label: 'MENSAGEM', jumpLabel: 'Voltar para MENSAGEM' },
 ] as const;
 
-function renderJourney(overrides: Partial<React.ComponentProps<typeof ArcJourney>> = {}) {
+type JourneyOverrides = Partial<Omit<React.ComponentProps<typeof ArcJourney>, 'comet'>> & {
+  head?: number;
+};
+
+function renderJourney({ head = STEP_PROGRESS[1], ...overrides }: JourneyOverrides = {}) {
   const onJump = vi.fn();
   const view = render(
     <ArcJourney
@@ -19,8 +24,7 @@ function renderJourney(overrides: Partial<React.ComponentProps<typeof ArcJourney
       isDelivered={false}
       isSending={false}
       reducedMotion={false}
-      head={STEP_PROGRESS[1]}
-      tail={STEP_PROGRESS[1]}
+      comet={createCometStore({ head, tail: head })}
       canJump
       onJump={onJump}
       {...overrides}

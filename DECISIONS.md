@@ -399,3 +399,9 @@ Layers, cheapest first:
 - **Desenho.** Estrelas e poeira em um `<canvas>` 2D no espaço da viewport (pixel ratio até 2), o resto em SVG/DOM dentro de uma camada 1920x1080 escalada por "cover" e centrada no ponto (960, 500), que coincide com o centro da viewport onde fica o Sol 3D. Cores em `styles/loader-tokens.ts` (espelho do `tokens.css`), textos em `content/loader.ts`, tamanhos de fonte em tokens que respeitam largura e altura.
 - **Compartilhado.** `FrameScheduler` virou `hooks/frame-scheduler` porque o cometa do contato e o loader o usam. `JetBrains Mono` voltou a ser pré-carregada porque o loader a usa no primeiro quadro.
 - **e2e.** `e2e/fixtures.ts` marca o loader como visto para todos os testes (inclusive `browser.newPage` via `openPage`); só `e2e/loader.spec.ts` usa o `test` puro. Os helpers de hover esperam a cena ficar visível (ver T26).
+
+## Comet position outside React state
+
+- **Problem.** `useComet` guardava `head` e `tail` em `useState` e os atualizava a cada frame; como o hook vive em `ContactSection`, o formulário inteiro re-renderizava ~60 vezes por segundo durante a viagem.
+- **Decision.** A posição vive em um store externo mínimo (`journey/comet-store`, com `subscribe`, `getSnapshot` e `set` que ignora valores iguais). `useComet` devolve o store e o `travelTo`; o `ArcJourney` lê com `useSyncExternalStore` (`use-comet-position`). Só ele re-renderiza durante a viagem. Foi escolhida a opção (c) da task porque mantém o desenho em React e não exige mexer em atributos SVG por ref.
+- **WebGL.** Na mesma rodada, `useWebglContextEvents` substituiu o `onCreated` da cena (listeners agora com cleanup e callbacks sempre atuais).
