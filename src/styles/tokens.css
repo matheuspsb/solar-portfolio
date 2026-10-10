@@ -85,6 +85,11 @@
   --text-message: 1.125rem;
   --text-action: 0.96875rem;
   --text-target-name: 1.375rem;
+  --text-loader-title: clamp(2.75rem, min(12vw, 10.4vh), 7rem);
+  --text-loader-title--line-height: 1;
+  --text-loader-subtitle: clamp(0.625rem, min(2.4vw, 2.2vh), 1.5rem);
+  --text-loader-percent: clamp(1.5rem, min(7vw, 5.9vh), 4rem);
+  --text-loader-label: clamp(0.5625rem, min(2.6vw, 2vh), 1.375rem);
   --text-stamp-small: 0.5rem;
   --text-stamp-date: 0.5625rem;
   --text-stamp-name: 1.0625rem;
@@ -93,6 +98,9 @@
   --tracking-role: 0.06em;
   --tracking-code: 0.1em;
   --tracking-name: -0.02em;
+  --tracking-loader-title: -0.035em;
+  --tracking-loader-label: 0.16em;
+  --tracking-loader-brand: 0.18em;
 
   --radius-block: 0.625rem;
   --radius-lg: 1.25rem;
@@ -125,6 +133,7 @@
 :root {
   --z-chrome: 10;
   --z-panel: 30;
+  --z-loader: 60;
   --size-touch-target: 2.75rem;
   --size-panel-width: 28.25rem;
   --size-message-field: 13.125rem;

@@ -1,9 +1,12 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { useEffect } from 'react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { celestialBodies } from '@/content/celestial-bodies';
 import { credits } from '@/content/credits';
+import { loaderContent } from '@/content/loader';
+import type { FrameScheduler } from '@/hooks/frame-scheduler';
+import { LOADER_SEEN_KEY } from '@/lib/loader-seen';
 import { PortfolioExperience } from './PortfolioExperience';
 import { PortfolioProviders } from './PortfolioProviders';
 import type { SceneProps } from '@/features/solar-scene';
@@ -68,7 +71,12 @@ function ThrowingScene(): never {
 function setup({
   scene = FakeScene,
   hasWebGL = true,
-}: { scene?: React.ComponentType<SceneProps>; hasWebGL?: boolean } = {}) {
+  loaderScheduler,
+}: {
+  scene?: React.ComponentType<SceneProps>;
+  hasWebGL?: boolean;
+  loaderScheduler?: FrameScheduler;
+} = {}) {
   render(
     <PortfolioProviders contactSubmitter={async () => ({ ok: true })}>
       <PortfolioExperience
@@ -78,10 +86,40 @@ function setup({
         scene={scene}
         detectWebGL={() => hasWebGL}
         idleScheduler={immediateScheduler}
+        loaderScheduler={loaderScheduler}
       />
     </PortfolioProviders>,
   );
   return userEvent.setup();
+}
+
+function createManualFrameScheduler() {
+  let currentTime = 0;
+  let nextHandle = 1;
+  const pending = new Map<number, (now: number) => void>();
+  const scheduler: FrameScheduler = {
+    now: () => currentTime,
+    request: (callback) => {
+      const handle = nextHandle;
+      nextHandle += 1;
+      pending.set(handle, callback);
+      return handle;
+    },
+    cancel: (handle) => {
+      pending.delete(handle);
+    },
+  };
+  const play = (seconds: number) => {
+    act(() => {
+      for (let frame = 0; frame < Math.round(seconds * 60); frame += 1) {
+        currentTime += 1000 / 60;
+        const callbacks = [...pending.values()];
+        pending.clear();
+        for (const callback of callbacks) callback(currentTime);
+      }
+    });
+  };
+  return { scheduler, play };
 }
 
 describe('PortfolioExperience', () => {
@@ -295,6 +333,42 @@ describe('PortfolioExperience', () => {
       expect(screen.getByRole('status')).toHaveTextContent(/recuper/);
       await user.click(screen.getByRole('button', { name: 'restaurar contexto' }));
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+  });
+  describe('loading screen', () => {
+    beforeEach(() => {
+      sessionStorage.removeItem(LOADER_SEEN_KEY);
+    });
+
+    const sunButton = () => screen.getByRole('button', { name: 'Sol: abrir seção Sobre' });
+
+    it('keeps the keyboard on the loader until it ends, then frees the scene controls', async () => {
+      const frames = createManualFrameScheduler();
+      const user = setup({ loaderScheduler: frames.scheduler });
+      const skipButton = screen.getByRole('button', { name: loaderContent.skipLabel });
+      await user.tab();
+      expect(skipButton).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      frames.play(3);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      await user.tab();
+      expect(sunButton()).toHaveFocus();
+    });
+
+    it('does not hold back a visitor who already saw it', () => {
+      sessionStorage.setItem(LOADER_SEEN_KEY, '1');
+      setup();
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('lets the visitor through without waiting for a scene that cannot start', async () => {
+      const frames = createManualFrameScheduler();
+      setup({ hasWebGL: false, loaderScheduler: frames.scheduler });
+      frames.play(8);
+      expect(
+        screen.queryByRole('dialog', { name: loaderContent.progressLabel }),
+      ).not.toBeInTheDocument();
     });
   });
 });

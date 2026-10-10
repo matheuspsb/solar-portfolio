@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
+import Script from 'next/script';
 import type { ReactNode } from 'react';
 import '@/styles/tokens.css';
+import { LOADER_SEEN_SCRIPT } from '@/lib/loader-seen';
 import { sceneTokens } from '@/styles/scene-tokens';
 
 const bricolage = localFont({
@@ -16,7 +18,6 @@ const jetbrainsMono = localFont({
   weight: '100 800',
   variable: '--font-jetbrains',
   display: 'swap',
-  preload: false,
 });
 
 const title = 'Matheus — Software Engineer';
@@ -36,8 +37,19 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${bricolage.variable} ${jetbrainsMono.variable}`}>
-      <body>{children}</body>
+    <html
+      lang="pt-BR"
+      className={`${bricolage.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
+    >
+      <body>
+        <Script
+          id="loader-seen"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: LOADER_SEEN_SCRIPT }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

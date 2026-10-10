@@ -5,6 +5,7 @@ const features = [
   'about-section',
   'contact-section',
   'content-panel',
+  'loading-screen',
   'portfolio',
   'quick-access-menu',
   'solar-scene',

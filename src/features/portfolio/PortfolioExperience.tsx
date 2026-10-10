@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import type { ComponentType } from 'react';
 import { AttributionNote, ContentPanel } from '@/features/content-panel';
+import { LoadingGate } from '@/features/loading-screen';
 import { QuickAccessMenu } from '@/features/quick-access-menu';
 import {
   SceneErrorBoundary,
@@ -12,6 +13,7 @@ import {
 } from '@/features/solar-scene';
 import type { SceneProps, SceneStatus } from '@/features/solar-scene';
 import { TargetLock } from '@/features/target-lock';
+import type { FrameScheduler } from '@/hooks/frame-scheduler';
 import type { IdleScheduler } from '@/hooks/use-idle-ready';
 import type { CelestialBodyConfig } from '@/domain/celestial-body';
 import type { Credit } from '@/domain/credit';
@@ -33,6 +35,7 @@ type PortfolioExperienceProps = {
   scene?: ComponentType<SceneProps>;
   detectWebGL?: () => boolean;
   idleScheduler?: IdleScheduler;
+  loaderScheduler?: FrameScheduler;
 };
 
 const UNAVAILABLE_MESSAGE =
@@ -53,11 +56,13 @@ export function PortfolioExperience({
   scene: SceneComponent = SolarSystemSceneLoader,
   detectWebGL: probeWebGL = detectWebGL,
   idleScheduler,
+  loaderScheduler,
 }: PortfolioExperienceProps) {
   const availability = useSceneAvailability(probeWebGL, idleScheduler);
   const keyboardControlsRef = useRef<SceneKeyboardControlsHandle>(null);
   const lastOpenedIdRef = useRef<string | null>(null);
   const [frameChannel] = useState(createFrameChannel);
+  const [isSceneRevealed, setIsSceneRevealed] = useState(false);
 
   const labeledBodies = bodies.map((body) => ({
     id: body.id,
@@ -76,7 +81,9 @@ export function PortfolioExperience({
   }));
   const cameraTarget = useCameraTarget(interaction.state.selectedId ?? interaction.state.focusedId);
   const fallbackMessage = fallbackMessageByStatus[availability.status];
-  const canMountScene = availability.isChecked && availability.status !== 'unavailable';
+  const isSceneUnavailable = availability.isChecked && availability.status === 'unavailable';
+  const canMountScene = availability.isChecked && !isSceneUnavailable;
+  const isSceneReady = isSceneRevealed || isSceneUnavailable;
   const retryHandler = availability.canRetry ? availability.retry : undefined;
   const selectedBody = bodies.find((body) => body.id === interaction.state.selectedId);
   const trackedBodyId = getTrackedBodyId(interaction.state);
@@ -100,6 +107,7 @@ export function PortfolioExperience({
 
   return (
     <>
+      <LoadingGate isSceneReady={isSceneReady} scheduler={loaderScheduler} />
       <div inert={selectedBody !== undefined} className="contents">
         <SceneErrorBoundary
           fallback={null}
@@ -119,6 +127,7 @@ export function PortfolioExperience({
               description={sceneDescription}
               trackedBodyId={trackedBodyId}
               onTrackFrame={frameChannel.publish}
+              onRevealChange={setIsSceneRevealed}
             />
           )}
         </SceneErrorBoundary>
