@@ -7,4 +7,5 @@ export const sceneTokens = {
   focusRingColor: '#7cc4ff',
   orbitPathColor: '#ece9f2',
   planetFallbackColor: '#8d8a96',
+  planetGlowColor: '#ffffff',
 } as const;

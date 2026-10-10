@@ -60,6 +60,17 @@ const scaleByHighlight: Record<Highlight, number> = {
   selected: 1.05,
 };
 
+const glowByHighlight: Record<Highlight, number> = {
+  none: 0,
+  hovered: 0.12,
+  focused: 0.12,
+  selected: 0.12,
+};
+
+export function getHighlightGlow(highlight: Highlight): number {
+  return glowByHighlight[highlight];
+}
+
 export function getHighlightScale(highlight: Highlight): number {
   return scaleByHighlight[highlight];
 }

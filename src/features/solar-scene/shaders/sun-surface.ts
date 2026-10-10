@@ -21,6 +21,7 @@ export const sunSurfaceFragmentShader = `
   uniform vec3 uTint;
   uniform vec3 uFallbackColor;
   uniform float uTime;
+  uniform float uGlow;
 
   varying vec2 vUv;
   varying vec3 vViewNormal;
@@ -38,7 +39,7 @@ export const sunSurfaceFragmentShader = `
     float facing = clamp(dot(normalize(vViewNormal), normalize(vViewDirection)), 0.0, 1.0);
     float limbDarkening = mix(0.62, 1.0, pow(facing, 0.45));
 
-    vec3 color = mix(base, detail, 0.35) * tint * pulse * limbDarkening * 1.18;
+    vec3 color = mix(base, detail, 0.35) * tint * pulse * limbDarkening * 1.18 * (1.0 + uGlow);
     gl_FragColor = vec4(color, 1.0);
     #include <colorspace_fragment>
   }
@@ -50,6 +51,7 @@ type SunSurfaceUniforms = {
   uTint: IUniform<Color>;
   uFallbackColor: IUniform<Color>;
   uTime: IUniform<number>;
+  uGlow: IUniform<number>;
 };
 
 export function createSunSurfaceUniforms(tint: string, fallbackColor: string): SunSurfaceUniforms {
@@ -59,5 +61,6 @@ export function createSunSurfaceUniforms(tint: string, fallbackColor: string): S
     uTint: { value: new Color(tint) },
     uFallbackColor: { value: new Color(fallbackColor) },
     uTime: { value: 0 },
+    uGlow: { value: 0 },
   };
 }

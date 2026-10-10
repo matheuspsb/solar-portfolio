@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import type { Mesh, Texture } from 'three';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
+import { getHighlightGlow } from '@/lib/interaction-state';
 import type { Highlight } from '@/lib/interaction-state';
 import { useBodyMotion } from '../hooks/use-body-motion';
 import { useBodyPointerHandlers } from '../hooks/use-body-pointer-handlers';
@@ -31,7 +32,12 @@ export function PlanetMesh({
 }: PlanetMeshProps) {
   const meshRef = useRef<Mesh>(null);
   useBodyMotion({ bodyRef: meshRef, rotationPeriodSeconds, highlight, highlightEasingRate });
-  const { handlePointerOver, handleClick } = useBodyPointerHandlers({ onPointerOver, onSelect });
+  const { handlePointerOver, handlePointerOut, handleClick } = useBodyPointerHandlers({
+    onPointerOver,
+    onPointerOut,
+    onSelect,
+    isArmed: highlight !== 'none',
+  });
   const hitRadius = Math.max(radius, MIN_HIT_RADIUS);
   const fallbackColor = texture ? undefined : sceneTokens.planetFallbackColor;
 
@@ -43,9 +49,12 @@ export function PlanetMesh({
           key={texture ? 'textured' : 'plain'}
           map={texture}
           color={fallbackColor}
+          emissive={texture ? sceneTokens.planetGlowColor : sceneTokens.planetFallbackColor}
+          emissiveMap={texture}
+          emissiveIntensity={getHighlightGlow(highlight)}
         />
       </mesh>
-      <mesh onPointerOver={handlePointerOver} onPointerOut={onPointerOut} onClick={handleClick}>
+      <mesh onPointerOver={handlePointerOver} onPointerOut={handlePointerOut} onClick={handleClick}>
         <sphereGeometry args={[hitRadius, 16, 16]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>

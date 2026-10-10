@@ -32,6 +32,12 @@ async function renderPlanet(props: Partial<Props> = {}) {
 }
 
 describe('PlanetMesh', () => {
+  it('brightens its own texture when pointed at instead of washing it out with white', async () => {
+    const texture = new Texture();
+    const { material } = await renderPlanet({ highlight: 'hovered', texture });
+    expect(material.emissiveMap).toBe(texture);
+  });
+
   it('shows the texture when it is available', async () => {
     const texture = new Texture();
     const { material } = await renderPlanet({ texture });

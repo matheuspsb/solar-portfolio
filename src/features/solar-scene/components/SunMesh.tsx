@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber';
 import { useRef, useState } from 'react';
 import type { Mesh, ShaderMaterial, Texture } from 'three';
 import { sceneTokens } from '@/design-system/tokens/scene-tokens';
+import { getHighlightGlow } from '@/lib/interaction-state';
 import type { Highlight } from '@/lib/interaction-state';
 import { useBodyMotion } from '../hooks/use-body-motion';
 import { useBodyPointerHandlers } from '../hooks/use-body-pointer-handlers';
@@ -45,7 +46,12 @@ export function SunMesh({
     createSunSurfaceUniforms(sceneTokens.sunTextureTint, sceneTokens.sunCoreColor),
   );
   useBodyMotion({ bodyRef: meshRef, rotationPeriodSeconds, highlight, highlightEasingRate });
-  const { handlePointerOver, handleClick } = useBodyPointerHandlers({ onPointerOver, onSelect });
+  const { handlePointerOver, handlePointerOut, handleClick } = useBodyPointerHandlers({
+    onPointerOver,
+    onPointerOut,
+    onSelect,
+    isArmed: highlight !== 'none',
+  });
 
   useFrame((_state, deltaSeconds) => {
     const material = materialRef.current;
@@ -53,6 +59,7 @@ export function SunMesh({
     if (isSurfaceAnimated) material.uniforms.uTime!.value += clampFrameDelta(deltaSeconds);
     material.uniforms.uMap!.value = texture;
     material.uniforms.uHasMap!.value = texture ? 1 : 0;
+    material.uniforms.uGlow!.value = getHighlightGlow(highlight);
   });
 
   return (
@@ -60,7 +67,7 @@ export function SunMesh({
       ref={meshRef}
       name={name}
       onPointerOver={handlePointerOver}
-      onPointerOut={onPointerOut}
+      onPointerOut={handlePointerOut}
       onClick={handleClick}
     >
       <sphereGeometry args={[radius, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />

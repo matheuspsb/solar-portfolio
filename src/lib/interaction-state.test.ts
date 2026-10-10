@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   getHighlight,
+  getHighlightGlow,
   getHighlightScale,
   initialInteractionState,
   interactionReducer,
@@ -87,6 +88,15 @@ describe('isClickGesture', () => {
 
   it.each([Number.NaN, -1])('rejects invalid movement %s', (movement) => {
     expect(isClickGesture(movement)).toBe(false);
+  });
+});
+
+describe('getHighlightGlow', () => {
+  it('adds a little light to a body that is pointed at, hovered or focused, and opened', () => {
+    for (const highlight of ['hovered', 'focused', 'selected'] as const) {
+      expect(getHighlightGlow(highlight)).toBeGreaterThan(0);
+      expect(getHighlightGlow(highlight)).toBeLessThan(0.5);
+    }
   });
 });
 
