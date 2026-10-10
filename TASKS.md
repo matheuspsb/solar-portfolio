@@ -158,7 +158,7 @@ envio) e deixar o componente só compondo.
   corpos no mesmo componente. Separar `SceneCanvas` (config e ciclo de vida) e `SceneBodies` (lista).
 - **`use-comet`:** três responsabilidades no mesmo hook: o agendador de frames, o motor de interpolação (tween) e o estado React com
   promessas. Extrair o motor para uma função/classe pura testável e deixar o hook só ligando ao React.
-- **`lib/celestial-body.ts` (159 linhas):** tipos de domínio e validação no mesmo arquivo; separar `types` e `validate`.
+- **`domain/celestial-body.ts` (159 linhas):** tipos de domínio e validação no mesmo arquivo; separar `types` e `validate`.
 
 ## useEffect
 
