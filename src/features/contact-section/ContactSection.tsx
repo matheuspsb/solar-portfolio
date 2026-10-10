@@ -40,7 +40,7 @@ import { QuestionHeading } from './question/QuestionHeading';
 import { buildProtocol, fillTemplate, formatStampDate, getFirstName } from './delivery/receipt';
 import { StepActions } from './question/StepActions';
 import { useComet } from './journey/use-comet';
-import type { FrameScheduler } from './journey/use-comet';
+import type { FrameScheduler } from '@/hooks/frame-scheduler';
 
 const LAST_STEP: ContactStepIndex = 2;
 const EMPTY_MESSAGE: ContactMessage = { name: '', email: '', message: '' };

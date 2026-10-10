@@ -5,7 +5,7 @@ import { contactContent } from '@/content/contact';
 import type { ContactMessageSubmitter, ContactSubmitResult } from '@/domain/contact-message';
 import { ContactSubmitterProvider } from '@/hooks/contact-submitter';
 import { ContactSection } from './ContactSection';
-import type { FrameScheduler } from './journey/use-comet';
+import type { FrameScheduler } from '@/hooks/frame-scheduler';
 
 const INSTANT_STEP_MS = 1_000_000;
 

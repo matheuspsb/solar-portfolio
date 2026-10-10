@@ -1,20 +1,10 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { browserFrameScheduler } from '@/hooks/frame-scheduler';
+import type { FrameScheduler } from '@/hooks/frame-scheduler';
 import { chaseTail, getTweenFrame } from './comet-motion';
 
 const FALLBACK_FRAME_MS = 1000 / 60;
 const MILLISECONDS_PER_SECOND = 1000;
-
-export type FrameScheduler = {
-  now: () => number;
-  request: (callback: (now: number) => void) => number;
-  cancel: (handle: number) => void;
-};
-
-const browserScheduler: FrameScheduler = {
-  now: () => performance.now(),
-  request: (callback) => requestAnimationFrame(callback),
-  cancel: (handle) => cancelAnimationFrame(handle),
-};
 
 type Tween = {
   from: number;
@@ -41,7 +31,7 @@ export function useComet({
   initialProgress,
   reducedMotion,
   entry,
-  scheduler = browserScheduler,
+  scheduler = browserFrameScheduler,
 }: UseCometOptions): CometState {
   const [position, setPosition] = useState<CometPosition>({
     head: initialProgress,

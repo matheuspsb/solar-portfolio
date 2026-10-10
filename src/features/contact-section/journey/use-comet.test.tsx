@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useComet } from './use-comet';
-import type { FrameScheduler } from './use-comet';
+import type { FrameScheduler } from '@/hooks/frame-scheduler';
 
 function createManualScheduler() {
   let currentTime = 0;
