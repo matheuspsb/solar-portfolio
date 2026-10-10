@@ -91,6 +91,15 @@
 - Substituiu o rótulo genérico dos astros pelo overlay do handoff 5a (cantoneiras, linha de telemetria, ficha com nome decodificado), com a projeção 3D→2D na cena e a nova feature `target-lock`; toque em dois passos; leve brilho no astro em hover/foco.
 - Validação: lint, typecheck, 796 testes unitários, 57 e2e (incluindo teclado, movimento reduzido e celular de 360 px) e build passando. JS inicial ~198 KB gzip; Lighthouse mobile 69-70, desktop 84-89, acessibilidade/boas práticas/SEO 100.
 
+## Loading "Nascimento do sistema"
+
+- **O que é.** Tela de loading da primeira visita da sessão (handoff em `design/design_handoff_loading`): estrelas, hiperespaço, nebulosa, ignição, órbitas e a revelação da página, em **7,0 s** (o protótipo tinha 14 s). A animação roda sempre inteira e na mesma velocidade; a carga real nunca a acelera. Se a cena 3D ainda não estiver pronta quando a etapa Órbitas termina, a animação segura ali (planetas seguem orbitando, rótulo "Finalizando", barra em 99%) e só encerra quando a cena for revelada; teto de segurança de 15 s.
+- **Casos de uso e bordas cobertos.** Delta de tempo `NaN`, negativo, zero, `Infinity` e enorme (aba em segundo plano); tempo fora de [0, total]; "Pular" com a cena não pronta; `Esc` repetido e com o loader já fechado; `Tab` preso no botão "Pular"; `sessionStorage` bloqueado ou ausente; movimento reduzido (estático, sem quadros agendados, termina ao revelar a cena); cena sem WebGL (libera na hora); visita repetida (nenhum flash: um script inline marca o `<html>` antes da hidratação).
+- **Números (build de produção, SwiftShader).** JS inicial 198,5 → 209,6 KB gzip (+11 KB). Lighthouse mobile 69 (LCP 2,6 s, TBT 1,28 s), desktop 81, acessibilidade, boas práticas e SEO 100. O loader sozinho roda a 60 fps (mediana de 17 ms) mesmo com CPU 4x mais lenta; o blocking total é o mesmo com ou sem ele (`node scripts/measure-loader.mjs first|seen|loader-only <cpu> <largura> <altura>`).
+- **Aprendizado.** Na primeira versão a barra seguia `max(animada, real)`; com a cena já carregada ela mostrava 100% na etapa 3, então o progresso real saiu da barra (ver DECISIONS.md). O LCP subiu para 4,7 s porque o rótulo da etapa só pintava depois da hidratação; o HUD agora é visível já no HTML do servidor (LCP volta a 2,6 s e a primeira pintura já mostra "carregando" em vez de preto).
+- **Testes.** 923 unitários, 63 e2e (o fixture `e2e/fixtures.ts` marca o loader como visto; `e2e/loader.spec.ts` cobre a primeira visita, `Esc`, "Pular", recarga, axe e movimento reduzido).
+- **Pendências registradas.** T26 (hover perdido quando a textura chega sob o ponteiro, flake raro do e2e) e T27 (pausar o render da cena enquanto o loader a cobre) em `TASKS.md`.
+
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 
 Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A arquitetura atual já é orientada a dados; o que muda:

@@ -173,8 +173,9 @@ src/
     contact-section/        # seção de contato em etapas (journey/, question/, delivery/, index.ts)
     quick-access-menu/      # menu orbital (componentes + orbit-layout, index.ts)
     target-lock/            # overlay do hover "alvo travado" (components/, hooks/, lib/, index.ts)
+    loading-screen/         # loading da primeira visita (components/, hooks/, lib/, index.ts)
     portfolio/              # camada de composição: junta as outras features (PortfolioExperience, SectionView, PortfolioProviders)
-  hooks/                    # hooks usados por 2+ features (inclui contact-submitter: provider montado no portfolio, lido pelo contact-section)
+  hooks/                    # hooks usados por 2+ features (contact-submitter: provider montado no portfolio e lido pelo contact-section; frame-scheduler)
   domain/                   # tipos e regras do produto usados por 2+ features (corpo celeste, contato, anti-bot, interação)
   lib/                      # utilitários genéricos e puros, sem regra de negócio (join-class-names, circular-navigation, screen-frame)
   services/                 # somente se necessário

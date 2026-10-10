@@ -253,6 +253,23 @@ Auditoria de listeners, timers, `requestAnimationFrame`, observers e recursos 3D
 - **Proposta:** limitar a taxa (throttle por frame) dentro do hook, ou derivar só o que cada um precisa (por exemplo, o menu só precisa da faixa de
   largura que muda o raio da órbita).
 
+### T26 (B) O hover se perde quando a textura de um astro termina de carregar com o ponteiro em cima
+
+- **Onde:** `solar-scene/components/bodies/CelestialBody.tsx` e o material do astro (`SunMesh`, `PlanetMesh`).
+- **Como reproduzir:** atrasar as texturas em 3,5 s no Playwright (`page.route` em `.webp`), usar movimento reduzido, pairar sobre Mercúrio assim que o
+  cursor virar `pointer`. Cerca de 15 ms depois chega `pointerout` sem o mouse se mover e o "alvo travado" some até o mouse se mexer. Acontece com ou
+  sem o loader (2 de 4 execuções sem ele), e explica o flake raro do e2e `camera-focus` de movimento reduzido.
+- **Hipótese:** a troca do material quando a textura chega recria o objeto raycastado e o R3F emite `pointerout`. Verificar com um log em
+  `changeHover` e comparar o `uuid` da malha antes e depois.
+- **Pronto quando:** o hover sobrevive à chegada da textura (teste e2e com o atraso acima).
+- **Contorno atual:** os helpers de e2e (`hoverSun`, `hoverMercury`) esperam a cena ser revelada antes de pairar.
+
+### T27 (C) Pausar o render da cena enquanto o loader a cobre
+
+- **Onde:** `solar-scene/components/scene/SolarSystemScene.tsx` (`frameloop`) e `portfolio/PortfolioExperience.tsx`.
+- **Problema:** durante os ~7 s do loader a cena 3D renderiza (com bloom) por trás de uma camada opaca. Em GPU real o custo é pequeno; em celular fraco ele compete com o loader.
+- **Proposta:** `frameloop="demand"` até a cena ser revelada e o loader terminar, invalidando uma vez ao liberar. Medir com `scripts/measure-loader.mjs first` antes e depois.
+
 ## Outras observações da varredura
 
 - **`StarField.tsx` usa `useMemo`** (a única ocorrência), contra a regra do projeto de não usá-lo com o React Compiler sem justificativa. Remover
