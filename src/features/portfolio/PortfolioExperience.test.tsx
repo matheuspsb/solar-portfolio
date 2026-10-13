@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { useEffect } from 'react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -10,6 +10,7 @@ import { LOADER_SEEN_KEY } from '@/lib/loader-seen';
 import { PortfolioExperience } from './PortfolioExperience';
 import { PortfolioProviders } from './PortfolioProviders';
 import type { SceneProps } from '@/features/solar-scene';
+import type { CelestialBodyConfig } from '@/domain/celestial-body';
 
 function FakeScene({
   bodies,
@@ -69,10 +70,12 @@ function ThrowingScene(): never {
 }
 
 function setup({
+  bodies = celestialBodies,
   scene = FakeScene,
   hasWebGL = true,
   loaderScheduler,
 }: {
+  bodies?: readonly CelestialBodyConfig[];
   scene?: React.ComponentType<SceneProps>;
   hasWebGL?: boolean;
   loaderScheduler?: FrameScheduler;
@@ -80,7 +83,7 @@ function setup({
   render(
     <PortfolioProviders contactSubmitter={async () => ({ ok: true })}>
       <PortfolioExperience
-        bodies={celestialBodies}
+        bodies={bodies}
         credits={credits}
         sceneDescription="Cena 3D de teste"
         scene={scene}
@@ -271,6 +274,51 @@ describe('PortfolioExperience', () => {
     await user.click(screen.getByRole('button', { name: 'Fechar painel' }));
     await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
     expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
+  });
+
+  describe('with a body that is only scenery', () => {
+    const bodiesWithSection = celestialBodies.filter((body) => body.section !== null);
+    const sceneryPlanet: CelestialBodyConfig = {
+      ...celestialBodies[1]!,
+      id: 'scenery',
+      name: 'Cenário',
+      section: null,
+    };
+    const bodiesWithScenery = [...bodiesWithSection, sceneryPlanet];
+
+    it('draws it in the scene but leaves it out of the keyboard controls', () => {
+      setup({ bodies: bodiesWithScenery });
+      expect(screen.getByRole('img', { name: /Cenário \(cena\)/ })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Cenário/ })).not.toBeInTheDocument();
+    });
+
+    it('cycles the keyboard focus over the bodies that open a section only', async () => {
+      const user = setup({ bodies: bodiesWithScenery });
+      await user.tab();
+      await user.keyboard('{ArrowRight}{ArrowRight}');
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'sun');
+    });
+
+    it('offers the same destinations in the quick-access menu as before', async () => {
+      const user = setup({ bodies: bodiesWithScenery });
+      const toggle = screen.getByRole('button', { name: 'Acesso rápido' });
+      await user.click(toggle);
+      const menu = screen.getByRole('navigation', { name: 'Acesso rápido' });
+      const destinations = within(menu)
+        .getAllByRole('button')
+        .filter((button) => button !== toggle);
+      expect(destinations).toHaveLength(bodiesWithSection.length);
+    });
+
+    it('opens nothing and does not lock onto it when it is hovered or clicked', async () => {
+      const user = setup({ bodies: bodiesWithScenery });
+      const scenery = screen.getByRole('img', { name: /Cenário \(cena\)/ });
+      await user.hover(scenery);
+      await user.click(scenery);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.queryByText(/ALVO TRAVADO/)).not.toBeInTheDocument();
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'none');
+    });
   });
 
   describe('without a working 3D scene', () => {

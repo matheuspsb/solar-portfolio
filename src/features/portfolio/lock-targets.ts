@@ -1,7 +1,7 @@
 import type { LockTarget } from '@/features/target-lock';
-import type { CelestialBodyConfig } from '@/domain/celestial-body';
+import type { InteractiveCelestialBody } from '@/domain/celestial-body';
 
-export function buildLockTargets(bodies: readonly CelestialBodyConfig[]): LockTarget[] {
+export function buildLockTargets(bodies: readonly InteractiveCelestialBody[]): LockTarget[] {
   return bodies.map((body) => ({
     id: body.id,
     tone: body.section.menuTone,

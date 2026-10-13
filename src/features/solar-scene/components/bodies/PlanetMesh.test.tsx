@@ -17,6 +17,7 @@ async function renderPlanet(props: Partial<Props> = {}) {
       onPointerOver={() => undefined}
       onPointerOut={() => undefined}
       onSelect={() => undefined}
+      isInteractive
       {...props}
     />,
   );
@@ -83,5 +84,25 @@ describe('PlanetMesh', () => {
     const { hitTarget } = await renderPlanet({ radius: 3 });
     hitTarget.geometry.computeBoundingSphere();
     expect(hitTarget.geometry.boundingSphere!.radius).toBeGreaterThanOrEqual(3);
+  });
+
+  it('offers nothing to point at or click when it is only scenery', async () => {
+    const renderer = await ReactThreeTestRenderer.create(
+      <PlanetMesh
+        radius={0.8}
+        texture={null}
+        rotationPeriodSeconds={10}
+        highlight="none"
+        highlightEasingRate={10}
+        onPointerOver={() => undefined}
+        onPointerOut={() => undefined}
+        onSelect={() => undefined}
+        isInteractive={false}
+      />,
+    );
+    const pointerTargets = renderer.scene.findAll(
+      (node) => node.props.onClick !== undefined || node.props.onPointerOver !== undefined,
+    );
+    expect(pointerTargets).toHaveLength(0);
   });
 });

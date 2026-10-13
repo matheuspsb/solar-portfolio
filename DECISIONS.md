@@ -405,3 +405,11 @@ Layers, cheapest first:
 - **Problem.** `useComet` guardava `head` e `tail` em `useState` e os atualizava a cada frame; como o hook vive em `ContactSection`, o formulário inteiro re-renderizava ~60 vezes por segundo durante a viagem.
 - **Decision.** A posição vive em um store externo mínimo (`journey/comet-store`, com `subscribe`, `getSnapshot` e `set` que ignora valores iguais). `useComet` devolve o store e o `travelTo`; o `ArcJourney` lê com `useSyncExternalStore` (`use-comet-position`). Só ele re-renderiza durante a viagem. Foi escolhida a opção (c) da task porque mantém o desenho em React e não exige mexer em atributos SVG por ref.
 - **WebGL.** Na mesma rodada, `useWebglContextEvents` substituiu o `onCreated` da cena (listeners agora com cleanup e callbacks sempre atuais).
+
+## Bodies without a section (Venus as scenery)
+
+- **Problem.** Vênus entra na cena antes de ter conteúdo; a próxima etapa dá a ele uma seção e a interação. Todo corpo exigia `section`, e menu, teclado, alvo travado e seleção liam esse campo direto.
+- **Decision.** `section: BodySection | null`. Um corpo sem seção é só cenário: a cena o desenha e o faz orbitar, mas `PlanetMesh` não cria a esfera de clique (sem cursor, hover nem seleção) e o `PortfolioExperience` monta menu, teclado, alvo e seleção a partir de `getInteractiveBodies` (`domain/`). Dar a Vênus uma seção é preencher esse campo na lista; nenhum componente muda.
+- **Validation.** Uma estrela precisa de seção (o Sol é a entrada do portfólio, e `SunMesh` é sempre interativo). Órbitas de planetas que se cruzam (faixa `orbit.radius ± radius`) são rejeitadas, com os dois ids na mensagem; uma órbita já inválida não é reportada de novo.
+- **Venus.** Raio 0,72, órbita 6,2 com período de 180 s e fase 4 rad (lado oposto a Mercúrio). A câmera recua para enquadrar a órbita maior; o e2e de preenchimento do Sol continua passando. A rotação retrógrada real ficou de fora: a validação exige período positivo e não há ganho visual que justifique mudar isso agora.
+- **Texture pending.** A textura (`2k_venus_atmosphere.jpg`, Solar System Scope, CC BY 4.0) não pôde ser baixada: a rede do ambiente bloqueia o domínio. Vênus usa por ora a cor de fallback (`texture: null`), estado já suportado; a textura entra em um commit próprio, com o e2e que confere o carregamento e o registro em `CREDITS.md`.
