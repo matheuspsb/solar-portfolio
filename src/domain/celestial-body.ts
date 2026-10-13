@@ -53,14 +53,18 @@ export type CelestialBodyConfig = {
   orbit: Orbit | null;
   texture: BodyTexture | null;
   targeting: TargetingConfig;
-  section: {
-    menuLabel: string;
-    menuTone: PlanetTone;
-    title: string;
-    panelLabel: string;
-    content: SectionContent;
-  };
+  section: BodySection | null;
 };
+
+export type BodySection = {
+  menuLabel: string;
+  menuTone: PlanetTone;
+  title: string;
+  panelLabel: string;
+  content: SectionContent;
+};
+
+export type InteractiveCelestialBody = CelestialBodyConfig & { section: BodySection };
 
 type ValidationResult = { valid: true } | { valid: false; errors: string[] };
 
@@ -116,10 +120,43 @@ function validateBody(body: CelestialBodyConfig, label: string, starRadius: numb
   if (isBlank(body.targeting.description)) {
     errors.push(`${label}: targeting description must not be blank`);
   }
-  if (isBlank(body.section.menuLabel)) errors.push(`${label}: section menuLabel must not be blank`);
-  if (isBlank(body.section.panelLabel))
-    errors.push(`${label}: section panelLabel must not be blank`);
+  return [...errors, ...validateSection(body, label)];
+}
+
+function validateSection(body: CelestialBodyConfig, label: string): string[] {
+  const { section } = body;
+  if (section === null) {
+    return body.kind === 'star'
+      ? [`${label}: a star needs a section, since it is the way into the portfolio`]
+      : [];
+  }
+  const errors: string[] = [];
+  if (isBlank(section.menuLabel)) errors.push(`${label}: section menuLabel must not be blank`);
+  if (isBlank(section.panelLabel)) errors.push(`${label}: section panelLabel must not be blank`);
   return errors;
+}
+
+type OrbitBand = { id: string; inner: number; outer: number };
+
+function getOrbitBand(body: CelestialBodyConfig): OrbitBand | null {
+  const { orbit } = body;
+  if (orbit === null || !isPositiveFinite(orbit.radius) || !isPositiveFinite(body.radius)) {
+    return null;
+  }
+  return { id: body.id, inner: orbit.radius - body.radius, outer: orbit.radius + body.radius };
+}
+
+function findOverlappingOrbits(bodies: readonly CelestialBodyConfig[]): string[] {
+  const bands = bodies
+    .map(getOrbitBand)
+    .filter((band) => band !== null)
+    .sort((first, second) => first.inner - second.inner);
+  return bands.slice(1).flatMap((band, index) => {
+    const previous = bands[index]!;
+    return band.inner <= previous.outer
+      ? [`orbits of "${previous.id}" and "${band.id}" overlap: planets would collide`]
+      : [];
+  });
 }
 
 function findDuplicateIds(bodies: readonly CelestialBodyConfig[]): string[] {
@@ -141,6 +178,7 @@ export function validateCelestialBodies(bodies: readonly CelestialBodyConfig[]):
   const errors = [
     ...(stars.length === 1 ? [] : [`configuration needs exactly one star (found ${stars.length})`]),
     ...findDuplicateIds(bodies).map((id) => `duplicate id "${id}"`),
+    ...findOverlappingOrbits(bodies),
     ...bodies.flatMap((body, index) =>
       validateBody(body, `body[${index}] "${body.id}"`, starRadius),
     ),
@@ -156,4 +194,10 @@ export function assertValidCelestialBodies(
     throw new Error(`Invalid celestial body configuration:\n- ${result.errors.join('\n- ')}`);
   }
   return bodies;
+}
+
+export function getInteractiveBodies(
+  bodies: readonly CelestialBodyConfig[],
+): InteractiveCelestialBody[] {
+  return bodies.filter((body): body is InteractiveCelestialBody => body.section !== null);
 }

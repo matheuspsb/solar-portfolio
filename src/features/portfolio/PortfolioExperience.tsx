@@ -15,6 +15,7 @@ import type { SceneProps, SceneStatus } from '@/features/solar-scene';
 import { TargetLock } from '@/features/target-lock';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
 import type { IdleScheduler } from '@/hooks/use-idle-ready';
+import { getInteractiveBodies } from '@/domain/celestial-body';
 import type { CelestialBodyConfig } from '@/domain/celestial-body';
 import type { Credit } from '@/domain/credit';
 import { createFrameChannel } from '@/lib/screen-frame';
@@ -64,7 +65,8 @@ export function PortfolioExperience({
   const [frameChannel] = useState(createFrameChannel);
   const [isSceneRevealed, setIsSceneRevealed] = useState(false);
 
-  const labeledBodies = bodies.map((body) => ({
+  const interactiveBodies = getInteractiveBodies(bodies);
+  const labeledBodies = interactiveBodies.map((body) => ({
     id: body.id,
     name: body.name,
     menuLabel: body.section.menuLabel,
@@ -74,7 +76,7 @@ export function PortfolioExperience({
     id: body.id,
     label: getBodyAccessibleLabel(body),
   }));
-  const menuItems = bodies.map((body) => ({
+  const menuItems = interactiveBodies.map((body) => ({
     id: body.id,
     label: body.section.menuLabel,
     tone: body.section.menuTone,
@@ -85,9 +87,9 @@ export function PortfolioExperience({
   const canMountScene = availability.isChecked && !isSceneUnavailable;
   const isSceneReady = isSceneRevealed || isSceneUnavailable;
   const retryHandler = availability.canRetry ? availability.retry : undefined;
-  const selectedBody = bodies.find((body) => body.id === interaction.state.selectedId);
+  const selectedBody = interactiveBodies.find((body) => body.id === interaction.state.selectedId);
   const trackedBodyId = getTrackedBodyId(interaction.state);
-  const lockTargets = buildLockTargets(bodies);
+  const lockTargets = buildLockTargets(interactiveBodies);
 
   const changeHover = (id: string, isHovered: boolean) => {
     if (isHovered) interaction.hover(id);

@@ -25,6 +25,7 @@ type CelestialBodyProps = {
   highlightEasingRate: number;
   onHoverChange: (isHovered: boolean) => void;
   onSelect: () => void;
+  isInteractive: boolean;
   onSettled?: (id: string) => void;
   loadTexture?: TextureLoadFunction;
 };
@@ -47,6 +48,7 @@ export function CelestialBody({
   highlightEasingRate,
   onHoverChange,
   onSelect,
+  isInteractive,
   onSettled,
   loadTexture,
 }: CelestialBodyProps) {
@@ -82,6 +84,7 @@ export function CelestialBody({
             radius={radius}
             texture={loadedTexture}
             rotationPeriodSeconds={rotationPeriodSeconds}
+            isInteractive={isInteractive}
             {...interaction}
           />
           {focusRing}

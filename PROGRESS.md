@@ -100,6 +100,12 @@
 - **Testes.** 923 unitários, 63 e2e (o fixture `e2e/fixtures.ts` marca o loader como visto; `e2e/loader.spec.ts` cobre a primeira visita, `Esc`, "Pular", recarga, axe e movimento reduzido).
 - **Pendências registradas.** T26 (hover perdido quando a textura chega sob o ponteiro, flake raro do e2e) e T27 (pausar o render da cena enquanto o loader a cobre) em `TASKS.md`.
 
+## Vênus (cenário, sem interação)
+
+- Vênus orbita na cena como corpo sem seção: fora do menu e do teclado, sem área de clique nem alvo travado. A interação e a seção entram na próxima etapa (ver DECISIONS.md).
+- Validação: lint, typecheck, 949 testes unitários (15 novos: corpo sem seção, estrela sem seção, órbitas que se cruzam, `getInteractiveBodies`, malha sem alvo de clique, portfólio ignorando o cenário), 64 e2e com 1 worker (incluindo `e2e/venus.spec.ts`) e build passando. Screenshots em 1280x800 e 375x740: composição equilibrada, Sol um pouco menor pela câmera mais afastada.
+- **Pendente:** textura de Vênus (domínio `www.solarsystemscope.com` bloqueado pela rede do ambiente). Ao obter `assets-src/2k_venus_atmosphere.jpg`: entrada em `scripts/optimize-textures.mjs` (1024/512 px), `texture` em `content/celestial-bodies.ts`, `CREDITS.md`, e2e de carregamento da textura e conferência visual do brilho.
+
 ## T1: props da cena repassadas em bloco
 
 - O `SolarSystemSceneLoader` deixou de desestruturar e repassar uma a uma as props de `SceneProps`; o tipo da cena passou a ser composto (`SceneProps & SceneSettings`). Sem mudança de comportamento.

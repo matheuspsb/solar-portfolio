@@ -129,6 +129,7 @@ export function SolarSystemScene({
           highlightEasingRate={getHighlightEasingRate(prefersReducedMotion)}
           onHoverChange={(isHovered) => onHoverChange(body.id, isHovered)}
           onSelect={() => onSelect(body.id)}
+          isInteractive={body.section !== null}
           onSettled={reveal.markBodySettled}
         />
       ))}

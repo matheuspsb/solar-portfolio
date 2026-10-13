@@ -18,6 +18,7 @@ type PlanetMeshProps = {
   onPointerOver: () => void;
   onPointerOut: () => void;
   onSelect: () => void;
+  isInteractive: boolean;
 };
 
 export function PlanetMesh({
@@ -29,6 +30,7 @@ export function PlanetMesh({
   onPointerOver,
   onPointerOut,
   onSelect,
+  isInteractive,
 }: PlanetMeshProps) {
   const meshRef = useRef<Mesh>(null);
   useBodyMotion({ bodyRef: meshRef, rotationPeriodSeconds, highlight, highlightEasingRate });
@@ -54,10 +56,16 @@ export function PlanetMesh({
           emissiveIntensity={getHighlightGlow(highlight)}
         />
       </mesh>
-      <mesh onPointerOver={handlePointerOver} onPointerOut={handlePointerOut} onClick={handleClick}>
-        <sphereGeometry args={[hitRadius, 16, 16]} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
+      {isInteractive && (
+        <mesh
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
+          onClick={handleClick}
+        >
+          <sphereGeometry args={[hitRadius, 16, 16]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      )}
     </group>
   );
 }

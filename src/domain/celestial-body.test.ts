@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { assertValidCelestialBodies, validateCelestialBodies } from './celestial-body';
+import {
+  assertValidCelestialBodies,
+  getInteractiveBodies,
+  validateCelestialBodies,
+} from './celestial-body';
 import type { CelestialBodyConfig } from './celestial-body';
 
 function buildBody(overrides: Partial<CelestialBodyConfig> = {}): CelestialBodyConfig {
@@ -54,7 +58,11 @@ describe('validateCelestialBodies', () => {
   });
 
   it('accepts a star with planets that have distinct ids', () => {
-    const bodies = [buildBody(), buildPlanet(), buildPlanet({ id: 'venus' })];
+    const venus = buildPlanet({
+      id: 'venus',
+      orbit: { radius: 7, periodSeconds: 120, phaseRadians: 0 },
+    });
+    const bodies = [buildBody(), buildPlanet(), venus];
     expect(validateCelestialBodies(bodies).valid).toBe(true);
   });
 
@@ -161,6 +169,61 @@ describe('orbits', () => {
     expect(errorsFor([buildBody(), buildBody({ id: 'sirius' })]).join(' ')).toContain(
       'exactly one star',
     );
+  });
+});
+
+describe('sections', () => {
+  it('accepts a planet without a section, shown in the scene but not opened', () => {
+    expect(validateCelestialBodies([buildBody(), buildPlanet({ section: null })]).valid).toBe(true);
+  });
+
+  it('rejects a star without a section, since it is the way into the portfolio', () => {
+    expect(errorsFor([buildBody({ section: null })])).toEqual([expect.stringContaining('section')]);
+  });
+
+  it('still checks the labels of a section that exists', () => {
+    const planet = buildPlanet();
+    const blankMenu = buildPlanet({ section: { ...planet.section!, menuLabel: ' ' } });
+    expect(errorsFor([buildBody(), blankMenu])).toEqual([expect.stringContaining('menuLabel')]);
+  });
+});
+
+describe('orbits between planets', () => {
+  const orbitAt = (radius: number) => ({ radius, periodSeconds: 60, phaseRadians: 0 });
+
+  it('rejects two planets whose paths touch and names both', () => {
+    const venus = buildPlanet({ id: 'venus', radius: 0.8, orbit: orbitAt(6) });
+    const errors = errorsFor([buildBody(), buildPlanet({ orbit: orbitAt(5) }), venus]);
+    expect(errors).toEqual([expect.stringMatching(/mercury.*venus|venus.*mercury/)]);
+  });
+
+  it('rejects two planets on the same orbit', () => {
+    const venus = buildPlanet({ id: 'venus', orbit: orbitAt(5) });
+    expect(errorsFor([buildBody(), buildPlanet(), venus])).toHaveLength(1);
+  });
+
+  it('accepts planets whose paths are close but clear of each other', () => {
+    const venus = buildPlanet({ id: 'venus', radius: 0.5, orbit: orbitAt(6.01) });
+    expect(validateCelestialBodies([buildBody(), buildPlanet(), venus]).valid).toBe(true);
+  });
+
+  it('does not double report an orbit that is already invalid', () => {
+    const broken = buildPlanet({ id: 'venus', orbit: orbitAt(Number.NaN) });
+    expect(errorsFor([buildBody(), buildPlanet(), broken])).toHaveLength(1);
+  });
+});
+
+describe('getInteractiveBodies', () => {
+  it('keeps only the bodies that open a section, in their original order', () => {
+    const sun = buildBody();
+    const venus = buildPlanet({ id: 'venus', section: null });
+    const mercury = buildPlanet();
+    expect(getInteractiveBodies([sun, venus, mercury])).toEqual([sun, mercury]);
+  });
+
+  it('returns an empty list when nothing opens a section', () => {
+    expect(getInteractiveBodies([buildPlanet({ section: null })])).toEqual([]);
+    expect(getInteractiveBodies([])).toEqual([]);
   });
 });
 
