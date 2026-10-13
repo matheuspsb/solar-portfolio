@@ -14,21 +14,11 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
   Server Component e não pode importar o barrel de uma feature inteira (arrastaria hooks de cliente para o servidor).
 
 - **T1, props da cena atravessavam o `SolarSystemSceneLoader`.** O Loader agora lê só `bodies` e `isActive` e repassa `SceneProps` em bloco para a `SolarSystemScene`, cujo tipo é `SceneProps & SceneSettings & { prefersReducedMotion }`. Uma prop nova de interação muda só o tipo `SceneProps` e o consumidor final (ver DECISIONS.md).
+- **T2, interação do corpo atravessava `CelestialBody` até a malha.** A cena monta `BodyInteractionProvider`; cada malha chama `useBodyInteraction(id)` (destaque, easing, handlers e cursor) e o corpo lê o destaque e o movimento reduzido do mesmo contexto. `CelestialBody` não repassa nenhuma prop de interação; `SunMesh` caiu de 10 para 5 props e `PlanetMesh` de 9 para 5 (ver DECISIONS.md).
 - **T21, listeners do contexto WebGL.** `onCreated` registrava `webglcontextlost` e `webglcontextrestored` sem nunca remover e com os callbacks da primeira renderização. Agora o hook `useWebglContextEvents` (usado pelo componente `WebglContextEvents`, dentro do `Canvas`) registra com `useEffect`, remove no cleanup, troca de alvo se o canvas mudar e chama sempre a versão atual dos callbacks (`useEffectEvent`).
 - **T22, o cometa re-renderizava a seção de contato inteira.** A posição do cometa saiu do estado do React: `useComet` guarda `head` e `tail` em um store externo (`comet-store`) e só o `ArcJourney` o lê, com `useCometPosition` (`useSyncExternalStore`). Durante a viagem a `ContactSection` não re-renderiza (teste no `use-comet.test.tsx`).
 
 ## Tasks abertas
-
-### T2 (A) Interação do corpo celeste atravessa `CelestialBody` até a malha
-
-- **Onde:** `SolarSystemScene → CelestialBody → SunMesh | PlanetMesh`.
-- **O que acontece:** `highlight, highlightEasingRate, onPointerOver, onPointerOut, onSelect` são montados em `SolarSystemScene`, entram em
-  `CelestialBody` (que os junta em um objeto `interaction` e espalha) e só então chegam às malhas. Além disso, `SolarSystemScene` calcula por
-  corpo valores derivados do movimento reduzido (`rotationPeriodSeconds`, `isAnimated`, `highlightEasingRate`) que o corpo poderia obter sozinho.
-- **Proposta:** um hook `useBodyInteraction(id)` (ou contexto da cena) que entrega `highlight`, handlers e taxa de easing direto à malha, e o
-  corpo lendo `usePrefersReducedMotion` em vez de receber derivados. `CelestialBody` passa a receber só dados do corpo (`id`, `kind`, `orbit`,
-  `radius`, `texture`).
-- **Pronto quando:** `CelestialBody` não repassa nenhuma prop de interação e a lista de props de `SunMesh`/`PlanetMesh` cai pela metade.
 
 ### T3 (B) `emblemTextureUrl` atravessa três níveis para chegar ao `OrbitEmblem`
 

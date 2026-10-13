@@ -1,10 +1,10 @@
-import { useCursor } from '@react-three/drei';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import type { BodyKind, BodyTexture, Orbit } from '@/domain/celestial-body';
-import type { Highlight } from '@/domain/interaction-state';
+import { useBodyHighlight, useScenePrefersReducedMotion } from '../../hooks/use-body-interaction';
 import { useTexture } from '../../hooks/use-texture';
-import { getBodySceneName } from '../../lib/body-scene-name';
 import type { TextureLoadFunction } from '../../hooks/use-texture';
+import { getBodySceneName } from '../../lib/body-scene-name';
+import { getRotationPeriodForMotion } from '../../lib/motion';
 import { FocusRing } from './FocusRing';
 import { OrbitGroup } from './OrbitGroup';
 import { OrbitPath } from './OrbitPath';
@@ -19,12 +19,7 @@ type CelestialBodyProps = {
   radius: number;
   texture: BodyTexture | null;
   prefersSmallTexture: boolean;
-  rotationPeriodSeconds: number | null;
-  isAnimated: boolean;
-  highlight: Highlight;
-  highlightEasingRate: number;
-  onHoverChange: (isHovered: boolean) => void;
-  onSelect: () => void;
+  rotationPeriodSeconds: number;
   isInteractive: boolean;
   onSettled?: (id: string) => void;
   loadTexture?: TextureLoadFunction;
@@ -43,49 +38,37 @@ export function CelestialBody({
   texture,
   prefersSmallTexture,
   rotationPeriodSeconds,
-  isAnimated,
-  highlight,
-  highlightEasingRate,
-  onHoverChange,
-  onSelect,
   isInteractive,
   onSettled,
   loadTexture,
 }: CelestialBodyProps) {
-  const [isPointerOver, setIsPointerOver] = useState(false);
   const textureUrl = pickTextureUrl(texture, prefersSmallTexture);
   const { texture: loadedTexture, status } = useTexture(textureUrl, loadTexture);
   const isSettled = textureUrl === null || status === 'loaded' || status === 'error';
   useEffect(() => {
     if (isSettled) onSettled?.(id);
   }, [isSettled, id, onSettled]);
-  useCursor(isPointerOver);
 
-  const changeHover = (isHovered: boolean) => {
-    setIsPointerOver(isHovered);
-    onHoverChange(isHovered);
-  };
-  const name = getBodySceneName(id);
-  const focusRing = highlight === 'focused' && <FocusRing bodyRadius={radius} />;
-  const interaction = {
-    highlight,
-    highlightEasingRate,
-    onPointerOver: () => changeHover(true),
-    onPointerOut: () => changeHover(false),
-    onSelect,
-  };
+  const prefersReducedMotion = useScenePrefersReducedMotion();
+  const isAnimated = !prefersReducedMotion;
+  const rotationPeriodForMotion = getRotationPeriodForMotion(
+    rotationPeriodSeconds,
+    prefersReducedMotion,
+  );
+  const isFocused = useBodyHighlight(id) === 'focused';
+  const focusRing = isFocused && <FocusRing bodyRadius={radius} />;
 
   if (kind === 'planet' && orbit) {
     return (
       <>
         <OrbitPath radius={orbit.radius} />
-        <OrbitGroup name={name} orbit={orbit} isAnimated={isAnimated}>
+        <OrbitGroup name={getBodySceneName(id)} orbit={orbit} isAnimated={isAnimated}>
           <PlanetMesh
+            id={id}
             radius={radius}
             texture={loadedTexture}
-            rotationPeriodSeconds={rotationPeriodSeconds}
+            rotationPeriodSeconds={rotationPeriodForMotion}
             isInteractive={isInteractive}
-            {...interaction}
           />
           {focusRing}
         </OrbitGroup>
@@ -96,12 +79,11 @@ export function CelestialBody({
   return (
     <>
       <SunMesh
-        name={name}
+        id={id}
         radius={radius}
         texture={loadedTexture}
-        rotationPeriodSeconds={rotationPeriodSeconds}
+        rotationPeriodSeconds={rotationPeriodForMotion}
         isSurfaceAnimated={isAnimated}
-        {...interaction}
       />
       <SunCorona radius={radius} isAnimated={isAnimated} />
       {focusRing}

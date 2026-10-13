@@ -4,12 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { Suspense, lazy } from 'react';
 import { sceneTokens } from '@/styles/scene-tokens';
-import {
-  getFrameloop,
-  getHighlightEasingRate,
-  getRotationPeriodForMotion,
-  getTrackerEasingRate,
-} from '../../lib/motion';
+import { getFrameloop, getTrackerEasingRate } from '../../lib/motion';
 import type { SceneSettings } from '../../lib/scene-settings';
 import { MIN_ZOOM_DISTANCE, getMaxZoomDistance } from '../../lib/zoom';
 import {
@@ -17,6 +12,7 @@ import {
   CAMERA_FOCUS_SIDE_OFFSET_RADIANS,
   SCENE_REVEAL_MAX_WAIT_MS,
 } from '../../constants';
+import { BodyInteractionProvider } from '../../hooks/use-body-interaction';
 import { useSceneReveal } from '../../hooks/use-scene-reveal';
 import type { SceneProps } from '../../types';
 import { BodyTracker } from './BodyTracker';
@@ -111,28 +107,27 @@ export function SolarSystemScene({
       />
       <SceneLights />
       <StarField starCount={quality.starCount} />
-      {bodies.map((body) => (
-        <CelestialBody
-          key={body.id}
-          id={body.id}
-          kind={body.kind}
-          orbit={body.orbit}
-          radius={body.radius}
-          texture={body.texture}
-          prefersSmallTexture={quality.tier === 'low'}
-          rotationPeriodSeconds={getRotationPeriodForMotion(
-            body.rotationPeriodSeconds,
-            prefersReducedMotion,
-          )}
-          isAnimated={!prefersReducedMotion}
-          highlight={highlightOf(body.id)}
-          highlightEasingRate={getHighlightEasingRate(prefersReducedMotion)}
-          onHoverChange={(isHovered) => onHoverChange(body.id, isHovered)}
-          onSelect={() => onSelect(body.id)}
-          isInteractive={body.section !== null}
-          onSettled={reveal.markBodySettled}
-        />
-      ))}
+      <BodyInteractionProvider
+        highlightOf={highlightOf}
+        onHoverChange={onHoverChange}
+        onSelect={onSelect}
+        prefersReducedMotion={prefersReducedMotion}
+      >
+        {bodies.map((body) => (
+          <CelestialBody
+            key={body.id}
+            id={body.id}
+            kind={body.kind}
+            orbit={body.orbit}
+            radius={body.radius}
+            texture={body.texture}
+            prefersSmallTexture={quality.tier === 'low'}
+            rotationPeriodSeconds={body.rotationPeriodSeconds}
+            isInteractive={body.section !== null}
+            onSettled={reveal.markBodySettled}
+          />
+        ))}
+      </BodyInteractionProvider>
       <Suspense fallback={null}>
         <SceneEffects onReady={reveal.markEffectsReady} />
       </Suspense>

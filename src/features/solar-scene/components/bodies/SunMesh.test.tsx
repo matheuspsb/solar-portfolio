@@ -1,28 +1,28 @@
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
 import type { Mesh, ShaderMaterial } from 'three';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { FULL_TURN_RADIANS } from '../../lib/rotation';
+import { createFakeScene, inScene } from '../../test/in-scene';
+import type { FakeScene } from '../../test/in-scene';
 import { SunMesh } from './SunMesh';
 
-async function renderSun(props: Partial<React.ComponentProps<typeof SunMesh>> = {}) {
+type Props = React.ComponentProps<typeof SunMesh>;
+
+const defaultProps: Props = {
+  id: 'sun',
+  radius: 2,
+  texture: null,
+  rotationPeriodSeconds: 10,
+  isSurfaceAnimated: true,
+};
+
+async function renderSun(props: Partial<Props> = {}, scene: FakeScene = createFakeScene()) {
   const renderer = await ReactThreeTestRenderer.create(
-    <SunMesh
-      name="body-test"
-      radius={2}
-      texture={null}
-      rotationPeriodSeconds={10}
-      isSurfaceAnimated
-      highlight="none"
-      highlightEasingRate={10}
-      onPointerOver={() => undefined}
-      onPointerOut={() => undefined}
-      onSelect={() => undefined}
-      {...props}
-    />,
+    inScene(<SunMesh {...defaultProps} {...props} />, scene),
   );
   const mesh = renderer.scene.children[0]!.instance as Mesh;
-  return { renderer, mesh, material: mesh.material as ShaderMaterial };
+  return { renderer, mesh, material: mesh.material as ShaderMaterial, scene };
 }
 
 describe('SunMesh', () => {
@@ -56,22 +56,9 @@ describe('SunMesh', () => {
   });
 
   it('switches back to the fallback color if the texture goes away', async () => {
-    const { renderer, material } = await renderSun({ texture: new Texture() });
+    const { renderer, material, scene } = await renderSun({ texture: new Texture() });
     await renderer.advanceFrames(1, 0.016);
-    await renderer.update(
-      <SunMesh
-        name="body-test"
-        radius={2}
-        texture={null}
-        rotationPeriodSeconds={10}
-        isSurfaceAnimated
-        highlight="none"
-        highlightEasingRate={10}
-        onPointerOver={() => undefined}
-        onPointerOut={() => undefined}
-        onSelect={() => undefined}
-      />,
-    );
+    await renderer.update(inScene(<SunMesh {...defaultProps} texture={null} />, scene));
     await renderer.advanceFrames(1, 0.016);
     expect(material.uniforms.uHasMap!.value).toBe(0);
   });
@@ -91,56 +78,68 @@ describe('SunMesh', () => {
   it.each(['hovered', 'focused', 'selected'] as const)(
     'grows slightly when %s and stays smooth, not exploding',
     async (highlight) => {
-      const { renderer, mesh } = await renderSun({ highlight });
+      const { renderer, mesh } = await renderSun(
+        {},
+        createFakeScene({ highlights: { sun: highlight } }),
+      );
       await renderer.advanceFrames(120, 0.016);
       expect(mesh.scale.x).toBeGreaterThan(1.01);
       expect(mesh.scale.x).toBeLessThan(1.1);
     },
   );
 
-  it('returns to its natural scale when the highlight is removed', async () => {
-    const { renderer, mesh } = await renderSun({ highlight: 'hovered' });
+  it('grows at once, without easing, with reduced motion', async () => {
+    const scene = createFakeScene({ highlights: { sun: 'hovered' }, prefersReducedMotion: true });
+    const { renderer, mesh } = await renderSun({}, scene);
+    await renderer.advanceFrames(1, 0.016);
+    const grownScale = mesh.scale.x;
     await renderer.advanceFrames(120, 0.016);
-    await renderer.update(
-      <SunMesh
-        name="body-test"
-        radius={2}
-        texture={null}
-        rotationPeriodSeconds={10}
-        isSurfaceAnimated
-        highlight="none"
-        highlightEasingRate={10}
-        onPointerOver={() => undefined}
-        onPointerOut={() => undefined}
-        onSelect={() => undefined}
-      />,
+    expect(grownScale).toBeGreaterThan(1.01);
+    expect(mesh.scale.x).toBe(grownScale);
+  });
+
+  it('returns to its natural scale when the highlight is removed', async () => {
+    const { renderer, mesh } = await renderSun(
+      {},
+      createFakeScene({ highlights: { sun: 'hovered' } }),
     );
+    await renderer.advanceFrames(120, 0.016);
+    await renderer.update(inScene(<SunMesh {...defaultProps} />, createFakeScene()));
     await renderer.advanceFrames(240, 0.016);
     expect(mesh.scale.x).toBeCloseTo(1, 3);
   });
 
-  it('notifies pointer over and out', async () => {
-    const onPointerOver = vi.fn();
-    const onPointerOut = vi.fn();
-    const { renderer } = await renderSun({ onPointerOver, onPointerOut });
-    const sun = renderer.scene.children[0]!;
-    await renderer.fireEvent(sun, 'pointerOver');
-    await renderer.fireEvent(sun, 'pointerOut');
-    expect(onPointerOver).toHaveBeenCalledOnce();
-    expect(onPointerOut).toHaveBeenCalledOnce();
+  it('ignores the highlight of another body', async () => {
+    const { renderer, mesh } = await renderSun(
+      {},
+      createFakeScene({ highlights: { mercury: 'hovered' } }),
+    );
+    await renderer.advanceFrames(120, 0.016);
+    expect(mesh.scale.x).toBe(1);
   });
 
-  it('selects on a click', async () => {
-    const onSelect = vi.fn();
-    const { renderer } = await renderSun({ onSelect });
+  it('reports pointer over and out as hover of the sun', async () => {
+    const { renderer, scene } = await renderSun();
+    const sun = renderer.scene.children[0]!;
+    await ReactThreeTestRenderer.act(async () => {
+      await renderer.fireEvent(sun, 'pointerOver');
+    });
+    expect(scene.onHoverChange).toHaveBeenLastCalledWith('sun', true);
+    await ReactThreeTestRenderer.act(async () => {
+      await renderer.fireEvent(sun, 'pointerOut');
+    });
+    expect(scene.onHoverChange).toHaveBeenLastCalledWith('sun', false);
+  });
+
+  it('selects the sun on a click', async () => {
+    const { renderer, scene } = await renderSun();
     await renderer.fireEvent(renderer.scene.children[0]!, 'click', { delta: 0 });
-    expect(onSelect).toHaveBeenCalledOnce();
+    expect(scene.onSelect).toHaveBeenCalledExactlyOnceWith('sun');
   });
 
   it('does not select when the click was really an orbit drag', async () => {
-    const onSelect = vi.fn();
-    const { renderer } = await renderSun({ onSelect });
+    const { renderer, scene } = await renderSun();
     await renderer.fireEvent(renderer.scene.children[0]!, 'click', { delta: 80 });
-    expect(onSelect).not.toHaveBeenCalled();
+    expect(scene.onSelect).not.toHaveBeenCalled();
   });
 });
