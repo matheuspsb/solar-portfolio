@@ -413,3 +413,9 @@ Layers, cheapest first:
 - **Validation.** Uma estrela precisa de seção (o Sol é a entrada do portfólio, e `SunMesh` é sempre interativo). Órbitas de planetas que se cruzam (faixa `orbit.radius ± radius`) são rejeitadas, com os dois ids na mensagem; uma órbita já inválida não é reportada de novo.
 - **Venus.** Raio 0,72, órbita 6,2 com período de 180 s e fase 4 rad (lado oposto a Mercúrio). A câmera recua para enquadrar a órbita maior; o e2e de preenchimento do Sol continua passando. A rotação retrógrada real ficou de fora: a validação exige período positivo e não há ganho visual que justifique mudar isso agora.
 - **Texture pending.** A textura (`2k_venus_atmosphere.jpg`, Solar System Scope, CC BY 4.0) não pôde ser baixada: a rede do ambiente bloqueia o domínio. Vênus usa por ora a cor de fallback (`texture: null`), estado já suportado; a textura entra em um commit próprio, com o e2e que confere o carregamento e o registro em `CREDITS.md`.
+
+## Scene props forwarded as a block (T1)
+
+- **Problem.** `SolarSystemSceneLoader` desestruturava as 12 props de `SceneProps` e repassava 10 delas, uma a uma, sem usá-las; cada prop nova de interação pedia edição no tipo, no Loader e na cena.
+- **Decision.** O Loader recebe `sceneProps` inteiro, lê só `bodies` e `isActive` (para calcular as configurações) e repassa tudo em bloco: `<SolarSystemScene {...sceneProps} {...settings} prefersReducedMotion />`. As props da cena passam a ser `SceneProps & SceneSettings & { prefersReducedMotion }`, sem lista duplicada. Agrupar em objetos (`interaction`, `lifecycle`, `tracking`) foi descartado: mudaria o contrato público e os testes sem ganho adicional, e o repasse dentro da cena até as malhas é o T2.
+- **Testes.** Refatoração sem mudança de comportamento: nenhum teste novo (um teste de "repassa todas as props" testaria implementação). A cobertura vem dos testes de `PortfolioExperience` e dos e2e da cena.

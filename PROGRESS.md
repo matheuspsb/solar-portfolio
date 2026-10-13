@@ -106,6 +106,12 @@
 - Validação: lint, typecheck, 949 testes unitários (15 novos: corpo sem seção, estrela sem seção, órbitas que se cruzam, `getInteractiveBodies`, malha sem alvo de clique, portfólio ignorando o cenário), 64 e2e com 1 worker (incluindo `e2e/venus.spec.ts`) e build passando. Screenshots em 1280x800 e 375x740: composição equilibrada, Sol um pouco menor pela câmera mais afastada.
 - **Pendente:** textura de Vênus (domínio `www.solarsystemscope.com` bloqueado pela rede do ambiente). Ao obter `assets-src/2k_venus_atmosphere.jpg`: entrada em `scripts/optimize-textures.mjs` (1024/512 px), `texture` em `content/celestial-bodies.ts`, `CREDITS.md`, e2e de carregamento da textura e conferência visual do brilho.
 
+## T1: props da cena repassadas em bloco
+
+- O `SolarSystemSceneLoader` deixou de desestruturar e repassar uma a uma as props de `SceneProps`; o tipo da cena passou a ser composto (`SceneProps & SceneSettings`). Sem mudança de comportamento.
+- Validação: lint, typecheck, 935 testes unitários e build passando. e2e: 61 de 63 com 2 workers; as 2 falhas (`camera-focus` e `loader` de primeira visita) são de tempo sob SwiftShader neste ambiente, e passam com 1 worker (o `camera-focus` falhou também no código anterior à mudança). O Chromium do ambiente é o 1194, mais antigo que o esperado pelo Playwright; rodei com `executablePath` em uma config local descartada.
+- Próximo: T2 (interação do corpo celeste até a malha).
+
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 
 Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A arquitetura atual já é orientada a dados; o que muda:
