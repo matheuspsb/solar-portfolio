@@ -1,30 +1,30 @@
 import ReactThreeTestRenderer from '@react-three/test-renderer';
 import { Texture } from 'three';
 import type { Group, Mesh, MeshLambertMaterial } from 'three';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
+import { createFakeScene, inScene } from '../../test/in-scene';
+import type { FakeScene } from '../../test/in-scene';
 import { PlanetMesh } from './PlanetMesh';
 
 type Props = React.ComponentProps<typeof PlanetMesh>;
 
-async function renderPlanet(props: Partial<Props> = {}) {
+const defaultProps: Props = {
+  id: 'mercury',
+  radius: 0.55,
+  texture: null,
+  rotationPeriodSeconds: 10,
+  isInteractive: true,
+};
+
+async function renderPlanet(props: Partial<Props> = {}, scene: FakeScene = createFakeScene()) {
   const renderer = await ReactThreeTestRenderer.create(
-    <PlanetMesh
-      radius={0.55}
-      texture={null}
-      rotationPeriodSeconds={10}
-      highlight="none"
-      highlightEasingRate={10}
-      onPointerOver={() => undefined}
-      onPointerOut={() => undefined}
-      onSelect={() => undefined}
-      isInteractive
-      {...props}
-    />,
+    inScene(<PlanetMesh {...defaultProps} {...props} />, scene),
   );
   const group = renderer.scene.children[0]!.instance as Group;
   const [visible, hitTarget] = group.children as [Mesh, Mesh];
   return {
     renderer,
+    scene,
     visible,
     hitTarget,
     material: visible.material as MeshLambertMaterial,
@@ -35,7 +35,10 @@ async function renderPlanet(props: Partial<Props> = {}) {
 describe('PlanetMesh', () => {
   it('brightens its own texture when pointed at instead of washing it out with white', async () => {
     const texture = new Texture();
-    const { material } = await renderPlanet({ highlight: 'hovered', texture });
+    const { material } = await renderPlanet(
+      { texture },
+      createFakeScene({ highlights: { mercury: 'hovered' } }),
+    );
     expect(material.emissiveMap).toBe(texture);
   });
 
@@ -54,21 +57,24 @@ describe('PlanetMesh', () => {
   it.each(['hovered', 'focused', 'selected'] as const)(
     'grows slightly when %s',
     async (highlight) => {
-      const { renderer, visible } = await renderPlanet({ highlight });
+      const { renderer, visible } = await renderPlanet(
+        {},
+        createFakeScene({ highlights: { mercury: highlight } }),
+      );
       await renderer.advanceFrames(120, 0.016);
       expect(visible.scale.x).toBeGreaterThan(1.01);
       expect(visible.scale.x).toBeLessThan(1.2);
     },
   );
 
-  it('selects on click and reports hover on the click target', async () => {
-    const onSelect = vi.fn();
-    const onPointerOver = vi.fn();
-    const { renderer, hitNode } = await renderPlanet({ onSelect, onPointerOver });
-    await renderer.fireEvent(hitNode, 'pointerOver');
+  it('selects its own body on click and reports hover on the click target', async () => {
+    const { renderer, scene, hitNode } = await renderPlanet();
+    await ReactThreeTestRenderer.act(async () => {
+      await renderer.fireEvent(hitNode, 'pointerOver');
+    });
     await renderer.fireEvent(hitNode, 'click', { delta: 0 });
-    expect(onPointerOver).toHaveBeenCalledOnce();
-    expect(onSelect).toHaveBeenCalledOnce();
+    expect(scene.onHoverChange).toHaveBeenCalledExactlyOnceWith('mercury', true);
+    expect(scene.onSelect).toHaveBeenCalledExactlyOnceWith('mercury');
   });
 
   it('has a click target larger than a tiny planet but invisible', async () => {
@@ -88,17 +94,7 @@ describe('PlanetMesh', () => {
 
   it('offers nothing to point at or click when it is only scenery', async () => {
     const renderer = await ReactThreeTestRenderer.create(
-      <PlanetMesh
-        radius={0.8}
-        texture={null}
-        rotationPeriodSeconds={10}
-        highlight="none"
-        highlightEasingRate={10}
-        onPointerOver={() => undefined}
-        onPointerOut={() => undefined}
-        onSelect={() => undefined}
-        isInteractive={false}
-      />,
+      inScene(<PlanetMesh {...defaultProps} id="venus" isInteractive={false} />),
     );
     const pointerTargets = renderer.scene.findAll(
       (node) => node.props.onClick !== undefined || node.props.onPointerOver !== undefined,

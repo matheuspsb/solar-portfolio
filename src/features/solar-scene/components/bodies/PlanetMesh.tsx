@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import type { Mesh, Texture } from 'three';
 import { sceneTokens } from '@/styles/scene-tokens';
 import { getHighlightGlow } from '@/domain/interaction-state';
-import type { Highlight } from '@/domain/interaction-state';
+import { useBodyInteraction } from '../../hooks/use-body-interaction';
 import { useBodyMotion } from '../../hooks/use-body-motion';
 import { useBodyPointerHandlers } from '../../hooks/use-body-pointer-handlers';
 
@@ -10,29 +10,23 @@ const SPHERE_SEGMENTS = 64;
 const MIN_HIT_RADIUS = 0.9;
 
 type PlanetMeshProps = {
+  id: string;
   radius: number;
   texture: Texture | null;
   rotationPeriodSeconds: number | null;
-  highlight: Highlight;
-  highlightEasingRate: number;
-  onPointerOver: () => void;
-  onPointerOut: () => void;
-  onSelect: () => void;
   isInteractive: boolean;
 };
 
 export function PlanetMesh({
+  id,
   radius,
   texture,
   rotationPeriodSeconds,
-  highlight,
-  highlightEasingRate,
-  onPointerOver,
-  onPointerOut,
-  onSelect,
   isInteractive,
 }: PlanetMeshProps) {
   const meshRef = useRef<Mesh>(null);
+  const { highlight, highlightEasingRate, onPointerOver, onPointerOut, onSelect } =
+    useBodyInteraction(id);
   useBodyMotion({ bodyRef: meshRef, rotationPeriodSeconds, highlight, highlightEasingRate });
   const { handlePointerOver, handlePointerOut, handleClick } = useBodyPointerHandlers({
     onPointerOver,

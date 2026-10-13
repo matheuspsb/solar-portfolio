@@ -140,3 +140,10 @@ Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A ar
    (`InstancedMesh` ou `useMemo` explícito) e manter o carregamento lazy de texturas por corpo (`useTexture` já é por URL).
 7. **Testes e2e.** Percorrer todos os corpos com Tab/setas, abrir cada painel, axe com a cena cheia, e checar que órbitas param com
    movimento reduzido.
+
+## T2: interação do corpo celeste lida direto pela malha
+
+- **Caso de uso.** Quem visita aponta, clica ou foca um astro e espera o mesmo destaque, cursor e abertura de seção de antes; com movimento reduzido, o destaque continua instantâneo. Para quem mantém o código, adicionar um planeta não deve exigir repassar handlers por `CelestialBody`. Se quebrasse, o astro deixaria de reagir ao ponteiro, abriria a seção errada (handler ligado ao id errado), o cursor ficaria preso em "pointer" depois que o astro sai da cena, ou o destaque animaria com movimento reduzido.
+- **Feito.** Novo contexto `BodyInteractionProvider` montado pela `SolarSystemScene`; `SunMesh` e `PlanetMesh` leem destaque, easing, handlers e cursor com `useBodyInteraction(id)`; `CelestialBody` lê o destaque (anel de foco) e o movimento reduzido do contexto e não repassa mais nenhuma prop de interação. Props: `SunMesh` 10 → 5, `PlanetMesh` 9 → 5.
+- **Validação.** Lint, typecheck, 958 testes unitários (antes 935; novos: hook, id certo nos handlers, destaque de outro corpo ignorado, cursor devolvido ao desmontar, destaque instantâneo com movimento reduzido, anel de foco), 65 e2e com 1 worker e build passando. No navegador: hover no Sol (alvo travado, cursor pointer → auto), clique abre "Sobre", `Esc` fecha, foco de teclado em Mercúrio mostra anel e alvo; console sem erros.
+- **Próximo:** T3 (`emblemTextureUrl` no conteúdo "Sobre").
