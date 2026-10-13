@@ -19,6 +19,7 @@ const defaultProps = {
   highlightEasingRate: 10,
   onHoverChange: () => undefined,
   onSelect: () => undefined,
+  isInteractive: true,
 } as const;
 
 function readMesh(renderer: Awaited<ReturnType<typeof ReactThreeTestRenderer.create>>) {
