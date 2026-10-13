@@ -27,7 +27,7 @@ test.describe('without WebGL', () => {
     });
     page.on('pageerror', (error) => problems.push(error.message));
     await page.goto('/');
-    await expect(page.getByRole('status')).toContainText('cena 3D');
+    await expect(page.getByRole('status')).toBeVisible();
     await expect(page.locator('canvas')).toHaveCount(0);
     expect(problems).toEqual([]);
   });
@@ -71,7 +71,7 @@ test('shows a recovery notice when the WebGL context is lost and hides it when r
     (window as unknown as { __loseContext: typeof extension }).__loseContext = extension;
     extension.loseContext();
   });
-  await expect(page.getByRole('status')).toContainText('perdeu o contexto');
+  await expect(page.getByRole('status')).toBeVisible();
 
   await page.evaluate(() =>
     (

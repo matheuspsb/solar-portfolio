@@ -16,7 +16,7 @@ export const contactContent: ContactContent = {
       field: 'email',
       label: 'E-MAIL',
       kicker: '02 / 03',
-      question: 'Prazer, {firstName}. Para onde envio a resposta?',
+      question: 'Prazer, {firstName}. Qual seu email?',
       placeholder: 'voce@email.com',
       hint: 'ou tecle Enter ↵',
     },

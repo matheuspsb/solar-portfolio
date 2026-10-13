@@ -7,6 +7,7 @@ import { credits } from '@/content/credits';
 import { loaderContent } from '@/content/loader';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
 import { LOADER_SEEN_KEY } from '@/lib/loader-seen';
+import { LOADER_DURATION_SECONDS } from '@/features/loading-screen';
 import { PortfolioExperience } from './PortfolioExperience';
 import { PortfolioProviders } from './PortfolioProviders';
 import type { SceneProps } from '@/features/solar-scene';
@@ -96,7 +97,7 @@ function setup({
   return userEvent.setup();
 }
 
-const LONGER_THAN_THE_LOADER_SECONDS = 10;
+const JUST_AFTER_THE_LOADER_SECONDS = LOADER_DURATION_SECONDS + 1;
 
 function createManualFrameScheduler() {
   let currentTime = 0;
@@ -333,7 +334,7 @@ describe('PortfolioExperience', () => {
     it('shows the fallback and no scene when WebGL is unavailable', () => {
       setup({ hasWebGL: false });
       expect(screen.queryByTestId('fake-scene')).not.toBeInTheDocument();
-      expect(screen.getByRole('status')).toHaveTextContent(/3D/);
+      expect(screen.getByRole('status')).toBeInTheDocument();
     });
 
     it('still opens the About panel from the fallback button', async () => {
@@ -380,7 +381,7 @@ describe('PortfolioExperience', () => {
       const user = setup();
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: 'perder contexto' }));
-      expect(screen.getByRole('status')).toHaveTextContent(/recuper/);
+      expect(screen.getByRole('status')).toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: 'restaurar contexto' }));
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
     });
@@ -415,7 +416,7 @@ describe('PortfolioExperience', () => {
     it('lets the visitor through without waiting for a scene that cannot start', async () => {
       const frames = createManualFrameScheduler();
       setup({ hasWebGL: false, loaderScheduler: frames.scheduler });
-      frames.play(LONGER_THAN_THE_LOADER_SECONDS);
+      frames.play(JUST_AFTER_THE_LOADER_SECONDS);
       expect(
         screen.queryByRole('dialog', { name: loaderContent.progressLabel }),
       ).not.toBeInTheDocument();

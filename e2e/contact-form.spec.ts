@@ -1,3 +1,4 @@
+import { contactContent } from '../src/content/contact';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, openPage, test } from './fixtures';
 import type { Page } from '@playwright/test';
@@ -12,11 +13,20 @@ async function openContact(page: Page) {
   return dialog;
 }
 
+const NON_LETTER_PREFIX = /^[^\p{L}]+/u;
+
+function getEmailQuestionTail(question: string): string {
+  const afterGreeting = question.split('{firstName}').pop() ?? question;
+  return afterGreeting.replace(NON_LETTER_PREFIX, '');
+}
+
+const emailQuestionTail = getEmailQuestionTail(contactContent.steps[1]?.question ?? '');
+
 async function answerAll(page: Page) {
   const dialog = page.getByRole('dialog', { name: 'Contato' });
   await dialog.getByRole('textbox', { name: /Como posso te chamar/ }).fill('Ana Souza');
   await page.keyboard.press('Enter');
-  await dialog.getByRole('textbox', { name: /Para onde envio/ }).fill('ana@estudio.com');
+  await dialog.getByRole('textbox', { name: emailQuestionTail }).fill('ana@estudio.com');
   await page.keyboard.press('Enter');
   await dialog
     .getByRole('textbox', { name: /Sobre o que você quer conversar/ })
@@ -66,7 +76,7 @@ test('goes back to an answered step through its planet', async ({ page }) => {
   const dialog = await openContact(page);
   await dialog.getByRole('textbox', { name: /Como posso te chamar/ }).fill('Ana');
   await page.keyboard.press('Enter');
-  await expect(dialog.getByRole('textbox', { name: /Para onde envio/ })).toBeVisible();
+  await expect(dialog.getByRole('textbox', { name: emailQuestionTail })).toBeVisible();
   await dialog.getByRole('button', { name: 'Voltar para NOME' }).click();
   await expect(dialog.getByRole('textbox', { name: /Como posso te chamar/ })).toHaveValue('Ana');
 });

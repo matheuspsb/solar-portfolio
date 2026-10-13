@@ -43,8 +43,20 @@ function setup(submit: ContactMessageSubmitter = async () => ({ ok: true })) {
   return { user, clock };
 }
 
+const NON_LETTER_PREFIX = /^[^\p{L}]+/u;
+
+function getEmailQuestionTail(question: string): string {
+  const afterGreeting = question.split('{firstName}').pop() ?? question;
+  return afterGreeting.replace(NON_LETTER_PREFIX, '');
+}
+
+const emailQuestionTail = getEmailQuestionTail(contactContent.steps[1]?.question ?? '');
+
 const nameField = () => screen.getByRole('textbox', { name: /Como posso te chamar/ });
-const emailField = () => screen.getByRole('textbox', { name: /Para onde envio a resposta/ });
+const emailField = () =>
+  screen.getByRole('textbox', {
+    name: (accessibleName) => accessibleName.includes(emailQuestionTail),
+  });
 const messageField = () => screen.getByRole('textbox', { name: /Sobre o que você quer conversar/ });
 const continueButton = () => screen.getByRole('button', { name: 'Continuar' });
 const sendButton = () => screen.getByRole('button', { name: 'Enviar mensagem' });
@@ -56,7 +68,12 @@ async function answerName(user: ReturnType<typeof userEvent.setup>, value = mess
 }
 
 async function answerEmail(user: ReturnType<typeof userEvent.setup>, value = message.email) {
-  await user.type(await screen.findByRole('textbox', { name: /Para onde envio/ }), value);
+  await user.type(
+    await screen.findByRole('textbox', {
+      name: (accessibleName) => accessibleName.includes(emailQuestionTail),
+    }),
+    value,
+  );
   await user.click(continueButton());
 }
 
@@ -90,7 +107,11 @@ describe('ContactSection', () => {
   it('advances with Enter', async () => {
     const { user } = setup();
     await user.type(nameField(), 'Ana Souza{Enter}');
-    expect(await screen.findByRole('textbox', { name: /Para onde envio/ })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('textbox', {
+        name: (accessibleName) => accessibleName.includes(emailQuestionTail),
+      }),
+    ).toBeInTheDocument();
   });
 
   it('moves focus to the next answer so the visitor can keep typing', async () => {
@@ -232,7 +253,11 @@ describe('ContactSection', () => {
     expect(await screen.findByRole('textbox', { name: /Como posso te chamar/ })).toHaveValue('');
     await user.type(nameField(), 'Bia');
     await user.click(continueButton());
-    expect(await screen.findByRole('textbox', { name: /Para onde envio/ })).toHaveValue('');
+    expect(
+      await screen.findByRole('textbox', {
+        name: (accessibleName) => accessibleName.includes(emailQuestionTail),
+      }),
+    ).toHaveValue('');
   });
 
   it('keeps LinkedIn within reach as another way to talk', () => {
