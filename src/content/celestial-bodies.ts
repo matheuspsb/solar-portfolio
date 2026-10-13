@@ -69,7 +69,7 @@ const venus: CelestialBodyConfig = {
     periodSeconds: VENUS_ORBIT_PERIOD_SECONDS,
     phaseRadians: VENUS_ORBIT_PHASE_RADIANS,
   },
-  texture: null,
+  texture: { url: '/textures/venus.webp', smallUrl: '/textures/venus-small.webp' },
   targeting: {
     code: '003',
     description: 'Planeta mais brilhante · 0,72 UA',

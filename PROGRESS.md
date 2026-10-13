@@ -104,7 +104,7 @@
 
 - Vênus orbita na cena como corpo sem seção: fora do menu e do teclado, sem área de clique nem alvo travado. A interação e a seção entram na próxima etapa (ver DECISIONS.md).
 - Validação: lint, typecheck, 949 testes unitários (15 novos: corpo sem seção, estrela sem seção, órbitas que se cruzam, `getInteractiveBodies`, malha sem alvo de clique, portfólio ignorando o cenário), 64 e2e com 1 worker (incluindo `e2e/venus.spec.ts`) e build passando. Screenshots em 1280x800 e 375x740: composição equilibrada, Sol um pouco menor pela câmera mais afastada.
-- **Pendente:** textura de Vênus (domínio `www.solarsystemscope.com` bloqueado pela rede do ambiente). Ao obter `assets-src/2k_venus_atmosphere.jpg`: entrada em `scripts/optimize-textures.mjs` (1024/512 px), `texture` em `content/celestial-bodies.ts`, `CREDITS.md`, e2e de carregamento da textura e conferência visual do brilho.
+- Textura de Vênus aplicada (`venus.webp`/`venus-small.webp`, crédito em `CREDITS.md` e no rodapé do painel). Conferida em 1280x800 e 375x740: planeta laranja-bege fosco, sem brilho exagerado, composição mantida. e2e novo confere o carregamento da textura.
 
 ## T1: props da cena repassadas em bloco
 

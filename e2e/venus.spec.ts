@@ -13,3 +13,11 @@ test('keeps Venus out of the keyboard controls and the menu until it has a secti
   await page.keyboard.press('ArrowRight');
   await expect(sunControl).toBeFocused();
 });
+
+test('loads the Venus texture', async ({ page }) => {
+  const textureResponse = page.waitForResponse(
+    (response) => /\/textures\/venus(-small)?\.webp/.test(response.url()) && response.ok(),
+  );
+  await page.goto('/');
+  await textureResponse;
+});
