@@ -405,3 +405,13 @@ Layers, cheapest first:
 - **Problem.** `useComet` guardava `head` e `tail` em `useState` e os atualizava a cada frame; como o hook vive em `ContactSection`, o formulário inteiro re-renderizava ~60 vezes por segundo durante a viagem.
 - **Decision.** A posição vive em um store externo mínimo (`journey/comet-store`, com `subscribe`, `getSnapshot` e `set` que ignora valores iguais). `useComet` devolve o store e o `travelTo`; o `ArcJourney` lê com `useSyncExternalStore` (`use-comet-position`). Só ele re-renderiza durante a viagem. Foi escolhida a opção (c) da task porque mantém o desenho em React e não exige mexer em atributos SVG por ref.
 - **WebGL.** Na mesma rodada, `useWebglContextEvents` substituiu o `onCreated` da cena (listeners agora com cleanup e callbacks sempre atuais).
+
+## Contact draft kept across closed tabs
+
+- **Problem.** Fechar a aba sem querer, recarregar ou o navegador descartar a página fazia o visitante perder nome, e-mail e mensagem.
+- **Decision.** Rascunho no `localStorage`, dentro da feature (`contact-section/draft/`), sem Zustand e sem Context API. O react-hook-form já é a fonte de verdade dos campos; uma store do Zustand duplicaria esse estado (e a sincronização) e traria uma dependência só para persistir três strings. O que faltava era persistência, não estado compartilhado.
+- **Por que não cookie.** Cookie vai em toda requisição ao domínio (páginas e Server Actions), então o rascunho do visitante iria ao servidor e a logs sem necessidade; tem limite de ~4 KB e exige codificação. O servidor não precisa do rascunho (o painel é renderizado no cliente). `sessionStorage` foi descartado porque não sobrevive ao fechamento da aba.
+- **Formato.** `{ version, savedAt, startedAt, step, values }`, validado com zod ao ler (JSON inválido, versão diferente, campo ausente, texto acima dos limites do formulário ou etapa fora de 0–2 descartam o rascunho). Expira em 7 dias. A etapa retomada nunca passa da primeira resposta anterior que deixou de ser válida.
+- **Quando salva e apaga.** Salva nos eventos (digitação e troca de etapa), sem `useEffect`; não grava se tudo estiver em branco e ignora gravações iguais à anterior. Apaga ao entregar e em "Enviar outra"; mantém se a entrega falhar.
+- **Anti-bot.** O tempo de preenchimento (`elapsedMs`) conta desde o início do rascunho, não do retorno; quem volta e envia logo não é tratado como robô.
+- **Robustez.** Leitura e escrita protegidas (`draft-storage.ts`): navegação privada, storage bloqueado ou cota cheia não quebram o formulário. O storage é injetável (`draftStorage`), como `frameScheduler` e `getNow`.

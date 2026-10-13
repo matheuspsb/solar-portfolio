@@ -113,3 +113,27 @@ for (const viewport of [
     await page.close();
   });
 }
+
+test('keeps the answers after the page is reloaded and forgets them once delivered', async ({
+  page,
+}) => {
+  let dialog = await openContact(page);
+  await dialog.getByRole('textbox', { name: /Como posso te chamar/ }).fill('Ana Souza');
+  await page.keyboard.press('Enter');
+  await dialog.getByRole('textbox', { name: /Para onde envio/ }).fill('ana@estudio');
+
+  dialog = await openContact(page);
+  await expect(dialog.getByRole('textbox', { name: /Para onde envio/ })).toHaveValue('ana@estudio');
+  await dialog.getByRole('textbox', { name: /Para onde envio/ }).fill('ana@estudio.com');
+  await page.keyboard.press('Enter');
+  await dialog
+    .getByRole('textbox', { name: /Sobre o que você quer conversar/ })
+    .fill('Oi, Matheus! Vi seu portfólio e queria conversar.');
+  await page.keyboard.press('Control+Enter');
+  await expect(dialog.getByRole('button', { name: 'Enviar outra mensagem' })).toBeVisible({
+    timeout: 15_000,
+  });
+
+  dialog = await openContact(page);
+  await expect(dialog.getByRole('textbox', { name: /Como posso te chamar/ })).toHaveValue('');
+});

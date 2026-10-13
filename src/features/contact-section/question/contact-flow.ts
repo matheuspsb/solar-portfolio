@@ -22,8 +22,8 @@ export type ContactFlowAction =
 
 const LAST_STEP: ContactStepIndex = 2;
 
-export function createInitialFlowState(): ContactFlowState {
-  return { step: 0, status: 'asking', error: null, fieldMotion: { kind: 'enter', id: 0 } };
+export function createInitialFlowState(step: ContactStepIndex = 0): ContactFlowState {
+  return { step, status: 'asking', error: null, fieldMotion: { kind: 'enter', id: 0 } };
 }
 
 function withMotion(

@@ -100,6 +100,11 @@
 - **Testes.** 923 unitários, 63 e2e (o fixture `e2e/fixtures.ts` marca o loader como visto; `e2e/loader.spec.ts` cobre a primeira visita, `Esc`, "Pular", recarga, axe e movimento reduzido).
 - **Pendências registradas.** T26 (hover perdido quando a textura chega sob o ponteiro, flake raro do e2e) e T27 (pausar o render da cena enquanto o loader a cobre) em `TASKS.md`.
 
+## Rascunho do contato
+
+- O formulário de contato guarda nome, e-mail, mensagem e etapa no `localStorage` e os restaura ao reabrir o painel, recarregar ou voltar à aba; apaga ao entregar. Sem Zustand, sem Context, sem cookie (ver DECISIONS.md).
+- Validação: lint, typecheck, 983 testes unitários (34 novos: formato e validade do rascunho, expiração, etapa de retomada, storage bloqueado, restauração no `ContactSection`, falha de entrega, tempo anti-bot) e build passando. e2e: 64 de 65; o novo (recarregar e retomar, esquecer após entregar) passa. A falha é `camera-focus` (clique em Mercúrio em órbita), intermitente neste ambiente desde antes desta mudança.
+
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 
 Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A arquitetura atual já é orientada a dados; o que muda:

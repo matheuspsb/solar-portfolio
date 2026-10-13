@@ -41,6 +41,9 @@ import { buildProtocol, fillTemplate, formatStampDate, getFirstName } from './de
 import { StepActions } from './question/StepActions';
 import { useComet } from './journey/use-comet';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
+import { getLocalStorage } from './draft/draft-storage';
+import type { DraftStorage } from './draft/draft-storage';
+import { useContactDraft } from './draft/use-contact-draft';
 
 const LAST_STEP: ContactStepIndex = 2;
 const EMPTY_MESSAGE: ContactMessage = { name: '', email: '', message: '' };
@@ -76,6 +79,7 @@ type ContactSectionProps = {
   content: ContactContent;
   frameScheduler?: FrameScheduler;
   getNow?: () => Date;
+  draftStorage?: DraftStorage | null;
 };
 
 function readHoneypot(form: HTMLFormElement | null): string {
@@ -98,24 +102,29 @@ export function ContactSection({
   content,
   frameScheduler,
   getNow = () => new Date(),
+  draftStorage = getLocalStorage(),
 }: ContactSectionProps) {
   const submitMessage = useContactSubmitter();
   const reducedMotion = usePrefersReducedMotion();
-  const [flow, dispatch] = useReducer(contactFlowReducer, undefined, createInitialFlowState);
+  const draft = useContactDraft({
+    storage: draftStorage,
+    fieldOrder: content.steps.map((contentStep) => contentStep.field),
+    getNow,
+  });
+  const [flow, dispatch] = useReducer(contactFlowReducer, draft.step, createInitialFlowState);
   const [delivery, setDelivery] = useState<Delivery | null>(null);
   const isSendingRef = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const [openedAt] = useState(() => getNow().getTime());
   const noteId = useId();
   const comet = useComet({
     initialProgress: COMET_ENTRY_PROGRESS,
-    entry: { target: STEP_PROGRESS[0], durationMs: COMET_ENTRY_MS },
+    entry: { target: STEP_PROGRESS[draft.step], durationMs: COMET_ENTRY_MS },
     reducedMotion,
     scheduler: frameScheduler,
   });
   const { register, control, getValues, handleSubmit, reset } = useForm<ContactMessage>({
     resolver: zodResolver(contactMessageSchema),
-    defaultValues: EMPTY_MESSAGE,
+    defaultValues: draft.values,
   });
 
   const step = content.steps[flow.step];
@@ -145,13 +154,14 @@ export function ContactSection({
     const submission = {
       ...message,
       homepage: readHoneypot(formRef.current),
-      elapsedMs: getNow().getTime() - openedAt,
+      elapsedMs: getNow().getTime() - draft.startedAt,
     };
     const [, result] = await Promise.all([
       comet.travelTo(COMET_EXIT_PROGRESS, COMET_EXIT_MS),
       deliverSafely(submitMessage, submission),
     ]);
     if (result.ok) {
+      draft.clear();
       setDelivery({ message, deliveredAt: getNow() });
       dispatch({ type: 'delivered' });
     } else {
@@ -159,6 +169,15 @@ export function ContactSection({
       void comet.travelTo(STEP_PROGRESS[LAST_STEP], COMET_RETURN_MS, COMET_EXIT_PROGRESS);
     }
     isSendingRef.current = false;
+  };
+
+  const saveDraft = (draftStep: ContactStepIndex) => {
+    draft.save(getValues(), draftStep);
+  };
+
+  const handleFormChange = () => {
+    dispatch({ type: 'edit' });
+    saveDraft(flow.step);
   };
 
   const rejectInvalid = () => {
@@ -176,7 +195,9 @@ export function ContactSection({
       return;
     }
     if (!isLastStep) {
+      const nextStep = (flow.step + 1) as ContactStepIndex;
       dispatch({ type: 'advance' });
+      saveDraft(nextStep);
       void comet.travelTo(
         STEP_PROGRESS[flow.step + 1] ?? STEP_PROGRESS[LAST_STEP],
         COMET_ADVANCE_MS,
@@ -201,6 +222,7 @@ export function ContactSection({
     const skippedSteps = flow.step - target - 1;
     const durationMs = COMET_RETURN_MS + skippedSteps * COMET_RETURN_EXTRA_STEP_MS;
     dispatch({ type: 'jump', step: target });
+    saveDraft(target);
     void comet.travelTo(STEP_PROGRESS[target], durationMs);
   };
 
@@ -210,6 +232,7 @@ export function ContactSection({
   };
 
   const handleSendAnother = () => {
+    draft.clear();
     reset(EMPTY_MESSAGE);
     setDelivery(null);
     dispatch({ type: 'reset' });
@@ -253,7 +276,7 @@ export function ContactSection({
               ref={formRef}
               noValidate
               onSubmit={handleFormSubmit}
-              onChange={() => dispatch({ type: 'edit' })}
+              onChange={handleFormChange}
               onKeyDown={attributes.multiline ? handleMessageKeyDown : undefined}
               className="flex flex-1 flex-col gap-6.5"
             >
