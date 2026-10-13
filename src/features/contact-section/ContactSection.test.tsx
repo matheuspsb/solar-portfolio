@@ -6,8 +6,7 @@ import type { ContactMessageSubmitter, ContactSubmitResult } from '@/domain/cont
 import { ContactSubmitterProvider } from '@/hooks/contact-submitter';
 import { ContactSection } from './ContactSection';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
-import type { DraftStorage } from './draft/draft-storage';
-import { CONTACT_DRAFT_KEY } from './draft/use-contact-draft';
+import type { KeyValueStorage } from '@/lib/safe-storage';
 
 const INSTANT_STEP_MS = 1_000_000;
 
@@ -30,7 +29,7 @@ const message = {
   message: 'Gostei do seu portfólio, vamos conversar?',
 };
 
-function createMemoryStorage(): DraftStorage {
+function createMemoryStorage(): KeyValueStorage {
   const items = new Map<string, string>();
   return {
     getItem: (key) => items.get(key) ?? null,
@@ -48,7 +47,7 @@ function setup(
   {
     draftStorage = createMemoryStorage(),
     clock = { time: new Date(2026, 9, 5).getTime() },
-  }: { draftStorage?: DraftStorage | null; clock?: { time: number } } = {},
+  }: { draftStorage?: KeyValueStorage | null; clock?: { time: number } } = {},
 ) {
   const user = userEvent.setup();
   const { unmount } = render(
@@ -378,13 +377,6 @@ describe('ContactSection', () => {
 
       setup(undefined, { draftStorage });
       expect(messageField()).toHaveValue(message.message);
-    });
-
-    it('starts empty when the saved draft cannot be read', () => {
-      const draftStorage = createMemoryStorage();
-      draftStorage.setItem(CONTACT_DRAFT_KEY, '{not json');
-      setup(undefined, { draftStorage });
-      expect(nameField()).toHaveValue('');
     });
 
     it('keeps working when the browser blocks the storage', async () => {

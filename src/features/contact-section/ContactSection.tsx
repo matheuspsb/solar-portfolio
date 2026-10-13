@@ -41,12 +41,12 @@ import { buildProtocol, fillTemplate, formatStampDate, getFirstName } from './de
 import { StepActions } from './question/StepActions';
 import { useComet } from './journey/use-comet';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
-import { getLocalStorage } from './draft/draft-storage';
-import type { DraftStorage } from './draft/draft-storage';
+import { getLocalStorage } from '@/lib/safe-storage';
+import type { KeyValueStorage } from '@/lib/safe-storage';
+import { EMPTY_CONTACT_MESSAGE } from './draft/contact-draft';
 import { useContactDraft } from './draft/use-contact-draft';
 
 const LAST_STEP: ContactStepIndex = 2;
-const EMPTY_MESSAGE: ContactMessage = { name: '', email: '', message: '' };
 const UNEXPECTED_FAILURE = 'Não foi possível enviar agora. Tente novamente em instantes.';
 
 const INPUT_ATTRIBUTES: Record<
@@ -79,7 +79,7 @@ type ContactSectionProps = {
   content: ContactContent;
   frameScheduler?: FrameScheduler;
   getNow?: () => Date;
-  draftStorage?: DraftStorage | null;
+  draftStorage?: KeyValueStorage | null;
 };
 
 function readHoneypot(form: HTMLFormElement | null): string {
@@ -106,11 +106,7 @@ export function ContactSection({
 }: ContactSectionProps) {
   const submitMessage = useContactSubmitter();
   const reducedMotion = usePrefersReducedMotion();
-  const draft = useContactDraft({
-    storage: draftStorage,
-    fieldOrder: content.steps.map((contentStep) => contentStep.field),
-    getNow,
-  });
+  const draft = useContactDraft({ storage: draftStorage, getNow });
   const [flow, dispatch] = useReducer(contactFlowReducer, draft.step, createInitialFlowState);
   const [delivery, setDelivery] = useState<Delivery | null>(null);
   const isSendingRef = useRef(false);
@@ -198,10 +194,7 @@ export function ContactSection({
       const nextStep = (flow.step + 1) as ContactStepIndex;
       dispatch({ type: 'advance' });
       saveDraft(nextStep);
-      void comet.travelTo(
-        STEP_PROGRESS[flow.step + 1] ?? STEP_PROGRESS[LAST_STEP],
-        COMET_ADVANCE_MS,
-      );
+      void comet.travelTo(STEP_PROGRESS[nextStep], COMET_ADVANCE_MS);
       return;
     }
     await handleSubmit(sendMessage, rejectInvalid)();
@@ -233,7 +226,7 @@ export function ContactSection({
 
   const handleSendAnother = () => {
     draft.clear();
-    reset(EMPTY_MESSAGE);
+    reset(EMPTY_CONTACT_MESSAGE);
     setDelivery(null);
     dispatch({ type: 'reset' });
     void comet.travelTo(STEP_PROGRESS[0], COMET_ENTRY_MS, COMET_ENTRY_PROGRESS);

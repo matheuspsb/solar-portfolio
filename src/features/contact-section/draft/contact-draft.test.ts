@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CONTACT_MESSAGE_LIMITS } from '@/domain/contact-message';
-import type { ContactField } from '@/domain/contact-message';
 import {
   CONTACT_DRAFT_TTL_MS,
-  getResumeStep,
   hasAnyAnswer,
   parseContactDraft,
   serializeContactDraft,
@@ -11,7 +9,6 @@ import {
 import type { ContactDraft } from './contact-draft';
 
 const NOW = new Date(2026, 9, 13, 12).getTime();
-const FIELD_ORDER: readonly ContactField[] = ['name', 'email', 'message'];
 
 function buildDraft(overrides: Partial<ContactDraft> = {}): ContactDraft {
   return {
@@ -28,8 +25,8 @@ const parse = (draft: unknown, now = NOW) => parseContactDraft(JSON.stringify(dr
 
 describe('parseContactDraft', () => {
   it('reads back what was saved', () => {
-    const draft = buildDraft();
-    expect(parseContactDraft(serializeContactDraft(draft), NOW)).toEqual(draft);
+    const { version, ...fields } = buildDraft();
+    expect(parseContactDraft(serializeContactDraft(fields), NOW)).toEqual({ version, ...fields });
   });
 
   it.each([null, '', 'not json', '{', '42', '"text"', 'null', '[]'])(
@@ -79,24 +76,5 @@ describe('hasAnyAnswer', () => {
 
   it('is true as soon as one answer has text', () => {
     expect(hasAnyAnswer({ name: '', email: '', message: 'Oi' })).toBe(true);
-  });
-});
-
-describe('getResumeStep', () => {
-  const values = { name: 'Ana Souza', email: 'ana@empresa.com', message: 'Oi' };
-
-  it('returns to the saved step when every earlier answer is still valid', () => {
-    expect(getResumeStep(buildDraft({ step: 2, values }), FIELD_ORDER)).toBe(2);
-  });
-
-  it('stops at the first earlier answer that is not valid', () => {
-    const draft = buildDraft({ step: 2, values: { ...values, email: 'ana@empresa' } });
-    expect(getResumeStep(draft, FIELD_ORDER)).toBe(1);
-    const blankName = buildDraft({ step: 2, values: { ...values, name: ' ' } });
-    expect(getResumeStep(blankName, FIELD_ORDER)).toBe(0);
-  });
-
-  it('never moves past the saved step, even with later answers filled', () => {
-    expect(getResumeStep(buildDraft({ step: 0, values }), FIELD_ORDER)).toBe(0);
   });
 });

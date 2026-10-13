@@ -1,3 +1,5 @@
+import { readStorageItem, writeStorageItem } from './safe-storage';
+
 export const LOADER_SEEN_KEY = 'loaderSeen';
 
 export type SeenStorage = Pick<Storage, 'getItem' | 'setItem'>;
@@ -11,26 +13,9 @@ export const LOADER_SEEN_SCRIPT = `try {
   `;
 
 export function hasSeenLoader(storage: SeenStorage | null): boolean {
-  if (storage === null) return false;
-  try {
-    return storage.getItem(LOADER_SEEN_KEY) !== null;
-  } catch {
-    return false;
-  }
+  return readStorageItem(storage, LOADER_SEEN_KEY) !== null;
 }
 
 export function markLoaderSeen(storage: SeenStorage | null): void {
-  try {
-    storage?.setItem(LOADER_SEEN_KEY, SEEN_VALUE);
-  } catch {
-    return;
-  }
-}
-
-export function getSessionStorage(): SeenStorage | null {
-  try {
-    return window.sessionStorage;
-  } catch {
-    return null;
-  }
+  writeStorageItem(storage, LOADER_SEEN_KEY, SEEN_VALUE);
 }

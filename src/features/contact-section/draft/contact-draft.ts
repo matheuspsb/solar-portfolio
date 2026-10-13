@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { CONTACT_MESSAGE_LIMITS, validateContactField } from '@/domain/contact-message';
-import type { ContactField, ContactMessage } from '@/domain/contact-message';
-import type { ContactStepIndex } from '../question/contact-flow';
+import { CONTACT_MESSAGE_LIMITS } from '@/domain/contact-message';
+import type { ContactMessage } from '@/domain/contact-message';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 export const CONTACT_DRAFT_TTL_MS = 7 * DAY_MS;
 const CONTACT_DRAFT_VERSION = 1;
-const STEP_INDEXES: readonly ContactStepIndex[] = [0, 1, 2];
+
+export const EMPTY_CONTACT_MESSAGE: ContactMessage = { name: '', email: '', message: '' };
 
 const contactDraftSchema = z.object({
   version: z.literal(CONTACT_DRAFT_VERSION),
@@ -20,13 +20,7 @@ const contactDraftSchema = z.object({
   }),
 });
 
-export type ContactDraft = {
-  version: typeof CONTACT_DRAFT_VERSION;
-  savedAt: number;
-  startedAt: number;
-  step: ContactStepIndex;
-  values: ContactMessage;
-};
+export type ContactDraft = z.infer<typeof contactDraftSchema>;
 
 function parseJson(raw: string): unknown {
   try {
@@ -44,26 +38,10 @@ export function parseContactDraft(raw: string | null, nowMs: number): ContactDra
   return isExpired ? null : result.data;
 }
 
-export function createContactDraft(fields: Omit<ContactDraft, 'version'>): ContactDraft {
-  return { version: CONTACT_DRAFT_VERSION, ...fields };
-}
-
-export function serializeContactDraft(draft: ContactDraft): string {
-  return JSON.stringify(draft);
+export function serializeContactDraft(draft: Omit<ContactDraft, 'version'>): string {
+  return JSON.stringify({ version: CONTACT_DRAFT_VERSION, ...draft });
 }
 
 export function hasAnyAnswer(values: ContactMessage): boolean {
   return Object.values(values).some((value) => value.trim().length > 0);
-}
-
-export function getResumeStep(
-  draft: ContactDraft,
-  fieldOrder: readonly ContactField[],
-): ContactStepIndex {
-  const isAnswerInvalid = (step: ContactStepIndex): boolean => {
-    const field = fieldOrder[step];
-    return field !== undefined && validateContactField(field, draft.values[field]) !== null;
-  };
-  const firstInvalidStep = STEP_INDEXES.find((step) => step < draft.step && isAnswerInvalid(step));
-  return firstInvalidStep ?? draft.step;
 }

@@ -1,74 +1,53 @@
-import { useRef, useState } from 'react';
-import type { ContactField, ContactMessage } from '@/domain/contact-message';
+import { useState } from 'react';
+import type { ContactMessage } from '@/domain/contact-message';
+import { readStorageItem, removeStorageItem, writeStorageItem } from '@/lib/safe-storage';
+import type { KeyValueStorage } from '@/lib/safe-storage';
 import type { ContactStepIndex } from '../question/contact-flow';
 import {
-  createContactDraft,
-  getResumeStep,
+  EMPTY_CONTACT_MESSAGE,
   hasAnyAnswer,
   parseContactDraft,
   serializeContactDraft,
 } from './contact-draft';
-import { readStoredText, removeStoredText, writeStoredText } from './draft-storage';
-import type { DraftStorage } from './draft-storage';
+import type { ContactDraft } from './contact-draft';
 
 export const CONTACT_DRAFT_KEY = 'contactDraft';
 
-const EMPTY_VALUES: ContactMessage = { name: '', email: '', message: '' };
-
 type UseContactDraftOptions = {
-  storage: DraftStorage | null;
-  fieldOrder: readonly ContactField[];
+  storage: KeyValueStorage | null;
   getNow: () => Date;
 };
 
-type RestoredDraft = {
-  values: ContactMessage;
-  step: ContactStepIndex;
-  startedAt: number;
-};
+type RestoredDraft = Pick<ContactDraft, 'values' | 'step' | 'startedAt'>;
 
 type ContactDraftSession = RestoredDraft & {
   save: (values: ContactMessage, step: ContactStepIndex) => void;
   clear: () => void;
 };
 
-function restoreDraft({ storage, fieldOrder, getNow }: UseContactDraftOptions): RestoredDraft {
+function restoreDraft({ storage, getNow }: UseContactDraftOptions): RestoredDraft {
   const nowMs = getNow().getTime();
-  const draft = parseContactDraft(readStoredText(storage, CONTACT_DRAFT_KEY), nowMs);
-  if (draft === null) return { values: EMPTY_VALUES, step: 0, startedAt: nowMs };
-  return {
-    values: draft.values,
-    step: getResumeStep(draft, fieldOrder),
-    startedAt: draft.startedAt,
-  };
+  const draft = parseContactDraft(readStorageItem(storage, CONTACT_DRAFT_KEY), nowMs);
+  return draft ?? { values: EMPTY_CONTACT_MESSAGE, step: 0, startedAt: nowMs };
 }
 
 export function useContactDraft(options: UseContactDraftOptions): ContactDraftSession {
   const { storage, getNow } = options;
-  const [restored] = useState(() => restoreDraft(options));
-  const lastSavedRef = useRef<string | null>(null);
+  const [{ values, step, startedAt }] = useState(() => restoreDraft(options));
 
-  const save = (values: ContactMessage, step: ContactStepIndex) => {
-    if (!hasAnyAnswer(values)) {
+  const clear = () => {
+    removeStorageItem(storage, CONTACT_DRAFT_KEY);
+  };
+
+  const save = (answers: ContactMessage, currentStep: ContactStepIndex) => {
+    if (!hasAnyAnswer(answers)) {
       clear();
       return;
     }
-    const savedContent = JSON.stringify({ values, step });
-    if (savedContent === lastSavedRef.current) return;
-    lastSavedRef.current = savedContent;
-    const draft = createContactDraft({
-      savedAt: getNow().getTime(),
-      startedAt: restored.startedAt,
-      step,
-      values,
-    });
-    writeStoredText(storage, CONTACT_DRAFT_KEY, serializeContactDraft(draft));
+    const savedAt = getNow().getTime();
+    const draft = serializeContactDraft({ savedAt, startedAt, step: currentStep, values: answers });
+    writeStorageItem(storage, CONTACT_DRAFT_KEY, draft);
   };
 
-  const clear = () => {
-    lastSavedRef.current = null;
-    removeStoredText(storage, CONTACT_DRAFT_KEY);
-  };
-
-  return { ...restored, save, clear };
+  return { values, step, startedAt, save, clear };
 }

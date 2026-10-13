@@ -115,7 +115,8 @@
 ## Rascunho do contato
 
 - O formulário de contato guarda nome, e-mail, mensagem e etapa no `localStorage` e os restaura ao reabrir o painel, recarregar ou voltar à aba; apaga ao entregar. Sem Zustand, sem Context, sem cookie (ver DECISIONS.md).
-- Validação: lint, typecheck, testes unitários (34 novos: formato e validade do rascunho, expiração, etapa de retomada, storage bloqueado, restauração no `ContactSection`, falha de entrega, tempo anti-bot) e build passando. e2e: 64 de 65; o novo (recarregar e retomar, esquecer após entregar) passa. A falha é `camera-focus` (clique em Mercúrio em órbita), intermitente neste ambiente desde antes desta mudança.
+- Revisão de simplicidade: o acesso seguro ao storage, que estava duplicado, virou `lib/safe-storage.ts` (usado também por `loader-seen`); saíram a retomada por validação de etapas (o fluxo já garante), a deduplicação de gravações (sem ganho medido), uma constante e uma função duplicadas e um teste de integração redundante.
+- Validação: lint, typecheck, testes unitários e build passando; e2e do contato (incluindo recarregar e retomar) passando. O e2e de primeira visita do loader falha neste ambiente também no `prod` sem esta mudança (loader de 10 s sob SwiftShader estoura os 30 s do teste).
 
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 
