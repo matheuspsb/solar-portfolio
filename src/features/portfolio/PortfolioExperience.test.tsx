@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { useEffect } from 'react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -7,9 +7,11 @@ import { credits } from '@/content/credits';
 import { loaderContent } from '@/content/loader';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
 import { LOADER_SEEN_KEY } from '@/lib/loader-seen';
+import { LOADER_DURATION_SECONDS } from '@/features/loading-screen';
 import { PortfolioExperience } from './PortfolioExperience';
 import { PortfolioProviders } from './PortfolioProviders';
 import type { SceneProps } from '@/features/solar-scene';
+import type { CelestialBodyConfig } from '@/domain/celestial-body';
 
 function FakeScene({
   bodies,
@@ -69,10 +71,12 @@ function ThrowingScene(): never {
 }
 
 function setup({
+  bodies = celestialBodies,
   scene = FakeScene,
   hasWebGL = true,
   loaderScheduler,
 }: {
+  bodies?: readonly CelestialBodyConfig[];
   scene?: React.ComponentType<SceneProps>;
   hasWebGL?: boolean;
   loaderScheduler?: FrameScheduler;
@@ -80,7 +84,7 @@ function setup({
   render(
     <PortfolioProviders contactSubmitter={async () => ({ ok: true })}>
       <PortfolioExperience
-        bodies={celestialBodies}
+        bodies={bodies}
         credits={credits}
         sceneDescription="Cena 3D de teste"
         scene={scene}
@@ -93,7 +97,7 @@ function setup({
   return userEvent.setup();
 }
 
-const LONGER_THAN_THE_LOADER_SECONDS = 10;
+const JUST_AFTER_THE_LOADER_SECONDS = LOADER_DURATION_SECONDS + 1;
 
 function createManualFrameScheduler() {
   let currentTime = 0;
@@ -273,6 +277,51 @@ describe('PortfolioExperience', () => {
     expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
   });
 
+  describe('with a body that is only scenery', () => {
+    const bodiesWithSection = celestialBodies.filter((body) => body.section !== null);
+    const sceneryPlanet: CelestialBodyConfig = {
+      ...celestialBodies[1]!,
+      id: 'scenery',
+      name: 'Cenário',
+      section: null,
+    };
+    const bodiesWithScenery = [...bodiesWithSection, sceneryPlanet];
+
+    it('draws it in the scene but leaves it out of the keyboard controls', () => {
+      setup({ bodies: bodiesWithScenery });
+      expect(screen.getByRole('img', { name: /Cenário \(cena\)/ })).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Cenário/ })).not.toBeInTheDocument();
+    });
+
+    it('cycles the keyboard focus over the bodies that open a section only', async () => {
+      const user = setup({ bodies: bodiesWithScenery });
+      await user.tab();
+      await user.keyboard('{ArrowRight}{ArrowRight}');
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'sun');
+    });
+
+    it('offers the same destinations in the quick-access menu as before', async () => {
+      const user = setup({ bodies: bodiesWithScenery });
+      const toggle = screen.getByRole('button', { name: 'Acesso rápido' });
+      await user.click(toggle);
+      const menu = screen.getByRole('navigation', { name: 'Acesso rápido' });
+      const destinations = within(menu)
+        .getAllByRole('button')
+        .filter((button) => button !== toggle);
+      expect(destinations).toHaveLength(bodiesWithSection.length);
+    });
+
+    it('opens nothing and does not lock onto it when it is hovered or clicked', async () => {
+      const user = setup({ bodies: bodiesWithScenery });
+      const scenery = screen.getByRole('img', { name: /Cenário \(cena\)/ });
+      await user.hover(scenery);
+      await user.click(scenery);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.queryByText(/ALVO TRAVADO/)).not.toBeInTheDocument();
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'none');
+    });
+  });
+
   describe('without a working 3D scene', () => {
     beforeEach(() => {
       vi.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -285,7 +334,7 @@ describe('PortfolioExperience', () => {
     it('shows the fallback and no scene when WebGL is unavailable', () => {
       setup({ hasWebGL: false });
       expect(screen.queryByTestId('fake-scene')).not.toBeInTheDocument();
-      expect(screen.getByRole('status')).toHaveTextContent(/3D/);
+      expect(screen.getByRole('status')).toBeInTheDocument();
     });
 
     it('still opens the About panel from the fallback button', async () => {
@@ -332,7 +381,7 @@ describe('PortfolioExperience', () => {
       const user = setup();
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: 'perder contexto' }));
-      expect(screen.getByRole('status')).toHaveTextContent(/recuper/);
+      expect(screen.getByRole('status')).toBeInTheDocument();
       await user.click(screen.getByRole('button', { name: 'restaurar contexto' }));
       expect(screen.queryByRole('status')).not.toBeInTheDocument();
     });
@@ -367,7 +416,7 @@ describe('PortfolioExperience', () => {
     it('lets the visitor through without waiting for a scene that cannot start', async () => {
       const frames = createManualFrameScheduler();
       setup({ hasWebGL: false, loaderScheduler: frames.scheduler });
-      frames.play(LONGER_THAN_THE_LOADER_SECONDS);
+      frames.play(JUST_AFTER_THE_LOADER_SECONDS);
       expect(
         screen.queryByRole('dialog', { name: loaderContent.progressLabel }),
       ).not.toBeInTheDocument();

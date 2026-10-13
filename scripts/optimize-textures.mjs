@@ -15,6 +15,13 @@ const textures = [
       { file: 'public/textures/mercury-small.webp', width: 512, quality: 76 },
     ],
   },
+  {
+    source: 'assets-src/2k_venus_atmosphere.jpg',
+    variants: [
+      { file: 'public/textures/venus.webp', width: 1024, quality: 78 },
+      { file: 'public/textures/venus-small.webp', width: 512, quality: 76 },
+    ],
+  },
 ];
 
 for (const { source, variants } of textures) {

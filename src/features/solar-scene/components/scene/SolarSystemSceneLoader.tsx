@@ -21,20 +21,8 @@ const SolarSystemScene = dynamic(
   { ssr: false },
 );
 
-export function SolarSystemSceneLoader({
-  bodies,
-  highlightOf,
-  onHoverChange,
-  onSelect,
-  onContextLost,
-  onContextRestored,
-  isActive,
-  cameraTarget,
-  description,
-  trackedBodyId,
-  onTrackFrame,
-  onRevealChange,
-}: SceneProps) {
+export function SolarSystemSceneLoader(sceneProps: SceneProps) {
+  const { bodies, isActive } = sceneProps;
   const isIdle = useIdleReady();
   const viewport = useViewportSize();
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -53,25 +41,6 @@ export function SolarSystemSceneLoader({
   if (!isIdle) return null;
 
   return (
-    <SolarSystemScene
-      quality={settings.quality}
-      cameraDistance={settings.cameraDistance}
-      viewOffsetPixels={settings.viewOffsetPixels}
-      viewOffsetEasingRate={settings.viewOffsetEasingRate}
-      cameraFocusEasingRate={settings.cameraFocusEasingRate}
-      cameraTarget={cameraTarget}
-      prefersReducedMotion={prefersReducedMotion}
-      bodies={bodies}
-      highlightOf={highlightOf}
-      onHoverChange={onHoverChange}
-      onSelect={onSelect}
-      onContextLost={onContextLost}
-      onContextRestored={onContextRestored}
-      isActive={isActive}
-      description={description}
-      trackedBodyId={trackedBodyId}
-      onTrackFrame={onTrackFrame}
-      onRevealChange={onRevealChange}
-    />
+    <SolarSystemScene {...sceneProps} {...settings} prefersReducedMotion={prefersReducedMotion} />
   );
 }

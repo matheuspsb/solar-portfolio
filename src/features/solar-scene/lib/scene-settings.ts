@@ -16,7 +16,7 @@ type SceneSettingsInput = {
   cameraFocusSeconds: number;
 };
 
-type SceneSettings = {
+export type SceneSettings = {
   quality: SceneQuality;
   cameraDistance: number;
   viewOffsetPixels: number;

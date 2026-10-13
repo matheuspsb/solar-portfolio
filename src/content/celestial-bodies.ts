@@ -12,6 +12,12 @@ const MERCURY_ORBIT_RADIUS = 4.6;
 const MERCURY_ORBIT_PERIOD_SECONDS = 70;
 const MERCURY_ORBIT_PHASE_RADIANS = 0.9;
 
+const VENUS_RADIUS = 0.72;
+const VENUS_ROTATION_PERIOD_SECONDS = 240;
+const VENUS_ORBIT_RADIUS = 6.2;
+const VENUS_ORBIT_PERIOD_SECONDS = 180;
+const VENUS_ORBIT_PHASE_RADIANS = 4;
+
 const sun: CelestialBodyConfig = {
   id: 'sun',
   name: 'Sol',
@@ -52,4 +58,24 @@ const mercury: CelestialBodyConfig = {
   },
 };
 
-export const celestialBodies = assertValidCelestialBodies([sun, mercury]);
+const venus: CelestialBodyConfig = {
+  id: 'venus',
+  name: 'Vênus',
+  kind: 'planet',
+  radius: VENUS_RADIUS,
+  rotationPeriodSeconds: VENUS_ROTATION_PERIOD_SECONDS,
+  orbit: {
+    radius: VENUS_ORBIT_RADIUS,
+    periodSeconds: VENUS_ORBIT_PERIOD_SECONDS,
+    phaseRadians: VENUS_ORBIT_PHASE_RADIANS,
+  },
+  texture: { url: '/textures/venus.webp', smallUrl: '/textures/venus-small.webp' },
+  targeting: {
+    code: '003',
+    description: 'Planeta mais brilhante · 0,72 UA',
+    anchor: 'bottom-left',
+  },
+  section: null,
+};
+
+export const celestialBodies = assertValidCelestialBodies([sun, mercury, venus]);

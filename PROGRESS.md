@@ -100,10 +100,22 @@
 - **Testes.** 923 unitários, 63 e2e (o fixture `e2e/fixtures.ts` marca o loader como visto; `e2e/loader.spec.ts` cobre a primeira visita, `Esc`, "Pular", recarga, axe e movimento reduzido).
 - **Pendências registradas.** T26 (hover perdido quando a textura chega sob o ponteiro, flake raro do e2e) e T27 (pausar o render da cena enquanto o loader a cobre) em `TASKS.md`.
 
+## Vênus (cenário, sem interação)
+
+- Vênus orbita na cena como corpo sem seção: fora do menu e do teclado, sem área de clique nem alvo travado. A interação e a seção entram na próxima etapa (ver DECISIONS.md).
+- Validação: lint, typecheck, 949 testes unitários (15 novos: corpo sem seção, estrela sem seção, órbitas que se cruzam, `getInteractiveBodies`, malha sem alvo de clique, portfólio ignorando o cenário), 64 e2e com 1 worker (incluindo `e2e/venus.spec.ts`) e build passando. Screenshots em 1280x800 e 375x740: composição equilibrada, Sol um pouco menor pela câmera mais afastada.
+- Textura de Vênus aplicada (`venus.webp`/`venus-small.webp`, crédito em `CREDITS.md` e no rodapé do painel). Conferida em 1280x800 e 375x740: planeta laranja-bege fosco, sem brilho exagerado, composição mantida. e2e novo confere o carregamento da textura.
+
+## T1: props da cena repassadas em bloco
+
+- O `SolarSystemSceneLoader` deixou de desestruturar e repassar uma a uma as props de `SceneProps`; o tipo da cena passou a ser composto (`SceneProps & SceneSettings`). Sem mudança de comportamento.
+- Validação: lint, typecheck, 935 testes unitários e build passando. e2e: 61 de 63 com 2 workers; as 2 falhas (`camera-focus` e `loader` de primeira visita) são de tempo sob SwiftShader neste ambiente, e passam com 1 worker (o `camera-focus` falhou também no código anterior à mudança). O Chromium do ambiente é o 1194, mais antigo que o esperado pelo Playwright; rodei com `executablePath` em uma config local descartada.
+- Próximo: T2 (interação do corpo celeste até a malha).
+
 ## Rascunho do contato
 
 - O formulário de contato guarda nome, e-mail, mensagem e etapa no `localStorage` e os restaura ao reabrir o painel, recarregar ou voltar à aba; apaga ao entregar. Sem Zustand, sem Context, sem cookie (ver DECISIONS.md).
-- Validação: lint, typecheck, 983 testes unitários (34 novos: formato e validade do rascunho, expiração, etapa de retomada, storage bloqueado, restauração no `ContactSection`, falha de entrega, tempo anti-bot) e build passando. e2e: 64 de 65; o novo (recarregar e retomar, esquecer após entregar) passa. A falha é `camera-focus` (clique em Mercúrio em órbita), intermitente neste ambiente desde antes desta mudança.
+- Validação: lint, typecheck, testes unitários (34 novos: formato e validade do rascunho, expiração, etapa de retomada, storage bloqueado, restauração no `ContactSection`, falha de entrega, tempo anti-bot) e build passando. e2e: 64 de 65; o novo (recarregar e retomar, esquecer após entregar) passa. A falha é `camera-focus` (clique em Mercúrio em órbita), intermitente neste ambiente desde antes desta mudança.
 
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 

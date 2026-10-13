@@ -13,21 +13,11 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - O provider do envio é montado por `PortfolioProviders` (`features/portfolio`), usado em `app/page.tsx`. Ele existe porque a página é um
   Server Component e não pode importar o barrel de uma feature inteira (arrastaria hooks de cliente para o servidor).
 
+- **T1, props da cena atravessavam o `SolarSystemSceneLoader`.** O Loader agora lê só `bodies` e `isActive` e repassa `SceneProps` em bloco para a `SolarSystemScene`, cujo tipo é `SceneProps & SceneSettings & { prefersReducedMotion }`. Uma prop nova de interação muda só o tipo `SceneProps` e o consumidor final (ver DECISIONS.md).
 - **T21, listeners do contexto WebGL.** `onCreated` registrava `webglcontextlost` e `webglcontextrestored` sem nunca remover e com os callbacks da primeira renderização. Agora o hook `useWebglContextEvents` (usado pelo componente `WebglContextEvents`, dentro do `Canvas`) registra com `useEffect`, remove no cleanup, troca de alvo se o canvas mudar e chama sempre a versão atual dos callbacks (`useEffectEvent`).
 - **T22, o cometa re-renderizava a seção de contato inteira.** A posição do cometa saiu do estado do React: `useComet` guarda `head` e `tail` em um store externo (`comet-store`) e só o `ArcJourney` o lê, com `useCometPosition` (`useSyncExternalStore`). Durante a viagem a `ContactSection` não re-renderiza (teste no `use-comet.test.tsx`).
 
 ## Tasks abertas
-
-### T1 (A) Props da cena atravessam o `SolarSystemSceneLoader` sem serem usadas
-
-- **Onde:** `features/portfolio/PortfolioExperience.tsx` → `solar-scene/components/SolarSystemSceneLoader.tsx` → `SolarSystemScene.tsx`.
-- **O que acontece:** o Loader recebe 11 props (`bodies, highlightOf, onHoverChange, onSelect, onContextLost, onContextRestored, isActive,
-cameraTarget, description, trackedBodyId, onTrackFrame`). Ele só usa `bodies` e `isActive` (para calcular as configurações) e repassa o resto,
-  inalterado, para `SolarSystemScene`, que o repassa de novo aos filhos.
-- **Proposta:** agrupar por assunto (`interaction: { highlightOf, onHoverChange, onSelect }`, `lifecycle: { onContextLost, onContextRestored }`,
-  `tracking: { trackedBodyId, onTrackFrame }`) e fazer o Loader repassar os grupos em bloco (`{...sceneProps}`), ou expor a interação por um
-  contexto de cena lido pelos corpos. Cada prop nova de interação deixa de pedir edição em três arquivos.
-- **Pronto quando:** adicionar uma prop de interação à cena exige mudar no máximo o tipo `SceneProps` e o consumidor final.
 
 ### T2 (A) Interação do corpo celeste atravessa `CelestialBody` até a malha
 
