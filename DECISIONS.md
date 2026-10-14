@@ -428,3 +428,19 @@ Layers, cheapest first:
 - **Sem provider, erro.** `useBodyInteraction` fora do provider lança, em vez de devolver um padrão silencioso que deixaria o astro ignorando o ponteiro.
 - **Testes.** `src/features/solar-scene/test/in-scene.tsx` (`createFakeScene`, `inScene`) é o apoio de teste das malhas e do corpo; fica dentro da feature porque só ela usa. Casos novos: handler ligado ao id certo, destaque de outro corpo ignorado, cursor devolvido quando o astro sai da cena com o ponteiro em cima, destaque instantâneo com movimento reduzido, anel de foco só no corpo focado.
 - **Fora do escopo.** O contexto muda a cada hover/foco/seleção e re-renderiza os corpos, como antes com as props; reduzir isso é o T23.
+
+## Contact draft kept across closed tabs
+
+- **Problem.** Fechar a aba sem querer, recarregar ou o navegador descartar a página fazia o visitante perder nome, e-mail e mensagem.
+- **Decision.** Rascunho no `localStorage`, dentro da feature (`contact-section/draft/`), sem Zustand e sem Context API. O react-hook-form já é a fonte de verdade dos campos; uma store do Zustand duplicaria esse estado (e a sincronização) e traria uma dependência só para persistir três strings. O que faltava era persistência, não estado compartilhado.
+- **Por que não cookie.** Cookie vai em toda requisição ao domínio (páginas e Server Actions), então o rascunho do visitante iria ao servidor e a logs sem necessidade; tem limite de ~4 KB e exige codificação. O servidor não precisa do rascunho (o painel é renderizado no cliente). `sessionStorage` foi descartado porque não sobrevive ao fechamento da aba.
+- **Formato.** `{ version, savedAt, startedAt, step, values }`, validado com zod ao ler (o tipo vem do schema): JSON inválido, versão diferente, campo ausente, texto acima dos limites do formulário ou etapa fora de 0–2 descartam o rascunho. Expira em 7 dias.
+- **Quando salva e apaga.** Salva nos eventos (digitação e troca de etapa), sem `useEffect`; com tudo em branco, apaga em vez de gravar. Apaga ao entregar e em "Enviar outra"; mantém se a entrega falhar. A etapa salva é retomada como está: o fluxo só avança com respostas válidas e voltar para editar já salva a etapa anterior, e o envio valida tudo de novo.
+- **Anti-bot.** O tempo de preenchimento (`elapsedMs`) conta desde o início do rascunho, não do retorno; quem volta e envia logo não é tratado como robô.
+- **Storage seguro compartilhado.** O acesso protegido (navegação privada, storage bloqueado, cota cheia) virou `lib/safe-storage.ts`, usado pelo rascunho e pelo `loader-seen` (que tinha a mesma lógica). O storage é injetável (`draftStorage`), como no `LoadingGate`.
+
+## Stable scrollbar gutter in the content panel
+
+- **Problem.** No Windows (barra de rolagem que ocupa espaço), com o conteúdo do painel quase da altura da janela (etapa da mensagem do contato a ~949 px de altura, um desktop 1080p com barra de tarefas), o painel entrava em ciclo: a barra aparecia, a área ficava 15 px mais estreita, o `JourneyStage` reduzia a escala e a própria altura, o conteúdo cabia, a barra sumia, a largura voltava e tudo recomeçava. A tela piscava com os dois estados sobrepostos. O rascunho do contato tornou o caso comum, porque reabre direto na etapa da mensagem.
+- **Decision.** `scrollbar-gutter: stable` no container de rolagem do painel: o espaço da barra fica sempre reservado e a largura não depende mais de haver rolagem, então o ciclo não pode acontecer. Mais simples e geral que travar a escala do palco ou medir a largura de outro elemento.
+- **Teste.** `e2e/panel-layout.spec.ts` mostra a barra de rolagem (`--hide-scrollbars` desligado), usa 1366x949 com a etapa da mensagem restaurada e exige uma única largura durante 2 s. Falhava antes (duas larguras) e passa depois.

@@ -6,6 +6,7 @@ import type { ContactMessageSubmitter, ContactSubmitResult } from '@/domain/cont
 import { ContactSubmitterProvider } from '@/hooks/contact-submitter';
 import { ContactSection } from './ContactSection';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
+import type { KeyValueStorage } from '@/lib/safe-storage';
 
 const INSTANT_STEP_MS = 1_000_000;
 
@@ -28,19 +29,38 @@ const message = {
   message: 'Gostei do seu portfólio, vamos conversar?',
 };
 
-function setup(submit: ContactMessageSubmitter = async () => ({ ok: true })) {
+function createMemoryStorage(): KeyValueStorage {
+  const items = new Map<string, string>();
+  return {
+    getItem: (key) => items.get(key) ?? null,
+    setItem: (key, value) => {
+      items.set(key, value);
+    },
+    removeItem: (key) => {
+      items.delete(key);
+    },
+  };
+}
+
+function setup(
+  submit: ContactMessageSubmitter = async () => ({ ok: true }),
+  {
+    draftStorage = createMemoryStorage(),
+    clock = { time: new Date(2026, 9, 5).getTime() },
+  }: { draftStorage?: KeyValueStorage | null; clock?: { time: number } } = {},
+) {
   const user = userEvent.setup();
-  const clock = { time: new Date(2026, 9, 5).getTime() };
-  render(
+  const { unmount } = render(
     <ContactSubmitterProvider submitter={submit}>
       <ContactSection
         content={contactContent}
         frameScheduler={createInstantScheduler()}
         getNow={() => new Date(clock.time)}
+        draftStorage={draftStorage}
       />
     </ContactSubmitterProvider>,
   );
-  return { user, clock };
+  return { user, clock, unmount };
 }
 
 const NON_LETTER_PREFIX = /^[^\p{L}]+/u;
@@ -301,6 +321,93 @@ describe('ContactSection', () => {
       setup();
       expect(screen.queryByRole('textbox', { name: /Não preencha este campo/ })).toBeNull();
       expect(screen.getAllByRole('textbox')).toHaveLength(1);
+    });
+  });
+
+  describe('saved draft', () => {
+    it('brings back what the visitor typed after the panel or the tab was closed', async () => {
+      const draftStorage = createMemoryStorage();
+      const first = setup(undefined, { draftStorage });
+      await first.user.type(nameField(), 'Ana');
+      first.unmount();
+
+      setup(undefined, { draftStorage });
+      expect(nameField()).toHaveValue('Ana');
+    });
+
+    it('reopens on the step where the visitor stopped, with the earlier answers kept', async () => {
+      const draftStorage = createMemoryStorage();
+      const first = setup(undefined, { draftStorage });
+      await answerName(first.user);
+      await first.user.type(
+        await screen.findByRole('textbox', {
+          name: (accessibleName) => accessibleName.includes(emailQuestionTail),
+        }),
+        'ana@',
+      );
+      first.unmount();
+
+      const { user } = setup(undefined, { draftStorage });
+      expect(emailField()).toHaveValue('ana@');
+      await user.click(screen.getByRole('button', { name: 'Voltar' }));
+      expect(await screen.findByRole('textbox', { name: /Como posso te chamar/ })).toHaveValue(
+        message.name,
+      );
+    });
+
+    it('forgets the draft once the message is delivered', async () => {
+      const draftStorage = createMemoryStorage();
+      const first = setup(undefined, { draftStorage });
+      await reachMessageStep(first.user);
+      await writeAndSend(first.user);
+      await findDelivery();
+      first.unmount();
+
+      setup(undefined, { draftStorage });
+      expect(nameField()).toHaveValue('');
+    });
+
+    it('keeps the draft when delivery fails, so nothing is lost', async () => {
+      const draftStorage = createMemoryStorage();
+      const first = setup(async () => ({ ok: false, error: 'Falhou.' }), { draftStorage });
+      await reachMessageStep(first.user);
+      await writeAndSend(first.user);
+      await screen.findByRole('alert');
+      first.unmount();
+
+      setup(undefined, { draftStorage });
+      expect(messageField()).toHaveValue(message.message);
+    });
+
+    it('keeps working when the browser blocks the storage', async () => {
+      const blocked = () => {
+        throw new DOMException('blocked', 'SecurityError');
+      };
+      const { user } = setup(undefined, {
+        draftStorage: { getItem: blocked, setItem: blocked, removeItem: blocked },
+      });
+      await answerName(user);
+      expect(
+        await screen.findByRole('textbox', {
+          name: (accessibleName) => accessibleName.includes(emailQuestionTail),
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('counts the time to fill the form from the first visit, not from the return', async () => {
+      const draftStorage = createMemoryStorage();
+      const clock = { time: new Date(2026, 9, 5).getTime() };
+      const first = setup(undefined, { draftStorage, clock });
+      await reachMessageStep(first.user);
+      clock.time += 60_000;
+      first.unmount();
+
+      const submit = vi.fn<ContactMessageSubmitter>(async () => ({ ok: true }));
+      const { user } = setup(submit, { draftStorage, clock });
+      await writeAndSend(user);
+      await waitFor(() =>
+        expect(submit).toHaveBeenCalledWith(expect.objectContaining({ elapsedMs: 60_000 })),
+      );
     });
   });
 });

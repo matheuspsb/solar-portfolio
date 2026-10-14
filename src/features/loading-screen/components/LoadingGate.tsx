@@ -1,7 +1,8 @@
 import { useState, useSyncExternalStore } from 'react';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
-import { getSessionStorage, hasSeenLoader, markLoaderSeen } from '@/lib/loader-seen';
+import { hasSeenLoader, markLoaderSeen } from '@/lib/loader-seen';
+import { getSessionStorage } from '@/lib/safe-storage';
 import type { SeenStorage } from '@/lib/loader-seen';
 import { AnimatedLoader } from './AnimatedLoader';
 import { StaticLoader } from './StaticLoader';

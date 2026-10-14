@@ -112,6 +112,14 @@
 - Validação: lint, typecheck, 935 testes unitários e build passando. e2e: 61 de 63 com 2 workers; as 2 falhas (`camera-focus` e `loader` de primeira visita) são de tempo sob SwiftShader neste ambiente, e passam com 1 worker (o `camera-focus` falhou também no código anterior à mudança). O Chromium do ambiente é o 1194, mais antigo que o esperado pelo Playwright; rodei com `executablePath` em uma config local descartada.
 - Próximo: T2 (interação do corpo celeste até a malha).
 
+## Rascunho do contato
+
+- O formulário de contato guarda nome, e-mail, mensagem e etapa no `localStorage` e os restaura ao reabrir o painel, recarregar ou voltar à aba; apaga ao entregar. Sem Zustand, sem Context, sem cookie (ver DECISIONS.md).
+- Revisão de simplicidade: o acesso seguro ao storage, que estava duplicado, virou `lib/safe-storage.ts` (usado também por `loader-seen`); saíram a retomada por validação de etapas (o fluxo já garante), a deduplicação de gravações (sem ganho medido), uma constante e uma função duplicadas e um teste de integração redundante.
+- Validação: lint, typecheck, testes unitários e build passando; e2e do contato (incluindo recarregar e retomar) passando. O e2e de primeira visita do loader falha neste ambiente também no `prod` sem esta mudança (loader de 10 s sob SwiftShader estoura os 30 s do teste).
+
+- Bug corrigido: o painel piscava no Windows na etapa da mensagem com a janela a ~949 px de altura (ciclo da barra de rolagem com a escala do `JourneyStage`). Correção: `scrollbar-gutter: stable` no painel; e2e `panel-layout.spec.ts` reproduz e trava o caso. Varredura de 700 a 970 px na etapa da mensagem sem oscilação.
+
 ## Próxima fase (proposta, não implementada): planetas e órbitas
 
 Objetivo: cada planeta é uma seção (Projetos, Experiência, Contato...). A arquitetura atual já é orientada a dados; o que muda:
