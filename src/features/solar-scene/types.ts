@@ -10,6 +10,7 @@ export type SceneProps = {
   onContextLost: () => void;
   onContextRestored: () => void;
   isActive: boolean;
+  isHidden: boolean;
   cameraTarget: { id: string | null; nonce: number };
   description: string;
   trackedBodyId: string | null;

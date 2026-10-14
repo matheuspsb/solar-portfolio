@@ -106,6 +106,8 @@ export function PortfolioExperience({
     interaction.select(id);
   };
 
+  const quickAccessMenu = <QuickAccessMenu items={menuItems} onSelectItem={openBody} />;
+
   const focusLastOpenedBody = () => {
     const lastOpenedId = lastOpenedIdRef.current;
     if (lastOpenedId === null) return null;
@@ -130,6 +132,7 @@ export function PortfolioExperience({
               onContextLost={availability.markContextLost}
               onContextRestored={availability.markContextRestored}
               isActive={selectedBody === undefined}
+              isHidden={openExperience !== null}
               cameraTarget={cameraTarget}
               description={sceneDescription}
               trackedBodyId={trackedBodyId}
@@ -158,7 +161,7 @@ export function PortfolioExperience({
         {selectedBody === undefined && (
           <TargetLock targets={lockTargets} activeId={trackedBodyId} channel={frameChannel} />
         )}
-        <QuickAccessMenu items={menuItems} onSelectItem={openBody} />
+        {openExperience === null && quickAccessMenu}
       </div>
       <ContentPanel
         isOpen={openPanel !== null}
@@ -180,6 +183,7 @@ export function PortfolioExperience({
           experience={openExperience}
           onExit={interaction.deselect}
           getFallbackFocus={focusLastOpenedBody}
+          menu={quickAccessMenu}
         />
       )}
     </>

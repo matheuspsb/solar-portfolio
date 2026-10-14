@@ -21,6 +21,7 @@ function FakeScene({
   onContextLost,
   onContextRestored,
   isActive,
+  isHidden,
   cameraTarget,
   description,
   trackedBodyId,
@@ -34,6 +35,7 @@ function FakeScene({
     <div
       data-testid="fake-scene"
       data-active={String(isActive)}
+      data-hidden={String(isHidden)}
       data-camera-target={cameraTarget.id ?? 'none'}
       role="group"
       aria-label={description}
@@ -199,6 +201,7 @@ describe('PortfolioExperience', () => {
     expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'true');
     await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
     expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'false');
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
     await user.keyboard('{Escape}');
     expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'true');
   });
@@ -320,6 +323,68 @@ describe('PortfolioExperience', () => {
       await findArcade();
       await user.keyboard('{Escape}');
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    const openArcadeFromScene = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
+      return findArcade();
+    };
+
+    it('stops rendering the covered scene while the arcade is open and resumes afterwards', async () => {
+      const user = setup();
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
+      await openArcadeFromScene(user);
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'true');
+      await user.keyboard('{Escape}');
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
+    });
+
+    it('keeps the quick-access menu usable inside the arcade, once', async () => {
+      const user = setup();
+      const arcade = await openArcadeFromScene(user);
+      expect(within(arcade).getByRole('button', { name: 'Acesso rápido' })).toBeInTheDocument();
+      expect(screen.getAllByRole('button', { name: 'Acesso rápido' })).toHaveLength(1);
+    });
+
+    it('closes the open menu with Escape before leaving the arcade', async () => {
+      const user = setup();
+      const arcade = await openArcadeFromScene(user);
+      const toggle = within(arcade).getByRole('button', { name: 'Acesso rápido' });
+      await user.click(toggle);
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      await user.keyboard('{Escape}');
+      expect(toggle).toHaveAttribute('aria-expanded', 'false');
+      expect(arcade).toBeInTheDocument();
+      await user.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('leaves the arcade and opens Contact when it is chosen in the menu', async () => {
+      const user = setup();
+      const arcade = await openArcadeFromScene(user);
+      await user.click(within(arcade).getByRole('button', { name: 'Acesso rápido' }));
+      await user.click(within(arcade).getByRole('button', { name: 'Contato' }));
+      expect(screen.getByRole('dialog', { name: 'Contato' })).toBeInTheDocument();
+      expect(screen.queryByRole('dialog', { name: 'Venus Arcade' })).not.toBeInTheDocument();
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
+    });
+
+    it('stays in the arcade when Venus Arcade itself is chosen in the menu', async () => {
+      const user = setup();
+      const arcade = await openArcadeFromScene(user);
+      await user.click(within(arcade).getByRole('button', { name: 'Acesso rápido' }));
+      await user.click(within(arcade).getByRole('button', { name: 'Venus Arcade' }));
+      expect(arcade).toBeInTheDocument();
+      expect(within(arcade).getByRole('button', { name: 'Acesso rápido' })).toHaveFocus();
+    });
+
+    it('keeps Tab cycling inside the arcade', async () => {
+      const user = setup();
+      const arcade = await openArcadeFromScene(user);
+      for (let press = 0; press < 4; press += 1) {
+        await user.tab();
+        expect(arcade).toContainElement(document.activeElement as HTMLElement);
+      }
     });
 
     it('keeps the scene idle and the rest of the page inert while the arcade is open', async () => {

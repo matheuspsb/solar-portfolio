@@ -56,6 +56,7 @@ export function SolarSystemScene({
   onContextLost,
   onContextRestored,
   isActive,
+  isHidden,
   description,
   trackedBodyId,
   onTrackFrame,
@@ -79,7 +80,7 @@ export function SolarSystemScene({
       aria-label={description}
       className={`transition-opacity duration-slow ${reveal.isRevealed ? 'opacity-100' : 'opacity-0'}`}
       dpr={[1, quality.maxPixelRatio]}
-      frameloop={getFrameloop(prefersReducedMotion)}
+      frameloop={getFrameloop({ prefersReducedMotion, isHidden })}
       camera={{
         position: CAMERA_POSITION,
         fov: CAMERA_FIELD_OF_VIEW,
