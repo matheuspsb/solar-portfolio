@@ -41,11 +41,11 @@ export function LoaderHud({ hud, percent, isSceneReady }: LoaderHudProps) {
       </div>
       <div className="absolute inset-x-[5%] top-[92%] h-px bg-ink-100/12">
         <div
-          className="relative h-[3px] -translate-y-px rounded-xs bg-linear-to-r from-nebula-300/35 to-ember-400"
+          className="relative h-0.75 -translate-y-px rounded-xs bg-linear-to-r from-nebula-300/35 to-ember-400"
           style={{ width: `${percent}%` }}
         >
           <div
-            className="absolute top-[-2px] right-0 h-[7px] rounded-sm bg-linear-to-r from-transparent to-ember-300/40"
+            className="absolute -top-0.5 right-0 h-1.75 rounded-sm bg-linear-to-r from-transparent to-ember-300/40"
             style={{ width: TRACK_HEAD_GLOW_PIXELS }}
           />
           <div className="absolute top-1/2 right-0 size-3.5 translate-x-1/2 -translate-y-1/2 rounded-ellipse bg-white shadow-ember-planet" />
