@@ -438,3 +438,9 @@ Layers, cheapest first:
 - **Quando salva e apaga.** Salva nos eventos (digitação e troca de etapa), sem `useEffect`; com tudo em branco, apaga em vez de gravar. Apaga ao entregar e em "Enviar outra"; mantém se a entrega falhar. A etapa salva é retomada como está: o fluxo só avança com respostas válidas e voltar para editar já salva a etapa anterior, e o envio valida tudo de novo.
 - **Anti-bot.** O tempo de preenchimento (`elapsedMs`) conta desde o início do rascunho, não do retorno; quem volta e envia logo não é tratado como robô.
 - **Storage seguro compartilhado.** O acesso protegido (navegação privada, storage bloqueado, cota cheia) virou `lib/safe-storage.ts`, usado pelo rascunho e pelo `loader-seen` (que tinha a mesma lógica). O storage é injetável (`draftStorage`), como no `LoadingGate`.
+
+## Stable scrollbar gutter in the content panel
+
+- **Problem.** No Windows (barra de rolagem que ocupa espaço), com o conteúdo do painel quase da altura da janela (etapa da mensagem do contato a ~949 px de altura, um desktop 1080p com barra de tarefas), o painel entrava em ciclo: a barra aparecia, a área ficava 15 px mais estreita, o `JourneyStage` reduzia a escala e a própria altura, o conteúdo cabia, a barra sumia, a largura voltava e tudo recomeçava. A tela piscava com os dois estados sobrepostos. O rascunho do contato tornou o caso comum, porque reabre direto na etapa da mensagem.
+- **Decision.** `scrollbar-gutter: stable` no container de rolagem do painel: o espaço da barra fica sempre reservado e a largura não depende mais de haver rolagem, então o ciclo não pode acontecer. Mais simples e geral que travar a escala do palco ou medir a largura de outro elemento.
+- **Teste.** `e2e/panel-layout.spec.ts` mostra a barra de rolagem (`--hide-scrollbars` desligado), usa 1366x949 com a etapa da mensagem restaurada e exige uma única largura durante 2 s. Falhava antes (duas larguras) e passa depois.
