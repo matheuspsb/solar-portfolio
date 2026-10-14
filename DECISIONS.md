@@ -444,3 +444,18 @@ Layers, cheapest first:
 - **Problem.** No Windows (barra de rolagem que ocupa espaço), com o conteúdo do painel quase da altura da janela (etapa da mensagem do contato a ~949 px de altura, um desktop 1080p com barra de tarefas), o painel entrava em ciclo: a barra aparecia, a área ficava 15 px mais estreita, o `JourneyStage` reduzia a escala e a própria altura, o conteúdo cabia, a barra sumia, a largura voltava e tudo recomeçava. A tela piscava com os dois estados sobrepostos. O rascunho do contato tornou o caso comum, porque reabre direto na etapa da mensagem.
 - **Decision.** `scrollbar-gutter: stable` no container de rolagem do painel: o espaço da barra fica sempre reservado e a largura não depende mais de haver rolagem, então o ciclo não pode acontecer. Mais simples e geral que travar a escala do palco ou medir a largura de outro elemento.
 - **Teste.** `e2e/panel-layout.spec.ts` mostra a barra de rolagem (`--hide-scrollbars` desligado), usa 1366x949 com a etapa da mensagem restaurada e exige uma única largura durante 2 s. Falhava antes (duas larguras) e passa depois.
+
+## Immersive sections (Venus Arcade, step 1)
+
+- **Problem.** Toda seção abria o `ContentPanel` e exigia `title` e `panelLabel`. O fliperama de Vênus ocupa a tela inteira e não tem painel.
+- **Decision.** `BodySection = PanelSection | ImmersiveSection`, discriminada por `presentation`. A seção imersiva tem `experience` (hoje só `'venus-arcade'`) e `callToAction` (texto do alvo travado); a validação pede `panelLabel` só para painel e `callToAction` só para imersiva. O portfolio escolhe o host pela apresentação (`getOpenPanel` / `getOpenExperience`), e o `ImmersiveView` faz o `lazy` da experiência, como o `SectionView` faz com o Contato. Menu, teclado, alvo travado e fallback incluem Vênus sem mudança, porque leem `getInteractiveBodies`.
+- **Language (decided by Matheus).** Texto do jogo em inglês (BUG HUNTER, PAUSED, ranks); tudo que é acessibilidade e navegação em português.
+- **URL (left to Claude).** O fliperama é estado, como os painéis: sem rota nova, sem histórico. Mantém a página única e estática; um endereço próprio pode vir depois se fizer falta.
+- **Shared modal focus.** `useModalFocus` (`hooks/`) e `getTabTarget` (`lib/focus-trap`) saíram do `content-panel` porque o fliperama também é um diálogo modal (foco entra, Tab preso, Esc, foco devolvido).
+- **Lazy loading.** `React.lazy` + `Suspense` em vez de `next/dynamic`: o fliperama só monta depois de um clique, então não há SSR a evitar, e o padrão já é o do Contato. O chunk inicial não contém o código do fliperama (verificado no build).
+
+## Quick-access menu with three destinations
+
+- **Problem.** O arco ia de 100° a 170° com raio `largura - 180`. Com o rótulo "Venus Arcade" (~144 px) o item mais à esquerda saía da tela em 320 px, invadia o botão "Acesso rápido" (o que já acontecia em 320 px com dois itens) e, entre 375 e ~400 px, "Contato" invadia o canto de "Sobre".
+- **Decision.** O arco começa a 90° (o primeiro destino logo abaixo do botão), a reserva horizontal passou a 200 px, e abaixo de 375 px os destinos ficam em coluna sob o botão (sem o anel tracejado). O unitário garante que todo destino fica na tela e fora do botão para 1 a 3 itens; a sobreposição entre vizinhos é medida no e2e com o DOM real, porque depende da largura de cada rótulo.
+- **Limit.** O arco comporta três destinos; com mais planetas o layout precisa de outra regra (anotado em `TASKS.md`).

@@ -59,6 +59,7 @@
   --color-planet-orchid: #d58ff0;
   --color-planet-amber: #f2b56b;
   --color-planet-periwinkle: #9fb4e8;
+  --color-planet-copper: #e0803a;
 
   /* The little Sun emblem (a gradient fallback for when its texture is not available) */
   --color-emblem-light: #f6a352;

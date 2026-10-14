@@ -16,6 +16,7 @@ const toneClasses: Record<PlanetTone, string> = {
   orchid: 'text-planet-orchid',
   amber: 'text-planet-amber',
   periwinkle: 'text-planet-periwinkle',
+  copper: 'text-planet-copper',
 };
 
 const sizeClasses: Record<PlanetDotSize, string> = {

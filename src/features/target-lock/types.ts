@@ -6,6 +6,6 @@ export type LockTarget = {
   code: string;
   name: string;
   description: string;
-  ctaLabel: string;
+  cta: { lead: string; accent: string };
   anchor: TargetingAnchor;
 };

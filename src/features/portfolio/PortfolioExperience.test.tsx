@@ -277,6 +277,60 @@ describe('PortfolioExperience', () => {
     expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
   });
 
+  describe('Venus Arcade', () => {
+    const findArcade = () => screen.findByRole('dialog', { name: 'Venus Arcade' });
+
+    it('opens the arcade, not a content panel, from the Venus keyboard control', async () => {
+      const user = setup();
+      await user.tab();
+      await user.keyboard('{ArrowLeft}');
+      expect(screen.getByRole('button', { name: /^Vênus/ })).toHaveFocus();
+      await user.keyboard('{Enter}');
+      expect(await findArcade()).toBeInTheDocument();
+      expect(screen.getAllByRole('dialog')).toHaveLength(1);
+    });
+
+    it('opens the arcade when Venus is clicked in the scene', async () => {
+      const user = setup();
+      await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
+      expect(await findArcade()).toBeInTheDocument();
+    });
+
+    it('opens the arcade from the quick-access menu', async () => {
+      const user = setup();
+      await user.click(screen.getByRole('button', { name: 'Acesso rápido' }));
+      await user.click(screen.getByRole('button', { name: 'Venus Arcade' }));
+      expect(await findArcade()).toBeInTheDocument();
+    });
+
+    it('takes the keyboard into the arcade and gives it back to Venus on the way out', async () => {
+      const user = setup();
+      await user.tab();
+      await user.keyboard('{ArrowLeft}{Enter}');
+      const arcade = await findArcade();
+      expect(arcade).toContainElement(document.activeElement as HTMLElement);
+      await user.click(within(arcade).getByRole('button', { name: /Sistema solar/ }));
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^Vênus/ })).toHaveFocus();
+    });
+
+    it('goes back to the solar system with Escape', async () => {
+      const user = setup();
+      await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
+      await findArcade();
+      await user.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    it('keeps the scene idle and the rest of the page inert while the arcade is open', async () => {
+      const user = setup();
+      await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
+      await findArcade();
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'false');
+      expect(screen.getByTestId('fake-scene').closest('[inert]')).not.toBeNull();
+    });
+  });
+
   describe('with a body that is only scenery', () => {
     const bodiesWithSection = celestialBodies.filter((body) => body.section !== null);
     const sceneryPlanet: CelestialBodyConfig = {
@@ -296,7 +350,7 @@ describe('PortfolioExperience', () => {
     it('cycles the keyboard focus over the bodies that open a section only', async () => {
       const user = setup({ bodies: bodiesWithScenery });
       await user.tab();
-      await user.keyboard('{ArrowRight}{ArrowRight}');
+      await user.keyboard('{ArrowRight}'.repeat(bodiesWithSection.length));
       expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'sun');
     });
 

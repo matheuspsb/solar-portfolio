@@ -24,6 +24,8 @@ import { buildLockTargets } from './lock-targets';
 import { SceneFallback } from './SceneFallback';
 import { SceneKeyboardControls } from './SceneKeyboardControls';
 import type { SceneKeyboardControlsHandle } from './SceneKeyboardControls';
+import { ImmersiveView } from './ImmersiveView';
+import { getOpenExperience, getOpenPanel } from './open-section';
 import { getTrackedBodyId } from './tracked-body';
 import { SectionView } from './SectionView';
 import { useBodyInteraction } from './use-body-interaction';
@@ -70,6 +72,7 @@ export function PortfolioExperience({
     id: body.id,
     name: body.name,
     menuLabel: body.section.menuLabel,
+    presentation: body.section.presentation,
   }));
   const interaction = useBodyInteraction(labeledBodies.map((body) => body.id));
   const keyboardItems = labeledBodies.map((body) => ({
@@ -88,6 +91,8 @@ export function PortfolioExperience({
   const isSceneReady = isSceneRevealed || isSceneUnavailable;
   const retryHandler = availability.canRetry ? availability.retry : undefined;
   const selectedBody = interactiveBodies.find((body) => body.id === interaction.state.selectedId);
+  const openPanel = getOpenPanel(selectedBody);
+  const openExperience = getOpenExperience(selectedBody);
   const trackedBodyId = getTrackedBodyId(interaction.state);
   const lockTargets = buildLockTargets(interactiveBodies);
 
@@ -156,20 +161,27 @@ export function PortfolioExperience({
         <QuickAccessMenu items={menuItems} onSelectItem={openBody} />
       </div>
       <ContentPanel
-        isOpen={selectedBody !== undefined}
-        title={selectedBody?.section.title ?? ''}
-        panelLabel={selectedBody?.section.panelLabel ?? ''}
+        isOpen={openPanel !== null}
+        title={openPanel?.title ?? ''}
+        panelLabel={openPanel?.panelLabel ?? ''}
         onClose={interaction.deselect}
         getFallbackFocus={focusLastOpenedBody}
         footer={<AttributionNote credits={credits} />}
       >
-        {selectedBody && (
+        {openPanel && (
           <SectionView
-            content={selectedBody.section.content}
-            emblemTextureUrl={selectedBody.texture?.smallUrl ?? null}
+            content={openPanel.content}
+            emblemTextureUrl={selectedBody?.texture?.smallUrl ?? null}
           />
         )}
       </ContentPanel>
+      {openExperience && (
+        <ImmersiveView
+          experience={openExperience}
+          onExit={interaction.deselect}
+          getFallbackFocus={focusLastOpenedBody}
+        />
+      )}
     </>
   );
 }

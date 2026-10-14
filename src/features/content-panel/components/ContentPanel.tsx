@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import type { ReactNode } from 'react';
-import { useModalFocus } from '../hooks/use-modal-focus';
+import { useModalFocus } from '@/hooks/use-modal-focus';
 import { PanelHeader } from './PanelHeader';
 
 type ContentPanelProps = {

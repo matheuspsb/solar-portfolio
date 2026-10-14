@@ -13,7 +13,7 @@ const targets: LockTarget[] = [
     code: '001',
     name: 'SOL',
     description: 'Estrela tipo G · centro do sistema',
-    ctaLabel: 'Sobre',
+    cta: { lead: 'Clique para abrir', accent: 'Sobre →' },
     anchor: 'top-left',
   },
   {
@@ -22,7 +22,7 @@ const targets: LockTarget[] = [
     code: '002',
     name: 'MERCÚRIO',
     description: 'Planeta mensageiro · 0,39 UA',
-    ctaLabel: 'Contato',
+    cta: { lead: 'Clique para abrir', accent: 'Contato →' },
     anchor: 'bottom-left',
   },
 ];

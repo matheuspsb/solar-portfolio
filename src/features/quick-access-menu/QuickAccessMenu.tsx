@@ -4,12 +4,7 @@ import { useArrowNavigation } from '@/hooks/use-arrow-navigation';
 import { useViewportSize } from '@/hooks/use-viewport-size';
 import type { PlanetTone } from '@/domain/celestial-body';
 import { joinClassNames } from '@/lib/join-class-names';
-import {
-  formatObjectCode,
-  getOrbitDelaySeconds,
-  getOrbitPositions,
-  getOrbitRadius,
-} from './orbit-layout';
+import { formatObjectCode, getMenuLayout, getOrbitDelaySeconds } from './orbit-layout';
 import { OrbitMenuItem } from './OrbitMenuItem';
 import { OrbitMenuToggle } from './OrbitMenuToggle';
 
@@ -61,16 +56,17 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
 
   if (items.length === 0) return null;
 
-  const orbitRadius = getOrbitRadius(viewportWidth);
-  const positions = getOrbitPositions({ count: items.length, radius: orbitRadius });
-  const ringDiameter = orbitRadius * 2;
+  const layout = getMenuLayout({ count: items.length, viewportWidth });
+  const positions = layout.positions;
+  const ringDiameter = layout.radius * 2;
   const ringStyle: CSSProperties = {
     width: ringDiameter,
     height: ringDiameter,
-    top: -orbitRadius,
-    left: -orbitRadius,
+    top: -layout.radius,
+    left: -layout.radius,
   };
-  const ringState = isOpen ? 'scale-100 opacity-100' : 'scale-20 opacity-0';
+  const isRingShown = isOpen && layout.kind === 'arc';
+  const ringState = isRingShown ? 'scale-100 opacity-100' : 'scale-20 opacity-0';
   const glowState = isOpen ? 'opacity-100' : 'opacity-0';
   const itemState = isOpen ? itemOpenClasses : itemClosedClasses;
 
