@@ -460,9 +460,7 @@ Layers, cheapest first:
 - **Decision.** O arco começa a 90° (o primeiro destino logo abaixo do botão), a reserva horizontal passou a 200 px, e abaixo de 375 px os destinos ficam em coluna sob o botão (sem o anel tracejado). O unitário garante que todo destino fica na tela e fora do botão para 1 a 3 itens; a sobreposição entre vizinhos é medida no e2e com o DOM real, porque depende da largura de cada rótulo.
 - **Limit.** O arco comporta três destinos; com mais planetas o layout precisa de outra regra (anotado em `TASKS.md`).
 
-## Arcade shell: menu, Escape layers and a paused scene (Venus Arcade, step 2)
+## Arcade shell: no quick menu, paused scene (Venus Arcade, step 2)
 
-- **Menu inside the arcade.** O portfolio cria o `QuickAccessMenu` uma vez e o entrega ao fliperama por um slot (`menu`); a cópia de fundo não é montada enquanto o fliperama está aberto. Assim o menu fica dentro do diálogo modal (alcançável pelo Tab preso) sem a feature do fliperama importar outra feature.
-- **Escape protocol.** No Next o React registra os eventos no `document`, o mesmo nó do listener do `useModalFocus`, então `stopPropagation` não separa camadas. Regra: a camada que trata o `Esc` chama `preventDefault()`, e o `useModalFocus` ignora `Esc` com `defaultPrevented`. O menu deixou de usar `stopPropagation`.
-- **Paused scene.** `SceneProps.isHidden` (cena totalmente coberta) leva o `frameloop` a `'never'`. Atrás de um painel a cena continua viva (`isHidden` falso), como antes. Medido: 0 desenhos por segundo com o fliperama aberto.
-- **Back button.** Nome acessível fixo ("Sistema solar"), texto visível "Sistema" abaixo de `md` e só a seta abaixo de `xs` (360 px, novo token `--breakpoint-xs`), porque em 320 px o texto colidia com o menu. O nome acessível sempre contém o texto visível (WCAG 2.5.3).
+- **No quick menu inside the arcade (Matheus).** O handoff mantinha o "Acesso rápido" visível no fliperama. Uma primeira versão fez isso (menu por slot, `Esc` em camadas com `preventDefault`/`defaultPrevented`, rótulo curto no celular), mas o Matheus preferiu tirar o menu do fliperama para simplificar. Dentro dele só há "← Sistema solar" e `Esc`; para ir a Sobre ou Contato, o visitante volta ao sistema solar.
+- **Paused scene.** `SceneProps.isHidden` (cena totalmente coberta) leva o `frameloop` a `'never'`. Atrás de um painel a cena continua viva (`isHidden` falso). Medido: 0 desenhos por segundo com o fliperama aberto.

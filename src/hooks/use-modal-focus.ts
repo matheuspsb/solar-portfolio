@@ -44,7 +44,6 @@ export function useModalFocus({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        if (event.defaultPrevented) return;
         event.preventDefault();
         escape();
         return;

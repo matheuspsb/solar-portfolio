@@ -74,18 +74,6 @@ describe('QuickAccessMenu', () => {
     expect(getToggle()).toHaveFocus();
   });
 
-  it('marks the Escape that closes it as handled, so a dialog around it stays open', async () => {
-    const { user } = setup();
-    const handledByMenu: boolean[] = [];
-    const recordEscape = (event: KeyboardEvent) => handledByMenu.push(event.defaultPrevented);
-    document.addEventListener('keydown', recordEscape);
-    await user.click(getToggle());
-    await user.keyboard('{Escape}');
-    await user.keyboard('{Escape}');
-    document.removeEventListener('keydown', recordEscape);
-    expect(handledByMenu).toEqual([true, false]);
-  });
-
   it('does nothing on Escape while collapsed', async () => {
     const { user } = setup();
     await user.keyboard('{Escape}');

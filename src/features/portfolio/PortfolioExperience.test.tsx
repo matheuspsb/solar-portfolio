@@ -339,43 +339,12 @@ describe('PortfolioExperience', () => {
       expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
     });
 
-    it('keeps the quick-access menu usable inside the arcade, once', async () => {
+    it('leaves the quick-access menu out of the arcade', async () => {
       const user = setup();
       const arcade = await openArcadeFromScene(user);
-      expect(within(arcade).getByRole('button', { name: 'Acesso rápido' })).toBeInTheDocument();
-      expect(screen.getAllByRole('button', { name: 'Acesso rápido' })).toHaveLength(1);
-    });
-
-    it('closes the open menu with Escape before leaving the arcade', async () => {
-      const user = setup();
-      const arcade = await openArcadeFromScene(user);
-      const toggle = within(arcade).getByRole('button', { name: 'Acesso rápido' });
-      await user.click(toggle);
-      expect(toggle).toHaveAttribute('aria-expanded', 'true');
-      await user.keyboard('{Escape}');
-      expect(toggle).toHaveAttribute('aria-expanded', 'false');
-      expect(arcade).toBeInTheDocument();
-      await user.keyboard('{Escape}');
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    });
-
-    it('leaves the arcade and opens Contact when it is chosen in the menu', async () => {
-      const user = setup();
-      const arcade = await openArcadeFromScene(user);
-      await user.click(within(arcade).getByRole('button', { name: 'Acesso rápido' }));
-      await user.click(within(arcade).getByRole('button', { name: 'Contato' }));
-      expect(screen.getByRole('dialog', { name: 'Contato' })).toBeInTheDocument();
-      expect(screen.queryByRole('dialog', { name: 'Venus Arcade' })).not.toBeInTheDocument();
-      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
-    });
-
-    it('stays in the arcade when Venus Arcade itself is chosen in the menu', async () => {
-      const user = setup();
-      const arcade = await openArcadeFromScene(user);
-      await user.click(within(arcade).getByRole('button', { name: 'Acesso rápido' }));
-      await user.click(within(arcade).getByRole('button', { name: 'Venus Arcade' }));
-      expect(arcade).toBeInTheDocument();
-      expect(within(arcade).getByRole('button', { name: 'Acesso rápido' })).toHaveFocus();
+      expect(
+        within(arcade).queryByRole('button', { name: 'Acesso rápido' }),
+      ).not.toBeInTheDocument();
     });
 
     it('keeps Tab cycling inside the arcade', async () => {

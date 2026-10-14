@@ -55,27 +55,6 @@ describe('ContentPanel', () => {
     expect(opener).toHaveFocus();
   });
 
-  it('leaves Escape to an inner layer that already handled it, like an open menu', async () => {
-    const user = userEvent.setup();
-    const onClose = vi.fn();
-    const handleInnerEscape = (event: React.KeyboardEvent) => {
-      if (event.key === 'Escape') event.preventDefault();
-    };
-    render(
-      <ContentPanel isOpen title="Sobre" panelLabel="Sobre · Objeto 001" onClose={onClose}>
-        <div onKeyDown={handleInnerEscape}>
-          <button>Camada interna</button>
-        </div>
-      </ContentPanel>,
-    );
-    screen.getByRole('button', { name: 'Camada interna' }).focus();
-    await user.keyboard('{Escape}');
-    expect(onClose).not.toHaveBeenCalled();
-    await user.click(screen.getByRole('dialog'));
-    await user.keyboard('{Escape}');
-    expect(onClose).toHaveBeenCalledOnce();
-  });
-
   it('ignores Escape while closed', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

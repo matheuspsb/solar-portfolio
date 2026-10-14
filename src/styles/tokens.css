@@ -7,7 +7,6 @@
  * Palette: deep violet-black space, one warm accent (ember) and one cool accent (nebula).
  */
 @theme {
-  --breakpoint-xs: 22.5rem;
   --color-*: initial;
   --color-white: #ffffff;
 

@@ -104,7 +104,7 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
       }}
       onKeyDown={(event) => {
         if (event.key === 'Escape' && isOpen) {
-          event.preventDefault();
+          event.stopPropagation();
           closeAndRestoreFocus();
         }
       }}

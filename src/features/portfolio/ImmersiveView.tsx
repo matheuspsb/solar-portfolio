@@ -1,5 +1,4 @@
 import { Suspense, lazy } from 'react';
-import type { ReactNode } from 'react';
 import type { ImmersiveExperience } from '@/domain/celestial-body';
 
 const ArcadeExperience = lazy(() =>
@@ -10,15 +9,14 @@ type ImmersiveViewProps = {
   experience: ImmersiveExperience;
   onExit: () => void;
   getFallbackFocus: () => HTMLElement | null;
-  menu: ReactNode;
 };
 
-export function ImmersiveView({ experience, ...shellProps }: ImmersiveViewProps) {
+export function ImmersiveView({ experience, onExit, getFallbackFocus }: ImmersiveViewProps) {
   switch (experience) {
     case 'venus-arcade':
       return (
         <Suspense fallback={null}>
-          <ArcadeExperience {...shellProps} />
+          <ArcadeExperience onExit={onExit} getFallbackFocus={getFallbackFocus} />
         </Suspense>
       );
   }
