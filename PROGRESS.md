@@ -299,3 +299,10 @@ Pausada a pedido do Matheus. O que já existe, o que o handoff pede e as ideias 
 - **Feito.** `AboutContent.emblem` e `content/textures.ts`; as quatro folhas do contato leem o hook de movimento reduzido. Nenhum componente do meio repassa mais esses valores.
 - **Testes novos.** 2 do emblema (com e sem textura), 1 de conteúdo (a textura do emblema é a do corpo que abre o "Sobre") e 4 de movimento reduzido nas folhas. Cada um falhou antes da mudança, pelo motivo certo.
 - **Teste instável encontrado.** Em uma rodada completa, o teste "opens the arcade ... from the Venus keyboard control" falhou uma vez e passou isolado: ele esperava o fliperama (carregado sob demanda) com o limite padrão de 1 s, que estoura quando a máquina está ocupada. Ficou com limite de 5 s (`LAZY_CHUNK_TIMEOUT_MS`) para todos os testes que esperam o fliperama. Duas rodadas completas seguintes passaram; o teste continua e não pode ser removido nem enfraquecido.
+
+## T26: hover perdido quando a textura chega
+
+- **Caso de uso.** Quem deixa o mouse parado sobre um planeta enquanto a textura ainda carrega espera que o "alvo travado" e o cursor de mão continuem quando ela chegar. Se falhasse: o alvo some sozinho e só volta se o mouse se mexer.
+- **Investigação.** Escrevi primeiro o e2e do cenário descrito na task (movimento reduzido, texturas atrasadas em 3,5 s, ponteiro em Mercúrio antes da chegada) e rodei 6 vezes esperando falha. Ele falhou por um erro meu (o primeiro ponto com cursor de mão era o Sol, não Mercúrio); corrigido, passou 8 de 8. Sondei mais cerca de 25 execuções variando o atraso (0 a 3,5 s) e o momento em que o ponteiro chega: o hover sobreviveu à chegada da textura em todas.
+- **Conclusão.** O bug não se reproduz mais; a hipótese do material recriado não se sustenta, porque a malha raycastada é outra (a esfera invisível), que não é remontada. Nenhum código de produção mudou. O teste fica como guarda permanente (`e2e/hover-texture.spec.ts`) e não pode ser removido nem enfraquecido.
+- **Pendência de verdade.** Se o flake do e2e `camera-focus` de movimento reduzido voltar, o primeiro passo é rodar este teste em carga (`--repeat-each`) junto com ele.

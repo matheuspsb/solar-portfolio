@@ -20,6 +20,7 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **T5, T8 e T11, `ContactSection` concentrava responsabilidades demais.** A lógica (formulário, máquina de estados, cometa, envio com travas, rascunho) foi para o hook `useContactJourney`, que devolve um modelo pronto (`delivered`, `stage`, `form`); `ContactSection` caiu de 338 para 77 linhas e só compõe `JourneyStage`, `ContactForm` (nova, em `question/`), `DeliveryReceipt` e `LinkedInCard`. Os ternários repetidos viraram uma variável de visão (`delivered`) e o contador de caracteres é calculado antes do JSX. `deliverSafely` e `readHoneypot` saíram para `delivery/submit-message`, os atributos dos campos para `question/input-attributes`. O envio agora é testável sem a árvore (9 testes do hook, 5 dos helpers).
 - **T6 e T12, textos de interface e `PortfolioExperience`.** Os textos que estavam dentro de componentes (mensagens da cena indisponível, "Fechar painel", "Acesso rápido", rótulos do "Sobre", grupo "Corpos celestes", glifo `←` e a falha inesperada do envio) foram para `content/ui.ts`. `PortfolioExperience` caiu de 212 para 144 linhas: `usePortfolioModel` guarda as listas, a seleção e os handlers, `useSceneShell` a disponibilidade da cena, o canal de frames e a revelação, e `getImmersiveTarget` (em `open-section`) monta o alvo do mergulho.
 - **T3 e T4, props que só atravessavam componentes.** A textura do emblema do Sol virou dado do conteúdo "Sobre" (`AboutContent.emblem.textureUrl`, derivada de `content/textures.ts`, a mesma constante do corpo), então `SectionView` e `AboutSection` perderam a prop `emblemTextureUrl`. `ArcJourney`, `JourneyPlanet`, `DeliveryScene` e `MercuryPlanet` leem `usePrefersReducedMotion()` direto; `ContactSection` não repassa mais `reducedMotion`. Os testes forçam o valor com `stubReducedMotion` (`src/test`).
+- **T26, hover perdido quando a textura chega.** Não foi possível reproduzir hoje. Com movimento reduzido e as texturas atrasadas, o ponteiro parado sobre Mercúrio manteve o alvo travado e o cursor `pointer` depois da chegada das texturas em todas as tentativas (8 execuções do teste novo e cerca de 25 de sondagem, variando o atraso entre 0 e 3,5 s e o instante em que o ponteiro chega). O sintoma provavelmente foi corrigido por mudanças posteriores (interação lida pela malha, T2, e revelação da cena). Fica o e2e `hover-texture.spec.ts` como guarda permanente do cenário descrito; se o bug voltar, ele falha.
 
 ## Tasks abertas
 
@@ -159,17 +160,6 @@ Auditoria de listeners, timers, `requestAnimationFrame`, observers e recursos 3D
 - **Onde:** `QuickAccessMenu`, `SolarSystemSceneLoader`, `TargetLock`. Durante um redimensionamento contínuo os três re-renderizam a cada evento.
 - **Proposta:** limitar a taxa (throttle por frame) dentro do hook, ou derivar só o que cada um precisa (por exemplo, o menu só precisa da faixa de
   largura que muda o raio da órbita).
-
-### T26 (B) O hover se perde quando a textura de um astro termina de carregar com o ponteiro em cima
-
-- **Onde:** `solar-scene/components/bodies/CelestialBody.tsx` e o material do astro (`SunMesh`, `PlanetMesh`).
-- **Como reproduzir:** atrasar as texturas em 3,5 s no Playwright (`page.route` em `.webp`), usar movimento reduzido, pairar sobre Mercúrio assim que o
-  cursor virar `pointer`. Cerca de 15 ms depois chega `pointerout` sem o mouse se mover e o "alvo travado" some até o mouse se mexer. Acontece com ou
-  sem o loader (2 de 4 execuções sem ele), e explica o flake raro do e2e `camera-focus` de movimento reduzido.
-- **Hipótese:** a troca do material quando a textura chega recria o objeto raycastado e o R3F emite `pointerout`. Verificar com um log em
-  `changeHover` e comparar o `uuid` da malha antes e depois.
-- **Pronto quando:** o hover sobrevive à chegada da textura (teste e2e com o atraso acima).
-- **Contorno atual:** os helpers de e2e (`hoverSun`, `hoverMercury`) esperam a cena ser revelada antes de pairar.
 
 ### T27 (C) Pausar o render da cena enquanto o loader a cobre
 
