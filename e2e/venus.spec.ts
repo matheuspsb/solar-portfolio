@@ -168,3 +168,25 @@ test('the game leaves the arcade shelf back with Escape from the title card', as
   await page.keyboard.press('Escape');
   await expect(arcade.getByRole('group', { name: 'Cartuchos do fliperama' })).toBeVisible();
 });
+
+test('pauses with the scoreboard button, restarts from the pause screen and has no axe violations', async ({
+  page,
+}) => {
+  const arcade = await openBugHunter(page);
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(3000);
+  await arcade.getByRole('button', { name: 'Pausar' }).click();
+  const resume = arcade.getByRole('button').filter({ hasText: /RESUME/ });
+  await expect(resume).toBeFocused();
+  await waitForFiniteAnimations(page);
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+
+  await arcade
+    .getByRole('button')
+    .filter({ hasText: /RESTART/ })
+    .click();
+  await expect(resume).toBeHidden();
+  await expect(arcade.getByRole('button', { name: 'Pausar' })).toBeDisabled();
+  await expect(arcade.getByRole('button', { name: 'Pausar' })).toBeEnabled({ timeout: 6000 });
+});

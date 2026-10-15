@@ -540,3 +540,10 @@ Layers, cheapest first:
 - **HUD is a snapshot.** O placar só re-renderiza quando muda algo visível (pontos, combo, segundo inteiro, integridade, fase); a fração de segundo não conta.
 - **Pause on hide.** Aba escondida e perda de foco pausam a partida e soltam as teclas; fora da partida não fazem nada.
 - **Minimal stand-ins.** Pausa e resumo de fim são mínimos e marcados com `TODO(venus-arcade-step-11)` e `TODO(venus-arcade-step-12)`.
+
+## Pause and touch (Venus Arcade, step 11)
+
+- **Touch drags with an offset.** O primeiro toque grava a distância entre o dedo e o drone e o drone mantém essa distância (o protótipo faz igual); o mouse continua levando o drone direto ao cursor. A regra é a função pura `aimFromPointer`.
+- **Touch is detected by pointer, not by screen width.** `(pointer: coarse)` decide os textos de toque; um tablet com mouse recebe os textos de teclado.
+- **One media query hook.** `useMediaQuery` serve ao movimento reduzido e ao ponteiro grosseiro; o hook antigo virou uma casca de uma linha com a mesma API.
+- **Pause screen owns focus.** Ao abrir, o foco vai para "retomar"; ao fechar, volta para quem o tinha (o botão de pausa ou o diálogo).

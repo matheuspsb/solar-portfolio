@@ -12,6 +12,7 @@ import type { RunResult } from '../results/run-result';
 import { applySessionCommand } from '../session/apply-command';
 import { getKeyboardDirection, interpretKey, normalizeKey, trackKey } from '../session/keyboard';
 import type { SessionCommand } from '../session/keyboard';
+import { aimFromPointer, startDrag } from '../session/pointer-aim';
 import { aimSession, createSession, resizeSession } from '../session/session';
 import { advanceGame, createGameState } from './advance-game';
 import type { GameState } from './advance-game';
@@ -176,17 +177,36 @@ export function useGameSession({
       releaseKeys();
     };
 
-    const handlePointerMove = (event: PointerEvent) => {
+    let drag: { x: number; y: number } | null = null;
+
+    const getPointerPoint = (event: PointerEvent) => {
+      const bounds = canvas.getBoundingClientRect();
+      return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+    };
+
+    const aimAt = (event: PointerEvent) => {
       const state = stateRef.current;
       if (state === null) return;
-      const bounds = canvas.getBoundingClientRect();
-      stateRef.current = {
-        ...state,
-        session: aimSession(state.session, {
-          x: event.clientX - bounds.left,
-          y: event.clientY - bounds.top,
-        }),
-      };
+      const target = aimFromPointer({
+        pointerType: event.pointerType,
+        point: getPointerPoint(event),
+        drag,
+      });
+      if (target === null) return;
+      stateRef.current = { ...state, session: aimSession(state.session, target) };
+    };
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const state = stateRef.current;
+      if (state !== null && event.pointerType !== 'mouse') {
+        drag = startDrag(state.session.drone, getPointerPoint(event));
+        canvas.setPointerCapture(event.pointerId);
+      }
+      aimAt(event);
+    };
+
+    const endDrag = () => {
+      drag = null;
     };
 
     measure();
@@ -197,8 +217,10 @@ export function useGameSession({
     window.addEventListener('keyup', handleKeyUp);
     window.addEventListener('blur', pauseWhenHidden);
     document.addEventListener('visibilitychange', pauseWhenHidden);
-    canvas.addEventListener('pointermove', handlePointerMove);
-    canvas.addEventListener('pointerdown', handlePointerMove);
+    canvas.addEventListener('pointermove', aimAt);
+    canvas.addEventListener('pointerdown', handlePointerDown);
+    canvas.addEventListener('pointerup', endDrag);
+    canvas.addEventListener('pointercancel', endDrag);
 
     return () => {
       scheduler.cancel(handle);
@@ -207,8 +229,10 @@ export function useGameSession({
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('blur', pauseWhenHidden);
       document.removeEventListener('visibilitychange', pauseWhenHidden);
-      canvas.removeEventListener('pointermove', handlePointerMove);
-      canvas.removeEventListener('pointerdown', handlePointerMove);
+      canvas.removeEventListener('pointermove', aimAt);
+      canvas.removeEventListener('pointerdown', handlePointerDown);
+      canvas.removeEventListener('pointerup', endDrag);
+      canvas.removeEventListener('pointercancel', endDrag);
       stateRef.current = null;
     };
   }, [mode, scheduler]);

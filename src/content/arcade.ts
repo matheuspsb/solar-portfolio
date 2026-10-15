@@ -72,11 +72,21 @@ export const arcadeContent = {
     hud: { score: 'SCORE', time: 'TIME', integrity: 'INTEGRITY' },
     title: {
       kicker: 'Production is on fire',
-      controls: 'MOVE · WASD / ARROWS / DRAG · AUTO-FIRE',
+      controls:
+        'Move with the mouse, WASD or arrow keys. Firing is automatic. Esc pauses, R restarts.',
+      touchControls: 'Drag anywhere on the screen to fly. Firing is automatic.',
       start: 'PRESS ENTER',
+      touchStart: 'TAP TO START',
     },
     banners: { deploy: 'DEPLOYED', crash: 'SYSTEM CRASH' },
-    paused: { title: 'PAUSED', resume: 'RESUME', quit: 'ARCADE' },
+    paused: {
+      title: 'PAUSED',
+      onHold: 'PRODUCTION IS ON HOLD',
+      left: 'LEFT',
+      resume: 'RESUME · ESC',
+      restart: 'RESTART · R',
+      quit: 'QUIT TO ARCADE · Q',
+    },
     finished: { title: 'RUN COMPLETE', restart: 'PLAY AGAIN', quit: 'ARCADE' },
   },
   a11y: {
@@ -92,6 +102,7 @@ export const arcadeContent = {
     accessDeniedAnnouncement: 'Acesso negado, cartucho selado.',
     gameCanvas: 'Área do jogo BUG HUNTER. Mova o drone com WASD, setas ou arrastando.',
     hudGroup: 'Placar da partida',
+    pauseButton: 'Pausar',
     scoreAnnouncement: 'Pontuação',
     integrityAnnouncement: 'Integridade',
     timeAnnouncement: 'Segundos restantes',

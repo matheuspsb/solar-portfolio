@@ -5,11 +5,13 @@ import type { SessionCommand } from '../session/keyboard';
 import { ArcadeButton } from '../ui/ArcadeButton';
 import { Kicker } from '../ui/Kicker';
 import { PixelTitle } from '../ui/PixelTitle';
+import { PauseScreen } from './PauseScreen';
 
 const { game } = arcadeContent;
 
 type GameOverlayProps = {
   hud: HudSnapshot;
+  isTouch: boolean;
   onCommand: (command: SessionCommand) => void;
 };
 
@@ -21,16 +23,18 @@ function OverlayFrame({ children }: { children: ReactNode }) {
   );
 }
 
-export function GameOverlay({ hud, onCommand }: GameOverlayProps) {
+export function GameOverlay({ hud, isTouch, onCommand }: GameOverlayProps) {
+  const controlsText = isTouch ? game.title.touchControls : game.title.controls;
+  const startLabel = isTouch ? game.title.touchStart : game.title.start;
   if (hud.phase === 'title') {
     return (
       <OverlayFrame>
         <Kicker>{game.title.kicker}</Kicker>
         <PixelTitle>{arcadeContent.cartridges[0].name}</PixelTitle>
         <p className="font-mono text-arcade-hint tracking-caps text-arcade-ink-300">
-          {game.title.controls}
+          {controlsText}
         </p>
-        <ArcadeButton onClick={() => onCommand('begin')}>{game.title.start}</ArcadeButton>
+        <ArcadeButton onClick={() => onCommand('begin')}>{startLabel}</ArcadeButton>
         <ArcadeButton variant="secondary" onClick={() => onCommand('quit')}>
           {game.leaveLabel}
         </ArcadeButton>
@@ -59,16 +63,13 @@ export function GameOverlay({ hud, onCommand }: GameOverlayProps) {
     );
   }
 
-  // TODO(venus-arcade-step-11): replace this minimal pause notice with the designed pause screen.
   if (hud.phase === 'paused') {
     return (
-      <OverlayFrame>
-        <PixelTitle>{game.paused.title}</PixelTitle>
-        <ArcadeButton onClick={() => onCommand('resume')}>{game.paused.resume}</ArcadeButton>
-        <ArcadeButton variant="secondary" onClick={() => onCommand('quit')}>
-          {game.paused.quit}
-        </ArcadeButton>
-      </OverlayFrame>
+      <PauseScreen
+        secondsLeft={hud.secondsLeft}
+        controlsText={controlsText}
+        onCommand={onCommand}
+      />
     );
   }
 
