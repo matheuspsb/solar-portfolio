@@ -30,7 +30,7 @@ jobs:
 
   # TODO(ci): re-enable the end-to-end job. It is off for now because the tests that capture the WebGL
   # canvas (keyboard-zoom, Sun framing, camera focus, polish...) time out on the 2-vCPU GitHub runners,
-  # where WebGL is rasterized on the CPU. The suite passes locally (`pnpm test:e2e`, ~2 min).
+  # where WebGL is rasterized on the CPU. The suite passes locally (`pnpm test:e2e`, ~5 min).
   # Ideas: tag the canvas-capture tests (@canvas) and run only the rest on pull requests
   # (`--grep-invert @canvas`) plus the full suite nightly via `schedule`/`workflow_dispatch`, or make the
   # scene static during those tests. The old job was:
