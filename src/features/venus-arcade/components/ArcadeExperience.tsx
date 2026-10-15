@@ -8,6 +8,7 @@ import { getAdjacentId } from '@/lib/circular-navigation';
 import { getLocalStorage } from '@/lib/safe-storage';
 import { useArcadeSounds } from '../audio/use-arcade-sounds';
 import { useSoundPlayer } from '../audio/use-sound-player';
+import { CabinetShell } from '../cabinet/CabinetShell';
 import { CARTRIDGE_IDS, getBestMode, interpretHomeKey } from '../flow/cartridges';
 import type { CartridgeId } from '../flow/cartridges';
 import { useArcadeFlow } from '../flow/use-arcade-flow';
@@ -121,9 +122,9 @@ export function ArcadeExperience({
       aria-label={arcadeContent.dialogLabel}
       tabIndex={-1}
       inert={isLeaving}
-      className={`fixed inset-0 z-(--z-panel) flex flex-col bg-arcade-screen text-arcade-ink-100 outline-none ${stageMotion}`}
+      className={`fixed inset-0 z-(--z-panel) bg-arcade-screen text-arcade-ink-100 outline-none ${stageMotion}`}
     >
-      <header className="flex items-center justify-between px-5 pt-5">
+      <header className="absolute inset-x-0 top-0 z-20 flex h-16 items-center justify-between px-3 min-[720px]:px-6">
         <Button variant="secondary" onClick={onExit}>
           <span aria-hidden="true" className="text-ember-400">
             ←
@@ -132,7 +133,7 @@ export function ArcadeExperience({
         </Button>
         <SoundToggle isOn={sound.isSoundOn} onToggle={sound.toggleSound} />
       </header>
-      <div className="relative flex-1">
+      <CabinetShell showsLegend={flow.screen !== 'boot'}>
         {flow.screen === 'boot' && <BootScreen progress={arcade.bootProgress} />}
         {flow.screen === 'home' && (
           <HomeScreen
@@ -154,7 +155,7 @@ export function ArcadeExperience({
             onSound={sound.play}
           />
         )}
-      </div>
+      </CabinetShell>
     </div>
   );
 }

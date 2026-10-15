@@ -1,6 +1,19 @@
 export const arcadeContent = {
   dialogLabel: 'Venus Arcade',
   sound: { on: 'SOUND ON', off: 'SOUND OFF' },
+  cabinet: {
+    label: '⟟⏃⍀⏚ · CAB-02',
+    power: 'PWR',
+    left: { glyph: '⏃⟟⍀', label: 'CAB-01 · OFFLINE' },
+    right: { glyph: '⟒⏚', label: 'CAB-03 · 464 °C' },
+  },
+  keyLegend: [
+    { key: 'MOUSE · WASD', action: 'Move' },
+    { key: 'AUTO', action: 'Fire' },
+    { key: 'ESC', action: 'Pause / back' },
+    { key: 'R', action: 'Restart' },
+    { key: 'M', action: 'Sound' },
+  ],
   backLabel: 'Sistema solar',
   title: 'VENUS ARCADE',
   boot: {
@@ -72,11 +85,19 @@ export const arcadeContent = {
     },
     hud: { score: 'SCORE', time: 'TIME', integrity: 'INTEGRITY' },
     title: {
-      kicker: 'Production is on fire',
+      kicker: 'CARTRIDGE 01 · 45 SECONDS',
+      hotfixKicker: 'CARTRIDGE 03 · HOTFIX MODE',
+      subtitle: 'PRODUCTION IS UNDER ATTACK',
+      legend: [
+        { sprite: 'crawler', verb: 'SQUASH', text: 'Bugs. Beetles take 3 hits.' },
+        { sprite: 'data', verb: 'CLEAN', text: 'Corrupted data, 2 hits.' },
+        { sprite: 'glitch', verb: 'AVOID', text: 'Glitches. They cannot be shot.' },
+        { sprite: 'patch', verb: 'CATCH', text: 'Patches restore integrity.' },
+      ],
       controls:
         'Move with the mouse, WASD or arrow keys. Firing is automatic. Esc pauses, R restarts.',
       touchControls: 'Drag anywhere on the screen to fly. Firing is automatic.',
-      start: 'PRESS ENTER',
+      start: 'START · ENTER',
       touchStart: 'TAP TO START',
     },
     banners: {
@@ -125,6 +146,7 @@ export const arcadeContent = {
     newBestAnnouncement: 'Novo recorde.',
     pauseButton: 'Pausar',
     soundToggle: 'Som do fliperama',
+    keyLegend: 'Atalhos de teclado',
     scoreAnnouncement: 'Pontuação',
     integrityAnnouncement: 'Integridade',
     timeAnnouncement: 'Segundos restantes',

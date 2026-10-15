@@ -51,7 +51,7 @@ export function GameScreen({
       {hud !== null && (
         <>
           <GameHud hud={hud} onPause={() => sendCommand('pause')} />
-          <GameOverlay hud={hud} isTouch={isTouch} onCommand={sendCommand} />
+          <GameOverlay hud={hud} mode={mode} isTouch={isTouch} onCommand={sendCommand} />
           <VisuallyHidden as="div" role="status">
             {arcadeContent.a11y.phaseAnnouncements[hud.phase]}
           </VisuallyHidden>

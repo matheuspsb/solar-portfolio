@@ -573,3 +573,11 @@ Layers, cheapest first:
 - **Reduced motion skips it.** Sem voo, sem névoa, sem fade: abre e fecha na hora, como as outras transições do site.
 - **Focus.** Durante o voo a cena está inerte (como com o painel); o foco volta a Vênus ao fim da volta pelo mesmo caminho do painel.
 - **The dive cannot be cancelled.** Durante os 1,7 s a cena está inerte e o fliperama ainda não existe para receber `Esc`; a volta (`surfacing`) é interrompível, pois escolher Vênus de novo reinicia o mergulho a partir da pose atual.
+
+## Cabinet and CRT finish (Venus Arcade, step 15)
+
+- **Decoration is invisible to assistive technology.** Gravação, LED, cabines laterais e os três overlays do CRT são `aria-hidden` e não recebem ponteiro; a legenda de teclas é uma lista com nome em português.
+- **Breakpoints follow the handoff.** 720 px separa celular e desktop (padding, legenda); 1240 px liga as cabines laterais. São consultas de viewport do Tailwind, não da tela do jogo, porque a moldura fica fora do contêiner da tela.
+- **The game plays in the screen, not in the window.** A área de jogo agora é a tela da cabine (no máximo 1080 por 780 px). O motor já era independente do tamanho do campo, então nada mudou nele.
+- **Motion is opt-in.** Flicker, LEDs piscando e o ruído animado usam `motion-safe:`; as scanlines, o ruído e a vinheta ficam estáticos com movimento reduzido.
+- **Noise is an SVG, not a canvas.** O ruído de 128 px é um `feTurbulence` embutido em CSS, sem JavaScript e sem imagem para baixar.
