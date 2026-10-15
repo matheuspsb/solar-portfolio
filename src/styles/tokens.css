@@ -52,6 +52,24 @@
   --color-focus-ring: #7cc4ff;
 
   /* Stack "planets" */
+  --color-arcade-screen: #0b0705;
+  --color-arcade-cabinet-high: #22160f;
+  --color-arcade-cabinet-low: #120b08;
+  --color-arcade-cabinet-edge: #3a261a;
+  --color-arcade-grid: #2e1c11;
+  --color-arcade-lane: #1e130b;
+  --color-arcade-outline: #5a3a26;
+  --color-arcade-ink-100: #ffe2b0;
+  --color-arcade-ink-200: #d8c7b8;
+  --color-arcade-ink-300: #a98a72;
+  --color-venus-phosphor: #ffcf8a;
+  --color-venus-amber: #ffb347;
+  --color-venus-burnt: #e0603a;
+  --color-venus-alert: #e2574c;
+  --color-venus-root: #ffd36b;
+  --color-venus-copper: #c0895c;
+  --color-venus-bolt: #fff1c9;
+
   --color-planet-cyan: #7fd3f0;
   --color-planet-white: #e8e6ef;
   --color-planet-blue: #6f9cf0;
@@ -67,6 +85,7 @@
   --color-emblem-dark: #6e260b;
 
   --font-sans: var(--font-bricolage), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-pixel: var(--font-silkscreen), ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --font-mono: var(--font-jetbrains), ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   --text-sm: 0.875rem;
@@ -79,6 +98,7 @@
   --text-body--line-height: 1.6;
   --text-tag: 0.8125rem;
   --text-credit: 0.71875rem;
+  --text-pixel-title: clamp(1.75rem, 6vw, 3.5rem);
   --text-eyebrow: 0.6875rem;
   --text-label: 0.625rem;
   --text-question: 1.875rem;
@@ -108,6 +128,7 @@
   --radius-pill: 999px;
   --radius-ellipse: 50%;
 
+  --text-shadow-pixel-glow: 0 0 14px rgb(255 207 138 / 0.4);
   --shadow-glow: 0 0 40px rgb(255 138 31 / 0.25);
   --shadow-panel: 0 24px 80px rgb(0 0 0 / 0.55);
   --shadow-dot: 0 0 10px currentColor;

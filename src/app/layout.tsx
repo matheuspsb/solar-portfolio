@@ -20,6 +20,14 @@ const jetbrainsMono = localFont({
   display: 'swap',
 });
 
+const silkscreen = localFont({
+  src: './fonts/silkscreen-latin-400.woff2',
+  weight: '400',
+  variable: '--font-silkscreen',
+  display: 'swap',
+  preload: false,
+});
+
 const title = 'Matheus — Software Engineer';
 const description =
   'Portfólio de Matheus, Software Engineer com foco em frontend (React, Next.js e TypeScript), em formato de sistema solar 3D.';
@@ -39,7 +47,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="pt-BR"
-      className={`${bricolage.variable} ${jetbrainsMono.variable}`}
+      className={`${bricolage.variable} ${jetbrainsMono.variable} ${silkscreen.variable}`}
       suppressHydrationWarning
     >
       <body>

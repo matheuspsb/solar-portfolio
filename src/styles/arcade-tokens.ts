@@ -1,0 +1,14 @@
+export const arcadeTokens = {
+  screenColor: '#0b0705',
+  gridColor: '#2e1c11',
+  laneColor: '#1e130b',
+  crawlerColor: '#ffb347',
+  beetleColor: '#e0603a',
+  dataColor: '#f2b56b',
+  glitchColor: '#e2574c',
+  glitchGhostColor: '#9fb4e8',
+  droneColor: '#ffe2b0',
+  hotfixDroneColor: '#ffd36b',
+  shotColor: '#fff1c9',
+  shotGlowColor: '#f2b56b',
+} as const;
