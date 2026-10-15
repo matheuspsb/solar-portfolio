@@ -9,6 +9,7 @@ const MAX_RADIUS_PIXELS = 200;
 const MIN_RADIUS_PIXELS = 120;
 const HORIZONTAL_RESERVE_PIXELS = 200;
 const ARC_MIN_VIEWPORT_PIXELS = 375;
+const MAX_ARC_ITEMS = 3;
 const COLUMN_FIRST_OFFSET_PIXELS = 62;
 const COLUMN_STEP_PIXELS = 64;
 
@@ -78,7 +79,24 @@ function getColumnPositions(count: number): OrbitPosition[] {
 
 export function getMenuLayout({ count, viewportWidth }: MenuLayoutInput): MenuLayout {
   const radius = getOrbitRadius(viewportWidth);
-  const hasRoomForArc = viewportWidth >= ARC_MIN_VIEWPORT_PIXELS;
+  const hasRoomForArc = viewportWidth >= ARC_MIN_VIEWPORT_PIXELS && count <= MAX_ARC_ITEMS;
   if (!hasRoomForArc) return { kind: 'column', radius, positions: getColumnPositions(count) };
   return { kind: 'arc', radius, positions: getOrbitPositions({ count, radius }) };
+}
+
+type OrbitItemsInput<Item> = {
+  items: readonly Item[];
+  positions: readonly OrbitPosition[];
+};
+
+export function getOrbitItems<Item extends { id: string }>({
+  items,
+  positions,
+}: OrbitItemsInput<Item>) {
+  return items.map((item, index) => ({
+    ...item,
+    code: formatObjectCode(index),
+    position: positions[index] ?? { x: 0, y: 0 },
+    delaySeconds: getOrbitDelaySeconds(index),
+  }));
 }

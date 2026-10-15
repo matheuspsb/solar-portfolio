@@ -1,13 +1,14 @@
-import { useEffect, useEffectEvent, useId, useRef, useState } from 'react';
-import type { CSSProperties, FocusEvent } from 'react';
-import { useArrowNavigation } from '@/hooks/use-arrow-navigation';
+import { useId } from 'react';
+import type { CSSProperties } from 'react';
 import { useViewportSize } from '@/hooks/use-viewport-size';
 import type { PlanetTone } from '@/domain/celestial-body';
 import { joinClassNames } from '@/lib/join-class-names';
-import { formatObjectCode, getMenuLayout, getOrbitDelaySeconds } from './orbit-layout';
+import { uiContent } from '@/content/ui';
+import { getMenuLayout, getOrbitItems } from './orbit-layout';
 import { OrbitMenuItem } from './OrbitMenuItem';
 import { OrbitMenuToggle } from './OrbitMenuToggle';
-import { uiContent } from '@/content/ui';
+import { OrbitRing } from './OrbitRing';
+import { useQuickAccessMenu } from './use-quick-access-menu';
 
 type QuickAccessMenuProps = {
   items: ReadonlyArray<{ id: string; label: string; tone: PlanetTone }>;
@@ -20,71 +21,24 @@ type OrbitItemStyle = CSSProperties & {
   '--orbit-delay': string;
 };
 
-const ringClasses =
-  'transition-orbit-ring absolute rounded-full border border-dashed border-ember-400/33';
-const glowClasses =
-  'transition-orbit-glow absolute -top-32.5 -left-32.5 size-65 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-ember-400)_12%,transparent),transparent_65%)]';
 const itemOpenClasses =
   'translate-x-(--orbit-x) translate-y-(--orbit-y) scale-100 opacity-100 transition-orbit-item-open';
 const itemClosedClasses =
   'pointer-events-none translate-x-0 translate-y-0 scale-30 opacity-0 transition-orbit-item-close';
 
 export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const { width: viewportWidth } = useViewportSize();
   const listId = useId();
-  const containerRef = useRef<HTMLElement>(null);
-  const toggleRef = useRef<HTMLButtonElement>(null);
-  const isPressingMenuRef = useRef(false);
-  const { registerItem, handleKeyDown, getItem } = useArrowNavigation(items.map((item) => item.id));
-  const firstItemId = items[0]?.id;
-  const focusFirstItem = useEffectEvent(() => {
-    if (firstItemId !== undefined) getItem(firstItemId)?.focus();
-  });
-
-  useEffect(() => {
-    if (!isOpen) return;
-    focusFirstItem();
-
-    const closeOnOutsidePointer = (event: PointerEvent) => {
-      if (event.target instanceof Node && !containerRef.current?.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('pointerdown', closeOnOutsidePointer);
-    return () => document.removeEventListener('pointerdown', closeOnOutsidePointer);
-  }, [isOpen]);
+  const { containerRef, toggleRef, menu } = useQuickAccessMenu(items.map((item) => item.id));
 
   if (items.length === 0) return null;
 
   const layout = getMenuLayout({ count: items.length, viewportWidth });
-  const positions = layout.positions;
-  const ringDiameter = layout.radius * 2;
-  const ringStyle: CSSProperties = {
-    width: ringDiameter,
-    height: ringDiameter,
-    top: -layout.radius,
-    left: -layout.radius,
-  };
-  const isRingShown = isOpen && layout.kind === 'arc';
-  const ringState = isRingShown ? 'scale-100 opacity-100' : 'scale-20 opacity-0';
-  const glowState = isOpen ? 'opacity-100' : 'opacity-0';
-  const itemState = isOpen ? itemOpenClasses : itemClosedClasses;
-
-  const closeAndRestoreFocus = () => {
-    setIsOpen(false);
-    toggleRef.current?.focus();
-  };
-
-  const closeWhenFocusLeaves = (event: FocusEvent<HTMLElement>) => {
-    const nextFocus = event.relatedTarget;
-    if (nextFocus === null && isPressingMenuRef.current) return;
-    if (nextFocus instanceof Node && event.currentTarget.contains(nextFocus)) return;
-    setIsOpen(false);
-  };
+  const orbitItems = getOrbitItems({ items, positions: layout.positions });
+  const itemState = menu.isOpen ? itemOpenClasses : itemClosedClasses;
 
   const selectItem = (id: string) => {
-    closeAndRestoreFocus();
+    menu.closeAndRestoreFocus();
     onSelectItem(id);
   };
 
@@ -93,44 +47,41 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
       aria-label={uiContent.quickAccess}
       ref={containerRef}
       className="fixed top-5 right-5 z-(--z-chrome)"
-      onBlur={closeWhenFocusLeaves}
-      onPointerDown={() => {
-        isPressingMenuRef.current = true;
-      }}
-      onPointerUp={() => {
-        isPressingMenuRef.current = false;
-      }}
-      onPointerCancel={() => {
-        isPressingMenuRef.current = false;
-      }}
+      onBlur={menu.closeWhenFocusLeaves}
+      onPointerDown={menu.markPressStart}
+      onPointerUp={menu.markPressEnd}
+      onPointerCancel={menu.markPressEnd}
       onKeyDown={(event) => {
-        if (event.key === 'Escape' && isOpen) {
+        if (event.key === 'Escape' && menu.isOpen) {
           event.stopPropagation();
-          closeAndRestoreFocus();
+          menu.closeAndRestoreFocus();
         }
       }}
     >
       <OrbitMenuToggle
         ref={toggleRef}
         label={uiContent.quickAccess}
-        isOpen={isOpen}
+        isOpen={menu.isOpen}
         controlsId={listId}
-        onClick={() => setIsOpen((wasOpen) => !wasOpen)}
+        onClick={menu.toggle}
       />
       <div className="pointer-events-none absolute top-5.5 right-5.5 size-0">
-        <div aria-hidden="true" className={joinClassNames(glowClasses, glowState)} />
-        <div
-          aria-hidden="true"
-          className={joinClassNames(ringClasses, ringState)}
-          style={ringStyle}
+        <OrbitRing
+          isOpen={menu.isOpen}
+          isRingShown={menu.isOpen && layout.kind === 'arc'}
+          radius={layout.radius}
         />
-        <ul id={listId} className="m-0 list-none p-0" inert={!isOpen} aria-hidden={!isOpen}>
-          {items.map((item, index) => {
-            const position = positions[index] ?? { x: 0, y: 0 };
+        <ul
+          id={listId}
+          className="m-0 list-none p-0"
+          inert={!menu.isOpen}
+          aria-hidden={!menu.isOpen}
+        >
+          {orbitItems.map((item) => {
             const style: OrbitItemStyle = {
-              '--orbit-x': `${position.x}px`,
-              '--orbit-y': `${position.y}px`,
-              '--orbit-delay': `${getOrbitDelaySeconds(index)}s`,
+              '--orbit-x': `${item.position.x}px`,
+              '--orbit-y': `${item.position.y}px`,
+              '--orbit-delay': `${item.delaySeconds}s`,
             };
             return (
               <li
@@ -139,11 +90,11 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
                 style={style}
               >
                 <OrbitMenuItem
-                  ref={registerItem(item.id)}
+                  ref={menu.registerItem(item.id)}
                   label={item.label}
-                  code={formatObjectCode(index)}
+                  code={item.code}
                   tone={item.tone}
-                  onKeyDown={(event) => handleKeyDown(event, item.id)}
+                  onKeyDown={(event) => menu.handleKeyDown(event, item.id)}
                   onClick={() => selectItem(item.id)}
                 />
               </li>

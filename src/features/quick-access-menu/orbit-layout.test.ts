@@ -3,6 +3,7 @@ import {
   formatObjectCode,
   getOrbitDelaySeconds,
   getMenuLayout,
+  getOrbitItems,
   getOrbitPositions,
   getOrbitRadius,
 } from './orbit-layout';
@@ -147,5 +148,67 @@ describe('getMenuLayout', () => {
     for (const [index, box] of boxes.slice(1).entries()) {
       expect(overlaps(box, boxes[index]!)).toBe(false);
     }
+  });
+});
+
+describe('getMenuLayout with more than three destinations', () => {
+  const WIDTHS = [320, 375, 414, 768, 1280];
+  const COUNTS = [4, 5, 6, 8];
+
+  it.each(WIDTHS)('never lays four or more destinations on the arc at %spx', (width) => {
+    for (const count of COUNTS) {
+      expect(getMenuLayout({ count, viewportWidth: width }).kind).toBe('column');
+    }
+  });
+
+  it.each(WIDTHS)('keeps the stacked destinations from overlapping each other at %spx', (width) => {
+    for (const count of COUNTS) {
+      const boxes = getMenuLayout({ count, viewportWidth: width }).positions.map(cardBox);
+      for (const [index, box] of boxes.entries()) {
+        for (const other of boxes.slice(index + 1)) {
+          expect(overlaps(box, other)).toBe(false);
+        }
+      }
+    }
+  });
+
+  it.each(WIDTHS)('keeps them on screen and off the toggle at %spx', (width) => {
+    for (const count of COUNTS) {
+      for (const box of getMenuLayout({ count, viewportWidth: width }).positions.map(cardBox)) {
+        expect(width - ANCHOR_FROM_RIGHT + box.left).toBeGreaterThanOrEqual(0);
+        expect(overlaps(box, TOGGLE_BOX)).toBe(false);
+      }
+    }
+  });
+
+  it('keeps the arc for up to three destinations on a wide screen', () => {
+    for (const count of [1, 2, 3]) {
+      expect(getMenuLayout({ count, viewportWidth: 1280 }).kind).toBe('arc');
+    }
+  });
+});
+
+describe('getOrbitItems', () => {
+  const items = [
+    { id: 'sun', label: 'Sobre', tone: 'amber' },
+    { id: 'mercury', label: 'Contato', tone: 'periwinkle' },
+  ] as const;
+
+  it('pairs each destination with its code, position and entrance delay, in order', () => {
+    const layout = getMenuLayout({ count: items.length, viewportWidth: 1280 });
+    const orbitItems = getOrbitItems({ items, positions: layout.positions });
+    expect(orbitItems.map((item) => item.id)).toEqual(['sun', 'mercury']);
+    expect(orbitItems.map((item) => item.code)).toEqual(['OBJ-001', 'OBJ-002']);
+    expect(orbitItems[1]?.position).toEqual(layout.positions[1]);
+    expect(orbitItems[1]!.delaySeconds).toBeGreaterThan(orbitItems[0]!.delaySeconds);
+  });
+
+  it('parks a destination on the anchor when no position was computed for it', () => {
+    const [item] = getOrbitItems({ items, positions: [] });
+    expect(item?.position).toEqual({ x: 0, y: 0 });
+  });
+
+  it('has no items without destinations', () => {
+    expect(getOrbitItems({ items: [], positions: [] })).toEqual([]);
   });
 });

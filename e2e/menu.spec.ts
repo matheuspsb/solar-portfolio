@@ -99,3 +99,34 @@ test('with reduced motion the destinations only fade (no flight along the arc)',
   expect(await readTransitionProperty('no-preference')).toContain('translate');
   expect(await readTransitionProperty('reduce')).toBe('opacity');
 });
+
+test('keeps every real destination clear of the others and of the toggle', async ({ browser }) => {
+  for (const viewport of [
+    { width: 1280, height: 800 },
+    { width: 414, height: 740 },
+    { width: 375, height: 740 },
+    { width: 320, height: 700 },
+  ]) {
+    const page = await openPage(browser, { viewport });
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Acesso rápido' }).click();
+    const menu = page.getByRole('navigation', { name: 'Acesso rápido' });
+    await expect(menu.getByRole('button')).toHaveCount(4);
+    await page.waitForTimeout(1200);
+    const boxes = [];
+    for (const button of await menu.getByRole('button').all()) {
+      boxes.push((await button.boundingBox())!);
+    }
+    for (const [index, box] of boxes.entries()) {
+      for (const other of boxes.slice(index + 1)) {
+        const overlaps =
+          box.x < other.x + other.width &&
+          other.x < box.x + box.width &&
+          box.y < other.y + other.height &&
+          other.y < box.y + box.height;
+        expect(overlaps).toBe(false);
+      }
+    }
+    await page.close();
+  }
+});

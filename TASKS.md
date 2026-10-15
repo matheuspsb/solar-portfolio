@@ -21,6 +21,7 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **T6 e T12, textos de interface e `PortfolioExperience`.** Os textos que estavam dentro de componentes (mensagens da cena indisponível, "Fechar painel", "Acesso rápido", rótulos do "Sobre", grupo "Corpos celestes", glifo `←` e a falha inesperada do envio) foram para `content/ui.ts`. `PortfolioExperience` caiu de 212 para 144 linhas: `usePortfolioModel` guarda as listas, a seleção e os handlers, `useSceneShell` a disponibilidade da cena, o canal de frames e a revelação, e `getImmersiveTarget` (em `open-section`) monta o alvo do mergulho.
 - **T3 e T4, props que só atravessavam componentes.** A textura do emblema do Sol virou dado do conteúdo "Sobre" (`AboutContent.emblem.textureUrl`, derivada de `content/textures.ts`, a mesma constante do corpo), então `SectionView` e `AboutSection` perderam a prop `emblemTextureUrl`. `ArcJourney`, `JourneyPlanet`, `DeliveryScene` e `MercuryPlanet` leem `usePrefersReducedMotion()` direto; `ContactSection` não repassa mais `reducedMotion`. Os testes forçam o valor com `stubReducedMotion` (`src/test`).
 - **T26, hover perdido quando a textura chega.** Não foi possível reproduzir hoje. Com movimento reduzido e as texturas atrasadas, o ponteiro parado sobre Mercúrio manteve o alvo travado e o cursor `pointer` depois da chegada das texturas em todas as tentativas (8 execuções do teste novo e cerca de 25 de sondagem, variando o atraso entre 0 e 3,5 s e o instante em que o ponteiro chega). O sintoma provavelmente foi corrigido por mudanças posteriores (interação lida pela malha, T2, e revelação da cena). Fica o e2e `hover-texture.spec.ts` como guarda permanente do cenário descrito; se o bug voltar, ele falha.
+- **T10, T13, T16 e T28, `QuickAccessMenu`.** O estado do menu (abrir, fechar, foco, pressão, navegação por setas) foi para `useQuickAccessMenu`; o clique fora virou o hook `useDismissOnOutsidePointer`; o foco no primeiro item acontece no mesmo gesto que abre o menu (`flushSync` no handler), sem effect; o anel e o brilho são `OrbitRing`; a lista pronta de destinos (código, posição e atraso) vem de `getOrbitItems`, sem cálculo no JSX. Com mais de três destinos o menu usa a coluna (`MAX_ARC_ITEMS`), em qualquer largura, porque o arco só separa três cartões. `QuickAccessMenu` caiu de 160 para 107 linhas. O `onCreated` da cena, citado no T10, já tinha sido resolvido no T21.
 
 ## Tasks abertas
 
@@ -64,19 +65,7 @@ abaixo é uma task. Prioridade: **A** (vale fazer logo), **B** (melhora clara), 
 - **Onde:** `PlanetMesh.tsx:49` e `:52` (`texture ? … : …` em `key` e em `emissive`), `SolarSystemScene.tsx:98` (`frameloop`).
 - **Proposta:** nomear o valor antes do JSX (`const materialKey = texture ? 'textured' : 'plain'`). Baixo risco, ganho de leitura.
 
-### T10 (C) `.map` com lógica dentro do JSX e handler de várias linhas
-
-- **Onde:** `quick-access-menu/QuickAccessMenu.tsx:131` (`items.map` com 3 statements: posição, estilo e delay calculados no JSX) e
-  `solar-scene/SolarSystemScene.tsx:109` (`onCreated` com 2 statements, registra listeners).
-- **Proposta:** pré-calcular uma lista de itens prontos (`getOrbitItems`) e extrair o handler do canvas para um hook (ver T21).
-
 ## Arquivos com mais de uma responsabilidade
-
-### T13 (B) `QuickAccessMenu.tsx` (160 linhas)
-
-- **Mistura:** estado aberto/fechado, foco no primeiro item, clique fora (effect com listener), cálculo de geometria (posições, raio) e o JSX dos
-  anéis e itens.
-- **Proposta:** `useQuickAccessMenu` (abrir, fechar, foco, clique fora) e um componente de apresentação `OrbitRing` para anel, brilho e itens.
 
 ### T14 (B) `SolarSystemScene.tsx` (176 linhas) e `use-comet.ts` (143 linhas)
 
@@ -100,12 +89,6 @@ abaixo é uma task. Prioridade: **A** (vale fazer logo), **B** (melhora clara), 
 - **Onde:** `contact/AnswerField.tsx:44`. `useEffect(() => { if (focusOnMount) controlRef.current?.focus() }, [focusOnMount])`.
 - **Proposta:** usar o atributo `autoFocus={focusOnMount}` no `<input>`/`<textarea>`, que o React já trata no mount. Remove o effect, o ref extra
   e a função `attachControl` que só existia para isso (continua a necessidade de repassar o ref do RHF).
-
-### T16 (B) `QuickAccessMenu`: focar o primeiro item dentro de um effect
-
-- **Onde:** `QuickAccessMenu.tsx:49`. O foco no primeiro item acontece num effect que reage a `isOpen`.
-- **Proposta:** focar no próprio handler que abre o menu (evento, não efeito). O listener de clique fora fica no effect (legítimo), mas pode
-  virar um hook reutilizável `useDismissOnOutsidePointer(ref, onDismiss, isActive)`.
 
 ### T17 (C) `CelestialBody`: effect que avisa o pai que a textura terminou
 
@@ -166,12 +149,6 @@ Auditoria de listeners, timers, `requestAnimationFrame`, observers e recursos 3D
 - **Onde:** `solar-scene/components/scene/SolarSystemScene.tsx` (`frameloop`) e `portfolio/PortfolioExperience.tsx`.
 - **Problema:** durante os ~8 s do loader a cena 3D renderiza (com bloom) por trás de uma camada opaca. Em GPU real o custo é pequeno; em celular fraco ele compete com o loader.
 - **Proposta:** `frameloop="demand"` até a cena ser revelada e o loader terminar, invalidando uma vez ao liberar. Medir com `scripts/measure-loader.mjs first` antes e depois.
-
-### T28 (B) Menu de acesso rápido com mais de três destinos
-
-- **Onde:** `quick-access-menu/orbit-layout.ts`.
-- **Problema:** o arco de 90° a 170° só separa três cartões; com um quarto destino (ex.: Projetos) os vizinhos se sobrepõem mesmo no desktop.
-- **Proposta:** distribuir os destinos pela altura do cartão (espaçamento vertical mínimo) em vez de por ângulo fixo, ou usar a coluna também no desktop a partir de quatro itens. Medir com o e2e de caixas reais.
 
 ### T29 (C) Três versões da mesma proteção contra passo de tempo inválido
 
