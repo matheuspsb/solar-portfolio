@@ -79,3 +79,6 @@ export const INVULNERABLE_SECONDS = 1.4;
 export const COMBO_WINDOW_SECONDS = 2.4;
 export const KILLS_PER_MULTIPLIER_STEP = 6;
 export const MAX_MULTIPLIER_BONUS = 4;
+
+export const ROOT_SCORE = 5000;
+export const ROOT_HINT_RATIO = 0.6;

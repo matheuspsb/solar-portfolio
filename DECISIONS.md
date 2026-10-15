@@ -491,3 +491,11 @@ Layers, cheapest first:
 - **Patch.** Só dado solta patch (14%), e o sorteio só é feito para dado. Com integridade cheia o patch vale 50 pontos, sem multiplicador.
 - **Combo.** O multiplicador usa o combo _antes_ da morte (como no protótipo); vazamento e dano zeram combo e janela; a janela é de 2,4 s.
 - **Outcome.** Integridade 0 vence o fim do tempo no mesmo passo (derrota em vez de implantação).
+
+## Results and records (Venus Arcade, step 6)
+
+- **Text lives in `content/arcade.ts`.** As cinco faixas (nome e frase em inglês, como o resto do jogo) ficam em `arcadeContent.ranks` com o `minimumScore`. `getRank` escolhe a última faixa alcançada; os testes verificam a faixa pelo limite, nunca pelo texto, e um teste garante que a lista começa em 0 e é estritamente crescente.
+- **A result is data.** `buildRunResult` devolve tudo o que a tela de resultados precisa e não toca em armazenamento nem em tempo. A tela (etapa 12) e o easter egg (etapa 16) só leem esse objeto.
+- **Same rules as the prototype.** `isNewBest` é `score > best` (zero ponto nunca é recorde); o `reachedRoot` é `score >= rootScore`; a dica "A SEALED CARTRIDGE…" aparece de 60% do `rootScore` até antes dele. Partidas em modo Hotfix contam para o mesmo recorde, como no protótipo.
+- **Storage is defensive.** `readRecords` só aceita inteiros seguros positivos como recorde e só o valor `1` como desbloqueio; qualquer outra coisa vira "sem recorde, selado". `saveRunResult` relê o recorde guardado antes de gravar e nunca o rebaixa (duas abas), não grava zero e nunca lança com o `localStorage` bloqueado. Usa os helpers de `lib/safe-storage`.
+- **`rootScore` is calibrated by playtest.** Começa em 5000 (decisão do Matheus) e pode ser passado por parâmetro para os testes e para a calibração; `ROOT_SCORE` fica em `engine/constants`.
