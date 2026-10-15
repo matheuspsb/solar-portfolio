@@ -1,5 +1,9 @@
 import { expect, test } from './fixtures';
+import type { Page } from '@playwright/test';
 import { hoverMercury } from './helpers';
+
+const mercuryControl = (page: Page) =>
+  page.getByRole('button', { name: 'Mercúrio: abrir seção Contato' });
 
 test('swings the camera so Mercury is in view and clickable after focusing it with the keyboard', async ({
   page,
@@ -10,8 +14,8 @@ test('swings the camera so Mercury is in view and clickable after focusing it wi
 
   await page.keyboard.press('Tab');
   await page.keyboard.press('ArrowRight');
-  await expect(page.getByRole('button', { name: 'Mercúrio: abrir seção Contato' })).toBeFocused();
-  await page.keyboard.press('Tab');
+  await expect(mercuryControl(page)).toBeFocused();
+  await mercuryControl(page).blur();
   await expect(page.getByText('ALVO TRAVADO · 002')).toBeHidden();
 
   await page.waitForTimeout(3000);
@@ -28,7 +32,7 @@ test('keeps Mercury in the same place on screen while it orbits (the camera foll
   await page.waitForTimeout(2000);
   await page.keyboard.press('Tab');
   await page.keyboard.press('ArrowRight');
-  await page.keyboard.press('Tab');
+  await mercuryControl(page).blur();
   await page.waitForTimeout(3000);
   await hoverMercury(page);
   await page.mouse.move(5, 5);
@@ -45,7 +49,7 @@ test('with reduced motion the camera jumps to Mercury at once', async ({ page })
   await page.waitForTimeout(2000);
   await page.keyboard.press('Tab');
   await page.keyboard.press('ArrowRight');
-  await page.keyboard.press('Tab');
+  await mercuryControl(page).blur();
   await page.waitForTimeout(300);
   await hoverMercury(page);
 });

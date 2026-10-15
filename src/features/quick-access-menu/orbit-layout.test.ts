@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   formatObjectCode,
   getOrbitDelaySeconds,
+  getMenuLayout,
   getOrbitPositions,
   getOrbitRadius,
 } from './orbit-layout';
@@ -15,9 +16,9 @@ describe('getOrbitPositions', () => {
     }
   });
 
-  it('puts every item on the lower-left of the anchor, so it stays inside a top-right corner', () => {
+  it('never puts an item right of or above the anchor, so it stays inside a top-right corner', () => {
     for (const { x, y } of getOrbitPositions({ count: 4, radius: RADIUS })) {
-      expect(x).toBeLessThan(0);
+      expect(x).toBeLessThanOrEqual(0);
       expect(y).toBeGreaterThan(0);
     }
   });
@@ -66,7 +67,7 @@ describe('formatObjectCode', () => {
 describe('getOrbitRadius', () => {
   it('uses the full radius on screens wide enough for the whole arc', () => {
     expect(getOrbitRadius(1280)).toBe(200);
-    expect(getOrbitRadius(390)).toBe(200);
+    expect(getOrbitRadius(414)).toBe(200);
   });
 
   it('shrinks on narrow phones so the left-most label stays on screen', () => {
@@ -85,14 +86,66 @@ describe('getOrbitRadius', () => {
       expect(getOrbitRadius(width)).toBe(getOrbitRadius(100));
     },
   );
+});
 
-  it('keeps the farthest label inside the screen for any phone width', () => {
-    const labelAndMargin = 137;
-    const anchorFromRight = 42;
-    for (const width of [320, 340, 360, 375, 390]) {
-      const farthest = getOrbitPositions({ count: 2, radius: getOrbitRadius(width) })[1]!;
-      const leftEdge = width - anchorFromRight + farthest.x - labelAndMargin;
-      expect(leftEdge).toBeGreaterThanOrEqual(0);
+type Box = { left: number; right: number; top: number; bottom: number };
+
+const MODELED_CARD = { width: 144, height: 56, dotOverlap: 9 };
+const ANCHOR_FROM_RIGHT = 42;
+const TOGGLE_BOX: Box = { left: -148, right: 22, top: -22, bottom: 22 };
+
+const cardBox = ({ x, y }: { x: number; y: number }): Box => ({
+  left: x - MODELED_CARD.width + MODELED_CARD.dotOverlap,
+  right: x + MODELED_CARD.dotOverlap,
+  top: y - MODELED_CARD.height / 2,
+  bottom: y + MODELED_CARD.height / 2,
+});
+
+const overlaps = (first: Box, second: Box): boolean =>
+  first.left < second.right &&
+  second.left < first.right &&
+  first.top < second.bottom &&
+  second.top < first.bottom;
+
+describe('getMenuLayout', () => {
+  it('lays the destinations on the orbit when the screen has room for the arc', () => {
+    expect(getMenuLayout({ count: 3, viewportWidth: 1280 }).kind).toBe('arc');
+    expect(getMenuLayout({ count: 3, viewportWidth: 375 }).kind).toBe('arc');
+  });
+
+  it('stacks the destinations in a column under the toggle on narrow phones', () => {
+    const layout = getMenuLayout({ count: 3, viewportWidth: 320 });
+    expect(layout.kind).toBe('column');
+    const xs = layout.positions.map((position) => position.x);
+    const ys = layout.positions.map((position) => position.y);
+    expect(new Set(xs).size).toBe(1);
+    expect(ys).toEqual([...ys].sort((first, second) => first - second));
+  });
+
+  it.each([0, Number.NaN])('uses the column before the screen is measured (width %s)', (width) => {
+    expect(getMenuLayout({ count: 3, viewportWidth: width }).kind).toBe('column');
+  });
+
+  it('has no positions without destinations', () => {
+    expect(getMenuLayout({ count: 0, viewportWidth: 1280 }).positions).toEqual([]);
+  });
+
+  it.each([320, 340, 360, 374, 375, 390, 414, 768, 1280])(
+    'keeps every destination on screen and off the toggle at %spx',
+    (width) => {
+      for (const count of [1, 2, 3]) {
+        for (const box of getMenuLayout({ count, viewportWidth: width }).positions.map(cardBox)) {
+          expect(width - ANCHOR_FROM_RIGHT + box.left).toBeGreaterThanOrEqual(0);
+          expect(overlaps(box, TOGGLE_BOX)).toBe(false);
+        }
+      }
+    },
+  );
+
+  it('leaves a full card of space between destinations in the column', () => {
+    const boxes = getMenuLayout({ count: 3, viewportWidth: 320 }).positions.map(cardBox);
+    for (const [index, box] of boxes.slice(1).entries()) {
+      expect(overlaps(box, boxes[index]!)).toBe(false);
     }
   });
 });

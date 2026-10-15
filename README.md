@@ -1,8 +1,8 @@
-# Portfólio Sistema Solar — Fase 1: o Sol
+# Portfólio Sistema Solar
 
-Portfólio de Matheus (Software Engineer, foco em frontend) como um sistema solar 3D navegável. Nesta fase existe só o
-**Sol**, que representa a seção "Sobre". O site precisa impressionar visualmente **e** entregar a informação rápido, por isso
-todo o conteúdo também é acessível pelo menu "Acesso rápido" e pelo teclado, sem depender do WebGL.
+Portfólio de Matheus (Software Engineer, foco em frontend) como um sistema solar 3D navegável. O **Sol** é a seção "Sobre", **Mercúrio** é o
+"Contato" e **Vênus** esconde um fliperama. O site precisa impressionar visualmente **e** entregar a informação rápido, por isso todo o conteúdo
+também é acessível pelo menu "Acesso rápido" e pelo teclado, sem depender do WebGL.
 
 ## Como rodar
 
@@ -43,6 +43,7 @@ src/
     quick-access-menu/    menu orbital + orbit-layout (função pura)
     target-lock/          overlay do hover "alvo travado" (cantoneiras, linha de telemetria, ficha); não conhece o 3D
     loading-screen/       tela de loading da primeira visita ("Nascimento do sistema"): lib/ (linha do tempo, relógio, quadros), hooks/, components/
+    venus-arcade/         o fliperama escondido em Vênus (veja a seção abaixo): engine/, session/, results/, effects/, render/, hud/, game/, audio/, dive/, flow/, cabinet/, screens/, ui/
     portfolio/            composição: PortfolioExperience, SectionView, PortfolioProviders, fallback, dica, controles de teclado
   services/               entrega da mensagem de contato por e-mail (Resend atrás da interface ContactDelivery)
   hooks/                  hooks usados por 2+ features (navegação por setas, ociosidade, tamanho da janela, movimento reduzido)
@@ -81,6 +82,34 @@ Decisões de projeto:
   (inclusive se a preferência mudar com o site aberto). O loop de render vira "sob demanda".
 - **Falhas.** Sem WebGL, erro na cena ou perda de contexto: aparece um aviso com botões para as seções, e o menu continua
   funcionando.
+
+## Venus Arcade
+
+Vênus é a porta de uma experiência escondida: ao escolhê-la (clique, Tab e setas, ou o menu "Acesso rápido"), a câmera da cena 3D mergulha no
+planeta, um CRT liga e aparece um fliperama com três cartuchos. O primeiro, **BUG HUNTER**, é um jogo de 45 s em que um drone atira sozinho em bugs,
+dados corrompidos e glitches. O segundo é um cartucho quebrado e o terceiro (ROOT://) fica selado. O fliperama é **estado**, não uma rota, e o texto do jogo é
+em inglês enquanto as mensagens para leitores de tela são em português.
+
+| Ação                  | Teclado               | Mouse e toque                                                   |
+| --------------------- | --------------------- | --------------------------------------------------------------- |
+| Escolher um cartucho  | setas, `Tab`, `Enter` | clique                                                          |
+| Mover o drone         | `WASD` ou setas       | mover o mouse; no toque, arrastar (mantém o dedo fora do drone) |
+| Atirar                | automático            | automático                                                      |
+| Pausar / retomar      | `Esc` ou `P`          | botão `II` no placar                                            |
+| Recomeçar / sair      | `R` / `Q` (na pausa)  | botões da pausa e dos resultados                                |
+| Som                   | `M`                   | botão de som no topo                                            |
+| Pular o boot / voltar | `Esc` (em camadas)    | botão "← Sistema solar"                                         |
+
+Como é feito:
+
+- **Motor puro.** Regras, movimento, tiros, colisões, pontuação e sorteio estão em `engine/` e `session/` como funções puras com sorteio e tempo injetados:
+  `advanceSession` dá um passo (no máximo 0,05 s, então uma aba esquecida não pula a partida) e devolve os eventos que alimentam efeitos e som.
+- **Canvas 2D fino.** `render/draw-game` desenha o estado; `game/use-game-session` liga o relógio, o teclado, o ponteiro e o redimensionamento; o placar e as telas são HTML.
+- **Recordes.** `localStorage` com `venusArcade.best` (normal), `venusArcade.best.hotfix` e `venusArcade.root` (cartucho destravado, ao chegar a 5000 pontos). Nada de servidor.
+- **Som.** Tons sintetizados por Web Audio, mudo por padrão; o `AudioContext` só nasce quando o visitante liga o som. Os tons são dados em `audio/sound-specs`.
+- **Mergulho.** A câmera 3D voa até o planeta (`solar-scene/components/camera/CameraDive`) enquanto `portfolio/use-immersive-stage` decide quando o fliperama monta e a cena descansa. Com movimento reduzido não há voo nem fade.
+- **Acessibilidade.** Diálogo modal com foco preso e devolvido a Vênus, canvas com alternativa textual, decoração da cabine escondida das tecnologias assistivas, axe nos e2e da prateleira, do título, da partida, da pausa e dos resultados.
+- **Pendente.** O bloco "ROOT ACCESS" (o segredo dos 5000 pontos) está em standby: veja `EASTER-EGG-STANDBY.md`.
 
 Tarefas futuras e débitos conhecidos estão em `TASKS.md`. Veja `DECISIONS.md` (versões, React Compiler, Tailwind, pin do `three`), `PROGRESS.md` (histórico, métricas, próxima fase) e
 `CREDITS.md` (textura do Sol: Solar System Scope, CC BY 4.0, com crédito visível no painel).

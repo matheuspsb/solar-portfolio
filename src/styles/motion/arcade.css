@@ -1,0 +1,206 @@
+@keyframes arcade-crt-on {
+  0% {
+    transform: scale(0.6, 0.004);
+    filter: brightness(4);
+  }
+  35% {
+    transform: scale(1, 0.004);
+    filter: brightness(3);
+  }
+  60% {
+    transform: scale(1, 1.03);
+    filter: brightness(1.5);
+  }
+  100% {
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes arcade-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes arcade-nope {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px) rotate(-2deg);
+  }
+  40% {
+    transform: translateX(7px) rotate(2deg);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes arcade-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes arcade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes arcade-pop {
+  0% {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes arcade-crash {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(-6px, 3px);
+  }
+  66% {
+    transform: translate(6px, -3px);
+  }
+}
+
+@utility animate-arcade-crash {
+  animation: arcade-crash 500ms steps(3) 3;
+}
+
+@utility animate-arcade-crt-on {
+  animation: arcade-crt-on 800ms ease-out both;
+}
+
+@utility animate-arcade-bob {
+  animation: arcade-bob 1600ms ease-in-out infinite;
+}
+
+@utility animate-arcade-nope {
+  animation: arcade-nope 450ms ease;
+}
+
+@utility animate-arcade-blink {
+  animation: arcade-blink 1s steps(1) infinite;
+}
+
+@utility animate-arcade-rise {
+  animation: arcade-rise 200ms ease both;
+}
+
+@utility animate-arcade-pop {
+  animation: arcade-pop 500ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}
+
+@keyframes arcade-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes arcade-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@utility animate-arcade-fade-in {
+  animation: arcade-fade-in 700ms ease both;
+}
+
+@utility animate-arcade-fade-out {
+  animation: arcade-fade-out 650ms ease both;
+}
+
+@utility animate-arcade-fog-in {
+  animation: arcade-fade-in 1100ms ease 500ms both;
+}
+
+@utility animate-arcade-fog-out {
+  animation: arcade-fade-out 1100ms ease both;
+}
+
+@keyframes arcade-flicker {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  48% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.68;
+  }
+  52% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes arcade-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@utility animate-arcade-flicker {
+  animation: arcade-flicker 4s steps(1) infinite;
+}
+
+@utility animate-arcade-led-fast {
+  animation: arcade-glow 1400ms steps(2) infinite;
+}
+
+@utility animate-arcade-led-slow {
+  animation: arcade-glow 2300ms ease-in-out infinite;
+}
+
+@utility bg-arcade-scanlines {
+  background-image: repeating-linear-gradient(180deg, rgb(0 0 0 / 0.28) 0 1px, transparent 1px 3px);
+}
+
+@utility bg-arcade-noise {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='128' height='128' filter='url(%23n)'/></svg>");
+}
+
+@utility bg-arcade-vignette {
+  background-image:
+    radial-gradient(ellipse at center, transparent 58%, rgb(0 0 0 / 0.63) 100%),
+    linear-gradient(160deg, rgb(255 255 255 / 0.04), transparent 28%);
+}

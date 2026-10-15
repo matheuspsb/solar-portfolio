@@ -23,7 +23,16 @@ export function getTrackerEasingRate(prefersReducedMotion: boolean): number {
   return prefersReducedMotion ? INSTANT_EASING_RATE : TRACKER_EASING_RATE;
 }
 
-export function getFrameloop(prefersReducedMotion: boolean): 'always' | 'demand' {
+type FrameloopInput = {
+  prefersReducedMotion: boolean;
+  isHidden: boolean;
+};
+
+export function getFrameloop({
+  prefersReducedMotion,
+  isHidden,
+}: FrameloopInput): 'always' | 'demand' | 'never' {
+  if (isHidden) return 'never';
   return prefersReducedMotion ? 'demand' : 'always';
 }
 

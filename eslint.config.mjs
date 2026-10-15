@@ -10,6 +10,7 @@ const features = [
   'quick-access-menu',
   'solar-scene',
   'target-lock',
+  'venus-arcade',
 ];
 
 const restrictImports = (patterns) => ({

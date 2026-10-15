@@ -444,3 +444,140 @@ Layers, cheapest first:
 - **Problem.** No Windows (barra de rolagem que ocupa espaço), com o conteúdo do painel quase da altura da janela (etapa da mensagem do contato a ~949 px de altura, um desktop 1080p com barra de tarefas), o painel entrava em ciclo: a barra aparecia, a área ficava 15 px mais estreita, o `JourneyStage` reduzia a escala e a própria altura, o conteúdo cabia, a barra sumia, a largura voltava e tudo recomeçava. A tela piscava com os dois estados sobrepostos. O rascunho do contato tornou o caso comum, porque reabre direto na etapa da mensagem.
 - **Decision.** `scrollbar-gutter: stable` no container de rolagem do painel: o espaço da barra fica sempre reservado e a largura não depende mais de haver rolagem, então o ciclo não pode acontecer. Mais simples e geral que travar a escala do palco ou medir a largura de outro elemento.
 - **Teste.** `e2e/panel-layout.spec.ts` mostra a barra de rolagem (`--hide-scrollbars` desligado), usa 1366x949 com a etapa da mensagem restaurada e exige uma única largura durante 2 s. Falhava antes (duas larguras) e passa depois.
+
+## Immersive sections (Venus Arcade, step 1)
+
+- **Problem.** Toda seção abria o `ContentPanel` e exigia `title` e `panelLabel`. O fliperama de Vênus ocupa a tela inteira e não tem painel.
+- **Decision.** `BodySection = PanelSection | ImmersiveSection`, discriminada por `presentation`. A seção imersiva tem `experience` (hoje só `'venus-arcade'`) e `callToAction` (texto do alvo travado); a validação pede `panelLabel` só para painel e `callToAction` só para imersiva. O portfolio escolhe o host pela apresentação (`getOpenPanel` / `getOpenExperience`), e o `ImmersiveView` faz o `lazy` da experiência, como o `SectionView` faz com o Contato. Menu, teclado, alvo travado e fallback incluem Vênus sem mudança, porque leem `getInteractiveBodies`.
+- **Language (decided by Matheus).** Texto do jogo em inglês (BUG HUNTER, PAUSED, ranks); tudo que é acessibilidade e navegação em português.
+- **URL (left to Claude).** O fliperama é estado, como os painéis: sem rota nova, sem histórico. Mantém a página única e estática; um endereço próprio pode vir depois se fizer falta.
+- **Shared modal focus.** `useModalFocus` (`hooks/`) e `getTabTarget` (`lib/focus-trap`) saíram do `content-panel` porque o fliperama também é um diálogo modal (foco entra, Tab preso, Esc, foco devolvido).
+- **Lazy loading.** `React.lazy` + `Suspense` em vez de `next/dynamic`: o fliperama só monta depois de um clique, então não há SSR a evitar, e o padrão já é o do Contato. O chunk inicial não contém o código do fliperama (verificado no build).
+
+## Quick-access menu with three destinations
+
+- **Problem.** O arco ia de 100° a 170° com raio `largura - 180`. Com o rótulo "Venus Arcade" (~144 px) o item mais à esquerda saía da tela em 320 px, invadia o botão "Acesso rápido" (o que já acontecia em 320 px com dois itens) e, entre 375 e ~400 px, "Contato" invadia o canto de "Sobre".
+- **Decision.** O arco começa a 90° (o primeiro destino logo abaixo do botão), a reserva horizontal passou a 200 px, e abaixo de 375 px os destinos ficam em coluna sob o botão (sem o anel tracejado). O unitário garante que todo destino fica na tela e fora do botão para 1 a 3 itens; a sobreposição entre vizinhos é medida no e2e com o DOM real, porque depende da largura de cada rótulo.
+- **Limit.** O arco comporta três destinos; com mais planetas o layout precisa de outra regra (anotado em `TASKS.md`).
+
+## Arcade shell: no quick menu, paused scene (Venus Arcade, step 2)
+
+- **No quick menu inside the arcade (Matheus).** O handoff mantinha o "Acesso rápido" visível no fliperama. Uma primeira versão fez isso (menu por slot, `Esc` em camadas com `preventDefault`/`defaultPrevented`, rótulo curto no celular), mas o Matheus preferiu tirar o menu do fliperama para simplificar. Dentro dele só há "← Sistema solar" e `Esc`; para ir a Sobre ou Contato, o visitante volta ao sistema solar.
+- **Paused scene.** `SceneProps.isHidden` (cena totalmente coberta) leva o `frameloop` a `'never'`. Atrás de um painel a cena continua viva (`isHidden` falso). Medido: 0 desenhos por segundo com o fliperama aberto.
+
+## Arcade engine, part 1 (Venus Arcade, step 3)
+
+- **Pure and immutable.** O motor vive em `venus-arcade/engine/` e nunca importa React nem DOM. Cada passo recebe o estado e devolve um novo, o que torna os testes simples e permite repetir uma partida passo a passo.
+- **Step semantics.** Um passo inválido (`0`, negativo, `NaN`, `Infinity`) não move nada. Um passo enorme **não** é limitado dentro do motor: o seguimento do mouse usa `1 - exp(-14 dt)` e chega ao alvo sem passar dele; a arma dispara no máximo um tiro por passo e reinicia o intervalo, como no protótipo. Quem limita o `dt` do laço (aba em segundo plano) é a máquina de sessão da etapa 7.
+- **Pointer and keyboard.** O mouse só muda o alvo (`aimDrone`); o teclado move o drone direto e arrasta o alvo junto, como no protótipo (`stepDrone`). A direção do teclado entra como `{ x, y }` já resolvida (teclas que se anulam viram 0).
+- **Cadence is frame-quantized.** O recarregamento volta ao intervalo cheio a cada tiro (sem carregar o resto), igual ao protótipo; a 60 fps o tiro de 0,15 s sai a cada 9 ou 10 quadros. Os testes comparam com o ideal numa tolerância, não com igualdade.
+- **Shared math.** `lib/math.ts` ganhou `clamp` (NaN vira o mínimo) e `mix`; o `mix` do loading-screen foi removido de lá.
+
+## Arcade engine, part 2 (Venus Arcade, step 4)
+
+- **Randomness is injected.** O motor nunca chama `Math.random`: `spawnEntities` e `advanceEntities` recebem um `Random` (`() => número`). Os testes passam sorteios fixos (0, 0,5, 1) e a sessão (etapa 7) passará `Math.random`.
+- **Bugs leak, nothing else does.** `advanceEntities` devolve `{ entities, leakedBugs }`. Só `crawler` e `beetle` contam como vazamento (o combo zera na etapa 5); dado, estilhaço e patch somem sem custo. O dado e o estilhaço saem 10 px abaixo da base, o bug sai quando passa da base.
+- **Spawn order and one-per-step.** Como no protótipo, cada relógio gera no máximo uma entidade por chamada; depois de uma pausa enorme o jogo não despeja uma enxurrada. O relógio de estilhaços só corre depois de 6 s e o de rasgos depois de 14 s, e o rasgo espera o anterior terminar (o relógio fica negativo e o próximo sai logo em seguida).
+- **Glyph and lane names.** `laneX` guarda a raia do bug (o que o protótipo chama `bx`); o `x` é a raia mais o zigue-zague, sempre limitado a `[raio, largura − raio]`.
+- **Difficulty uses the elapsed time of the step.** O protótipo calcula a dificuldade antes de somar o `dt`; aqui o tempo já vem somado. A diferença é de um quadro e não muda a sensação.
+- **Constants.** Todos os intervalos, velocidades e faixas do handoff estão nomeados em `constants.ts`, com `jitter` como par `[mínimo, máximo]`.
+
+## Arcade engine, part 3 (Venus Arcade, step 5)
+
+- **The engine is a set of small steps, not one big update.** O protótipo tem um `update` único; aqui cada regra é uma função pura (`advanceShots`, `spawnEntities`, `advanceEntities`, `resolveShotHits`, `applyDestroyed`, `resolveDroneContacts`, `applyLeaks`, `tickCombo`, `getRunOutcome`). A ordem de chamada (a do protótipo) fica por conta da sessão da etapa 7.
+- **No effects inside the engine.** Explosões, textos flutuantes, tremor e som saem de dados que o motor devolve (`destroyed`, `awards`, `collectedPatches`, `hasHurt`, `leakedBugs`), nunca de chamadas de efeito. O tremor de 0,35 s e o `prefers-reduced-motion` são da camada visual.
+- **One hit, one target.** Cada tiro acerta só o primeiro alvo da lista (como o `b.dead` do protótipo), e o dano é um por tiro. Brilho de 0,08 s no acerto que não mata.
+- **Hurt rules.** Um dano por passo (o respiro de 1,4 s começa no mesmo passo), a invulnerabilidade é descontada antes de olhar os contatos, o patch é coletado com ou sem respiro, e estilhaço e rasgo machucam sem desaparecer; bug e dado desaparecem ao tocar o drone.
+- **Patch.** Só dado solta patch (14%), e o sorteio só é feito para dado. Com integridade cheia o patch vale 50 pontos, sem multiplicador.
+- **Combo.** O multiplicador usa o combo _antes_ da morte (como no protótipo); vazamento e dano zeram combo e janela; a janela é de 2,4 s.
+- **Outcome.** Integridade 0 vence o fim do tempo no mesmo passo (derrota em vez de implantação).
+
+## Results and records (Venus Arcade, step 6)
+
+- **Text lives in `content/arcade.ts`.** As cinco faixas (nome e frase em inglês, como o resto do jogo) ficam em `arcadeContent.ranks` com o `minimumScore`. `getRank` escolhe a última faixa alcançada; os testes verificam a faixa pelo limite, nunca pelo texto, e um teste garante que a lista começa em 0 e é estritamente crescente.
+- **A result is data.** `buildRunResult` devolve tudo o que a tela de resultados precisa e não toca em armazenamento nem em tempo. A tela (etapa 12) e o easter egg (etapa 16) só leem esse objeto.
+- **Same rules as the prototype.** `isNewBest` é `score > best` (zero ponto nunca é recorde); o `reachedRoot` é `score >= rootScore`; a dica "A SEALED CARTRIDGE…" aparece de 60% do `rootScore` até antes dele. O recorde é **separado por modo** (decisão do Matheus, diferente do protótipo): a partida normal usa `venusArcade.best` e o Hotfix usa `venusArcade.best.hotfix`. Só o desbloqueio do ROOT:// é compartilhado (`venusArcade.root`).
+- **Storage is defensive.** `readRecords` só aceita inteiros seguros positivos como recorde e só o valor `1` como desbloqueio; qualquer outra coisa vira "sem recorde, selado". `saveRunResult` relê o recorde guardado antes de gravar e nunca o rebaixa (duas abas), não grava zero e nunca lança com o `localStorage` bloqueado. Usa os helpers de `lib/safe-storage`.
+- **`rootScore` is calibrated by playtest.** Começa em 5000 (decisão do Matheus) e pode ser passado por parâmetro para os testes e para a calibração; `ROOT_SCORE` fica em `engine/constants`.
+
+## Session machine and keyboard (Venus Arcade, step 7)
+
+- **A session is plain data.** `GameSession` guarda a fase, o modo, o campo, o relógio, o drone, a arma, os tiros, as entidades, os relógios de spawn, os números da partida, o tipo de fim e o resultado. Sem React, sem relógio próprio e sem `Math.random`: a tela entrega o passo, a direção e o sorteio. Fases: `title`, `countdown`, `running`, `paused`, `ending`, `finished`.
+- **The step is capped here.** Como o motor decidiu (etapa 3), é a sessão que limita o passo: 0,05 s, como o `Math.min(0.05, …)` do laço do protótipo. Passo inválido devolve a mesma sessão.
+- **Same order as the prototype.** Na partida: mover o drone, atirar, gerar, mover entidades (vazamento zera o combo), acertar tiros, pontuar, contatos com o drone, janela do combo, fim. Os patches que nascem de dados destruídos entram depois do movimento, como no protótipo.
+- **Pause is only for the run.** O protótipo deixava `Esc` e `P` ligarem uma pausa invisível durante a contagem (o jogo nascia pausado e sem tela). Aqui `Esc` e `P` só pausam a partida; durante a contagem e o banner as teclas de comando são ignoradas (menos `M`). Perder o foco da janela ou ocultar a aba chama `pauseSession`, que só age na partida.
+- **Keys.** `interpretKey` mapeia (fase, tecla) para um comando (`begin`, `pause`, `resume`, `restart`, `quit`, `toggleSound`); quem executa `quit` (voltar ao fliperama ou à cena) é a casca, nas etapas 9 e 10. `M` vale em qualquer fase. O Enter e o Espaço sobre um botão focado continuam sendo do botão (decisão da casca, como no protótipo).
+- **Restart keeps the record to beat.** `restartSession` usa `result.nextBest` da partida que acabou, para que o "NEW BEST" da próxima já compare com o recorde recém batido, sem esperar a leitura do `localStorage`.
+- **Events for the screen.** `advanceSession` devolve `{ session, events }`; a tela (etapa 10) e o áudio (etapa 13) usam os eventos para explosões, textos flutuantes, tremor e sons, sem que o motor conheça nenhum deles.
+
+## Arcade tokens, font and atoms (Venus Arcade, step 8)
+
+- **Two palettes, one file.** As cores do fliperama entram em `tokens.css` com dois prefixos: `arcade-*` para a cabine e o texto (tela, cabine alta e baixa, borda, grade, trilhas, contorno e três tintas) e `venus-*` para os acentos (fósforo, âmbar, queimado, alerta, root, cobre, clarão do tiro). O dourado, o azul dos glitches e o texto escuro do botão reaproveitam `ember-400`, `nebula-300` e `on-ember`, que já existiam e têm os mesmos valores do protótipo.
+- **Canvas mirror.** O jogo desenha em `<canvas>`, que não lê variáveis CSS; `arcade-tokens.ts` guarda as 12 cores dos sprites, da grade e do tiro, e um teste garante que cada uma é igual ao token CSS correspondente.
+- **Contrast is a test.** O handoff exige 4,5:1 sobre `#0b0705`. Todas as cores de texto passam (a mais baixa é a tinta 300, com 6,3:1) e um teste calcula a razão de cada uma. As cores decorativas do protótipo com contraste baixo (`#5a3a26` e parecidas) ficaram só como contorno e fundo, nunca como texto.
+- **Silkscreen.** Só o peso 400 (o protótipo não usa negrito), Latin, 8 KB, via `next/font/local` com `preload: false`: o arquivo só é pedido quando o fliperama aparece. Variável `--font-silkscreen` e token `--font-pixel`.
+- **Atoms live in the feature.** `ArcadeButton`, `Kicker`, `PixelTitle` e `StatusChip` ficam em `venus-arcade/ui/` porque só o fliperama os usa; `components/` global continua só com o que 2 ou mais features compartilham. O botão do fliperama não reaproveita o `Button` global porque a forma (cantos de 2 px, pixel) e a altura (46 e 48 px) são outras, e sobrescrever tudo por classe seria mais frágil que um átomo próprio.
+- **Mono and sans stay.** Texto de leitura e dados continuam em Bricolage e JetBrains Mono, como no handoff; a Silkscreen é só para títulos, botões e chips.
+
+## Arcade boot and home (Venus Arcade, step 9)
+
+- **The arcade has its own small flow.** `arcade-flow` (reducer) guarda a tela (`boot`, `home`, `game`), o cartucho selecionado, a rejeição em curso e o modo da partida; `useArcadeFlow` junta o reducer com o relógio do boot (um quadro por vez, cancelado ao sair) e com o temporizador de 1,1 s da rejeição. As regras (`insertCartridge`, `getCartridgeState`) são funções puras, testadas sem React.
+- **Escape is layered.** O hook de modal continua tratando `Esc`, agora com o destino certo por tela: no boot ele pula, no jogo (etapa 10) volta à prateleira e na prateleira fecha o fliperama. Qualquer outra tecla (menos `Tab` e modificadores) também pula o boot. A navegação da prateleira (setas e `A`/`D`) fica em um `keydown` da janela, porque o foco inicial é do próprio modal; `Enter` e `Espaço` sobre um botão ficam por conta do botão.
+- **Focus follows the selection.** As setas movem a seleção _e_ o foco para o cartucho vizinho (dando a volta nas pontas); a prateleira foca o cartucho selecionado ao aparecer, o que também devolve o foco depois do jogo. Passar o mouse seleciona sem tirar o foco.
+- **A sealed cartridge keeps its secret.** O nome acessível do selado é só "Cartucho selado, selado" e a descrição é a do protótipo; o nome real, a descrição e o brilho só aparecem depois do desbloqueio. A rejeição é anunciada em português por uma região `status`.
+- **Best score follows the cartridge.** A prateleira mostra o recorde do modo do cartucho selecionado (Hotfix só quando o ROOT:// está desbloqueado); nos demais mostra o da partida normal. A leitura é feita uma vez ao abrir; ao voltar do jogo (etapa 12) ela será refeita.
+- **Sprites are data.** Os 8 bitmaps vêm do `SP` do protótipo (extraídos por script, não digitados) e são desenhados por `drawSprite`, que serve tanto para os rótulos dos cartuchos quanto, na etapa 10, para os sprites do jogo. Um teste garante linhas retangulares, só os pixels `.`, `X` e `o`, e quadros do mesmo tamanho.
+- **Motion is opt-in.** Ligar do CRT, subida das linhas, pop do título, bob do sprite e balanço da rejeição usam `motion-safe:`; com movimento reduzido a tela aparece direto.
+- **Cabinet comes later.** A moldura da cabine, as máquinas laterais, scanlines e o reflexo do CRT ficam para a etapa 15 (acabamento); nesta etapa a tela ocupa o fliperama inteiro.
+
+## Playable game (Venus Arcade, step 10)
+
+- **The game is data plus a thin loop.** `GameState` (sessão, efeitos, rolagem da grade) avança em `advanceGame`, uma função pura; o hook `useGameSession` só liga o relógio, o teclado, o ponteiro e o canvas. Assim a regra fica testada sem canvas.
+- **Drawing is a function of state.** `drawGame` recebe um contexto 2D mínimo (`GameContext`), o estado, um sorteio injetado e as medidas; nada de estado escondido. Cores vêm de `arcadeTokens`, números de `engine/constants`. Os sprites são centrados por um contexto deslocado em vez de `translate`, para o tremor ser o único `translate` do quadro.
+- **Reduced motion.** Sem tremor, sem rolagem da grade; as partículas ficam (não são movimento da câmera). O hook lê a preferência a cada quadro, então alternar em tempo de execução vale na hora.
+- **Escape belongs to the game.** Na tela de jogo o hook de modal não faz nada com `Esc`: o hook do jogo o interpreta por fase (título sai, partida pausa, pausa retoma, fim sai). Enter e Espaço em um botão focado ficam com o botão, para não disparar duas vezes.
+- **Records.** O resultado é gravado uma vez por partida (`hasReportedFinish`), os recordes da home são relidos, e "jogar de novo" já usa o recorde novo (`restartSession`).
+- **HUD is a snapshot.** O placar só re-renderiza quando muda algo visível (pontos, combo, segundo inteiro, integridade, fase); a fração de segundo não conta.
+- **Pause on hide.** Aba escondida e perda de foco pausam a partida e soltam as teclas; fora da partida não fazem nada.
+- **Minimal stand-ins.** Pausa e resumo de fim são mínimos e marcados com `TODO(venus-arcade-step-11)` e `TODO(venus-arcade-step-12)`.
+
+## Pause and touch (Venus Arcade, step 11)
+
+- **Touch drags with an offset.** O primeiro toque grava a distância entre o dedo e o drone e o drone mantém essa distância (o protótipo faz igual); o mouse continua levando o drone direto ao cursor. A regra é a função pura `aimFromPointer`.
+- **Touch is detected by pointer, not by screen width.** `(pointer: coarse)` decide os textos de toque; um tablet com mouse recebe os textos de teclado.
+- **One media query hook.** `useMediaQuery` serve ao movimento reduzido e ao ponteiro grosseiro; o hook antigo virou uma casca de uma linha com a mesma API.
+- **Pause screen owns focus.** Ao abrir, o foco vai para "retomar"; ao fechar, volta para quem o tinha (o botão de pausa ou o diálogo).
+
+## End and results (Venus Arcade, step 12)
+
+- **The screen reads a view, not the run.** `getResultsView` formata tudo o que a tela mostra; o componente só renderiza. A tela de resultados e o banner moram em `screens/` e recebem só o que usam.
+- **Best never shows below the score.** O recorde exibido é o maior entre o guardado e a pontuação da partida.
+- **Focus lands on "play again".** É a ação principal; Esc e o segundo botão saem para a prateleira.
+- **Results are announced, not repeated.** Um `role="status"` lê pontos, rank e novo recorde em português; o resto da tela é leitura normal.
+- **A full-run e2e is slow on purpose.** O teste de resultados joga uma partida real (cerca de 50 s) porque é o único jeito de provar o laço jogo, fim, resultados e recomeço no navegador.
+
+## Audio (Venus Arcade, step 13)
+
+- **Muted until asked.** O `AudioContext` só nasce quando o visitante liga o som (clique ou `M`), dentro do gesto, e é retomado se o navegador o suspender. Não há preferência salva: a cada visita o fliperama volta mudo, como no handoff.
+- **Sounds are data.** Os 7 tons (onda, frequência inicial e final, duração, volume) vivem em `sound-specs`; o player só os executa. O que soa em cada passo é a função pura `getStepSounds`.
+- **Failure is silent.** Sem Web Audio, ou com um contexto que lança, o jogo segue sem som e o player não tenta de novo a cada tom.
+- **One owner for M.** Fora da partida a tecla é tratada pelo fliperama; na partida, pelo hook do jogo (que já interpreta as teclas por fase). Assim uma tecla nunca alterna duas vezes.
+- **No persisted preference.** Guardar a escolha seria mais cômodo, mas o handoff pede mudo por padrão e áudio inesperado em um portfólio visto por recrutadores custa mais que reativar o som.
+
+## Camera dive (Venus Arcade, step 14)
+
+- **Real 3D, not a CSS zoom.** O handoff pede o planeta 3D de verdade: a câmera da cena voa até Vênus (posição e alvo interpolados com a curva do protótipo), em vez de ampliar o canvas por CSS, que borraria a textura.
+- **The path follows the planet.** O ponto final é recalculado a cada quadro a partir da posição atual de Vênus, na linha de onde a câmera partiu, a uma distância em que o planeta cobre a diagonal da tela. A volta usa a pose guardada na ida.
+- **Controls step aside.** Durante o voo e enquanto o fliperama está aberto o `OrbitControls` fica desligado (os limites de distância e de ângulo o fariam recuar). Ele volta, com uma atualização, quando a câmera chega em casa.
+- **A stage machine owns the timing.** `useImmersiveStage` decide quando o fliperama monta e quando a cena descansa; o tempo do voo e da volta é o mesmo que a câmera usa. A cena só para de renderizar no estágio `open`.
+- **Reduced motion skips it.** Sem voo, sem névoa, sem fade: abre e fecha na hora, como as outras transições do site.
+- **Focus.** Durante o voo a cena está inerte (como com o painel); o foco volta a Vênus ao fim da volta pelo mesmo caminho do painel.
+- **The dive cannot be cancelled.** Durante os 1,7 s a cena está inerte e o fliperama ainda não existe para receber `Esc`; a volta (`surfacing`) é interrompível, pois escolher Vênus de novo reinicia o mergulho a partir da pose atual.
+
+## Cabinet and CRT finish (Venus Arcade, step 15)
+
+- **Decoration is invisible to assistive technology.** Gravação, LED, cabines laterais e os três overlays do CRT são `aria-hidden` e não recebem ponteiro; a legenda de teclas é uma lista com nome em português.
+- **Breakpoints follow the handoff.** 720 px separa celular e desktop (padding, legenda); 1240 px liga as cabines laterais. São consultas de viewport do Tailwind, não da tela do jogo, porque a moldura fica fora do contêiner da tela.
+- **The game plays in the screen, not in the window.** A área de jogo agora é a tela da cabine (no máximo 1080 por 780 px). O motor já era independente do tamanho do campo, então nada mudou nele.
+- **Motion is opt-in.** Flicker, LEDs piscando e o ruído animado usam `motion-safe:`; as scanlines, o ruído e a vinheta ficam estáticos com movimento reduzido.
+- **Noise is an SVG, not a canvas.** O ruído de 128 px é um `feTurbulence` embutido em CSS, sem JavaScript e sem imagem para baixar.

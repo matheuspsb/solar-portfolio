@@ -50,17 +50,31 @@ test('hovering and clicking Mercury in the scene opens Contact (reduced motion)'
   await expect(page.getByRole('dialog', { name: 'Contato' })).toBeVisible();
 });
 
-test('lists both destinations in the menu without leaving the screen on a narrow phone', async ({
-  browser,
-}) => {
-  const page = await openPage(browser, { viewport: { width: 320, height: 640 } });
-  await page.goto('/');
-  await page.getByRole('button', { name: 'Acesso rápido' }).click();
-  await page.waitForTimeout(1300);
-  for (const name of ['Sobre', 'Contato']) {
-    const box = (await page.getByRole('button', { name, exact: true }).boundingBox())!;
-    expect(box.x).toBeGreaterThanOrEqual(0);
-    expect(box.x + box.width).toBeLessThanOrEqual(320);
-  }
-  await page.close();
-});
+type Box = { x: number; y: number; width: number; height: number };
+
+const overlaps = (first: Box, second: Box): boolean =>
+  first.x < second.x + second.width &&
+  second.x < first.x + first.width &&
+  first.y < second.y + second.height &&
+  second.y < first.y + first.height;
+
+for (const width of [320, 375, 1280]) {
+  test(`lists every destination on screen, apart from each other and the toggle at ${width}px`, async ({
+    browser,
+  }) => {
+    const page = await openPage(browser, { viewport: { width, height: 740 } });
+    await page.goto('/');
+    const toggle = page.getByRole('button', { name: 'Acesso rápido' });
+    await toggle.click();
+    await page.waitForTimeout(1300);
+    const boxes: Box[] = [(await toggle.boundingBox())!];
+    for (const name of ['Sobre', 'Contato', 'Venus Arcade']) {
+      const box = (await page.getByRole('button', { name, exact: true }).boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(width);
+      for (const placed of boxes) expect(overlaps(box, placed)).toBe(false);
+      boxes.push(box);
+    }
+    await page.close();
+  });
+}

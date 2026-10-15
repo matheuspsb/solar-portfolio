@@ -97,6 +97,7 @@ Cada iteração pega **um** item pequeno do backlog e passa pelas quatro etapas.
   para localizar elementos (`getByRole` com `name`); para "apareceu um erro" use `role="alert"` e `aria-invalid`, para "entrou na etapa" use a presença do campo.
 - Não teste o que o navegador ou uma biblioteca já garante (átomo que só repassa props a `<input>`, digitar em campo nativo, ref que o formulário
   já exercita). Se o comportamento já é provado por um teste de nível mais alto, apague o teste de baixo nível redundante.
+- **Todo bug corrigido ganha um teste de regressão.** Antes de mexer no código, escreva o teste que reproduz o bug, rode-o e veja-o falhar pelo motivo do bug; só então corrija e veja-o passar. O teste fica no nível mais baixo que reproduz o problema (função pura, hook ou componente; e2e só quando o bug só existe no navegador), descreve o comportamento correto e não o defeito, e cobre a causa, não o sintoma isolado. Se o bug não puder ser reproduzido por um teste automatizado, diga isso e o porquê em `DECISIONS.md` ou no commit em vez de pular o teste em silêncio. Nenhum commit de correção sai sem o teste.
 - Proibido: teste que só verifica que "renderiza sem quebrar", snapshot gigante sem intenção, asserção sobre mock que você mesmo configurou, teste escrito só para subir cobertura.
 
 ### 4.2 Desenvolve
@@ -251,6 +252,7 @@ Se ainda houver sessão, continue em ciclos completos (teste, desenvolve, aprimo
 ## 10. Definição de pronto de cada iteração
 
 - [ ] Caso de uso descrito e testes escritos antes do código, vistos falhando
+- [ ] Se a iteração corrige um bug, há um teste de regressão que falhava antes da correção
 - [ ] Casos de borda cobertos, não só o caminho feliz
 - [ ] `lint`, `typecheck`, testes unitários, e2e e `build` passando
 - [ ] Validado no navegador, console limpo, screenshot conferido

@@ -36,3 +36,4 @@
 - **Bricolage Grotesque:** Copyright 2022 The Bricolage Grotesque Project Authors (https://github.com/ateliertriay/bricolage)
 - **JetBrains Mono:** Copyright 2020 The JetBrains Mono Project Authors (https://github.com/JetBrains/JetBrainsMono)
 - **License:** SIL Open Font License 1.1 — https://openfontlicense.org (the fonts are self-hosted so the build does not depend on Google Fonts)
+- **Silkscreen** (`src/app/fonts/silkscreen-latin-400.woff2`, regular weight, Latin subset, taken from the Fontsource package `@fontsource/silkscreen` through the jsDelivr mirror): Copyright 2001 The Silkscreen Project Authors (Jason Kottke), SIL Open Font License 1.1 — https://openfontlicense.org. Used only by the Venus Arcade.

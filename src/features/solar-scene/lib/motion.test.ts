@@ -50,12 +50,19 @@ describe('getTrackerEasingRate', () => {
 
 describe('getFrameloop', () => {
   it('renders continuously while motion is allowed, even with a panel open (planets keep orbiting)', () => {
-    expect(getFrameloop(false)).toBe('always');
+    expect(getFrameloop({ prefersReducedMotion: false, isHidden: false })).toBe('always');
   });
 
   it('renders on demand when reduced motion is preferred (nothing moves by itself)', () => {
-    expect(getFrameloop(true)).toBe('demand');
+    expect(getFrameloop({ prefersReducedMotion: true, isHidden: false })).toBe('demand');
   });
+
+  it.each([false, true])(
+    'stops rendering while something covers the whole scene (reduced motion %s)',
+    (prefersReducedMotion) => {
+      expect(getFrameloop({ prefersReducedMotion, isHidden: true })).toBe('never');
+    },
+  );
 });
 
 describe('getTransitionRate', () => {

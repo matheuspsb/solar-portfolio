@@ -235,6 +235,18 @@ Auditoria de listeners, timers, `requestAnimationFrame`, observers e recursos 3D
 - **Problema:** durante os ~8 s do loader a cena 3D renderiza (com bloom) por trás de uma camada opaca. Em GPU real o custo é pequeno; em celular fraco ele compete com o loader.
 - **Proposta:** `frameloop="demand"` até a cena ser revelada e o loader terminar, invalidando uma vez ao liberar. Medir com `scripts/measure-loader.mjs first` antes e depois.
 
+### T28 (B) Menu de acesso rápido com mais de três destinos
+
+- **Onde:** `quick-access-menu/orbit-layout.ts`.
+- **Problema:** o arco de 90° a 170° só separa três cartões; com um quarto destino (ex.: Projetos) os vizinhos se sobrepõem mesmo no desktop.
+- **Proposta:** distribuir os destinos pela altura do cartão (espaçamento vertical mínimo) em vez de por ângulo fixo, ou usar a coluna também no desktop a partir de quatro itens. Medir com o e2e de caixas reais.
+
+### T29 (C) Três versões da mesma proteção contra passo de tempo inválido
+
+- **Onde:** `solar-scene/lib/rotation.ts` (`clampFrameDelta`), `loading-screen/lib/loader-clock.ts` (`sanitizeDelta`) e `venus-arcade/engine/time-step.ts` (`isValidStep`).
+- **Problema:** as três tratam `NaN`, negativo e zero de formas quase iguais, mas com regras de teto diferentes; cada feature não pode importar da outra.
+- **Proposta:** promover o núcleo comum (`isValidStep`) para `lib/` quando uma quarta feature precisar, e deixar o teto por conta de cada uma.
+
 ## Outras observações da varredura
 
 - **`StarField.tsx` usa `useMemo`** (a única ocorrência), contra a regra do projeto de não usá-lo com o React Compiler sem justificativa. Remover

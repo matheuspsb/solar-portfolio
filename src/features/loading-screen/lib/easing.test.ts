@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clamp01, draw, enter, mix, pop, seg } from './easing';
+import { clamp01, draw, enter, pop, seg } from './easing';
 
 describe('clamp01', () => {
   it.each([
@@ -44,13 +44,5 @@ describe('easings', () => {
 
   it('pop overshoots before settling', () => {
     expect(pop(0.8)).toBeGreaterThan(1);
-  });
-});
-
-describe('mix', () => {
-  it('interpolates linearly between the ends', () => {
-    expect(mix(10, 20, 0)).toBe(10);
-    expect(mix(10, 20, 1)).toBe(20);
-    expect(mix(10, 20, 0.5)).toBe(15);
   });
 });

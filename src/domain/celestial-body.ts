@@ -1,6 +1,7 @@
 import type { ContactContent } from './contact-content';
 
-export type PlanetTone = 'cyan' | 'white' | 'blue' | 'green' | 'orchid' | 'amber' | 'periwinkle';
+export type PlanetTone =
+  'cyan' | 'white' | 'blue' | 'green' | 'orchid' | 'amber' | 'periwinkle' | 'copper';
 
 export type PlanetSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -56,13 +57,27 @@ export type CelestialBodyConfig = {
   section: BodySection | null;
 };
 
-export type BodySection = {
+type SectionEntry = {
   menuLabel: string;
   menuTone: PlanetTone;
+};
+
+export type PanelSection = SectionEntry & {
+  presentation: 'panel';
   title: string;
   panelLabel: string;
   content: SectionContent;
 };
+
+export type ImmersiveExperience = 'venus-arcade';
+
+export type ImmersiveSection = SectionEntry & {
+  presentation: 'immersive';
+  experience: ImmersiveExperience;
+  callToAction: string;
+};
+
+export type BodySection = PanelSection | ImmersiveSection;
 
 export type InteractiveCelestialBody = CelestialBodyConfig & { section: BodySection };
 
@@ -132,7 +147,12 @@ function validateSection(body: CelestialBodyConfig, label: string): string[] {
   }
   const errors: string[] = [];
   if (isBlank(section.menuLabel)) errors.push(`${label}: section menuLabel must not be blank`);
-  if (isBlank(section.panelLabel)) errors.push(`${label}: section panelLabel must not be blank`);
+  if (section.presentation === 'panel' && isBlank(section.panelLabel)) {
+    errors.push(`${label}: section panelLabel must not be blank`);
+  }
+  if (section.presentation === 'immersive' && isBlank(section.callToAction)) {
+    errors.push(`${label}: section callToAction must not be blank`);
+  }
   return errors;
 }
 

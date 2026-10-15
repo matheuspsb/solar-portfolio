@@ -1,4 +1,5 @@
-import { draw, enter, mix, pop, seg } from './easing';
+import { mix } from '@/lib/math';
+import { draw, enter, pop, seg } from './easing';
 import { STAGE_CENTER_X, STAGE_CENTER_Y } from './star-marks';
 import { DESIGN_CUES } from './timeline';
 
