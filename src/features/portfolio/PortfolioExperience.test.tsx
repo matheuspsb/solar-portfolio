@@ -317,10 +317,12 @@ describe('PortfolioExperience', () => {
       expect(screen.getByRole('button', { name: /^Vênus/ })).toHaveFocus();
     });
 
-    it('goes back to the solar system with Escape', async () => {
+    it('skips the boot with the first Escape and goes back to the solar system with the second', async () => {
       const user = setup();
       await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
       await findArcade();
+      await user.keyboard('{Escape}');
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
       await user.keyboard('{Escape}');
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
@@ -335,7 +337,7 @@ describe('PortfolioExperience', () => {
       expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
       await openArcadeFromScene(user);
       expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'true');
-      await user.keyboard('{Escape}');
+      await user.keyboard('{Escape}{Escape}');
       expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
     });
 

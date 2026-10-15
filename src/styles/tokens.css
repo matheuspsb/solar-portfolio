@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './motion/journey.css';
 @import './motion/target.css';
+@import './motion/arcade.css';
 
 /*
  * Design tokens. Tailwind v4 turns each --color-*, --text-*, --radius-*, etc. into a utility class.
@@ -69,6 +70,19 @@
   --color-venus-root: #ffd36b;
   --color-venus-copper: #c0895c;
   --color-venus-bolt: #fff1c9;
+  --color-cartridge-bug-from: #ffc46b;
+  --color-cartridge-bug-to: #d9662e;
+  --color-cartridge-sulfur-from: #c9a36a;
+  --color-cartridge-sulfur-to: #7a4a2a;
+  --color-cartridge-root-from: #ffe6a8;
+  --color-cartridge-root-to: #e8a23a;
+  --color-cartridge-sealed-from: #6a4a33;
+  --color-cartridge-sealed-to: #2a1810;
+  --color-cartridge-body-high: #2a1b13;
+  --color-cartridge-body-low: #160e0a;
+  --color-cartridge-edge: #3a271b;
+  --color-cartridge-ink: #1a0d06;
+  --color-cartridge-sprite: #2a1206;
 
   --color-planet-cyan: #7fd3f0;
   --color-planet-white: #e8e6ef;
@@ -98,6 +112,17 @@
   --text-body--line-height: 1.6;
   --text-tag: 0.8125rem;
   --text-credit: 0.71875rem;
+  --text-arcade-kicker: clamp(0.5625rem, 1.2cqw, 0.75rem);
+  --text-arcade-home-title: clamp(1.875rem, 6.6cqw, 4.5rem);
+  --text-arcade-best: clamp(0.625rem, 1.2cqw, 0.75rem);
+  --text-arcade-cartridge-name: clamp(0.625rem, 1.7cqw, 1.0625rem);
+  --text-arcade-cartridge-meta: clamp(0.5rem, 1cqw, 0.625rem);
+  --text-arcade-glyph: clamp(0.5rem, 1cqw, 0.6875rem);
+  --text-arcade-detail-title: clamp(0.8125rem, 1.8cqw, 1.125rem);
+  --text-arcade-detail: clamp(0.8125rem, 1.6cqw, 1rem);
+  --text-arcade-hint: clamp(0.5625rem, 1.1cqw, 0.6875rem);
+  --text-arcade-boot: clamp(0.6875rem, 1.5cqw, 0.9375rem);
+  --text-arcade-boot-title: clamp(1.25rem, 4.6cqw, 3rem);
   --text-pixel-title: clamp(1.75rem, 6vw, 3.5rem);
   --text-eyebrow: 0.6875rem;
   --text-label: 0.625rem;
@@ -129,6 +154,8 @@
   --radius-ellipse: 50%;
 
   --text-shadow-pixel-glow: 0 0 14px rgb(255 207 138 / 0.4);
+  --shadow-cartridge-rest: 0 10px 24px rgb(0 0 0 / 0.5);
+  --shadow-cartridge-lift: 0 18px 40px rgb(0 0 0 / 0.6), 0 0 30px rgb(242 181 107 / 0.2);
   --shadow-glow: 0 0 40px rgb(255 138 31 / 0.25);
   --shadow-panel: 0 24px 80px rgb(0 0 0 / 0.55);
   --shadow-dot: 0 0 10px currentColor;

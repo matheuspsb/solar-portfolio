@@ -42,6 +42,8 @@ describe('arcade tokens', () => {
     ['hotfixDroneColor', 'venus-root'],
     ['shotColor', 'venus-bolt'],
     ['shotGlowColor', 'ember-400'],
+    ['spriteDetailColor', 'cartridge-ink'],
+    ['cartridgeSpriteColor', 'cartridge-sprite'],
   ] as const)('%s mirrors the CSS token --color-%s', (tokenKey, cssName) => {
     expect(arcadeTokens[tokenKey].toLowerCase()).toBe(readCssColor(cssName));
   });

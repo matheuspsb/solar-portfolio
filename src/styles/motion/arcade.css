@@ -1,0 +1,103 @@
+@keyframes arcade-crt-on {
+  0% {
+    transform: scale(0.6, 0.004);
+    filter: brightness(4);
+  }
+  35% {
+    transform: scale(1, 0.004);
+    filter: brightness(3);
+  }
+  60% {
+    transform: scale(1, 1.03);
+    filter: brightness(1.5);
+  }
+  100% {
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes arcade-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes arcade-nope {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px) rotate(-2deg);
+  }
+  40% {
+    transform: translateX(7px) rotate(2deg);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes arcade-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes arcade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes arcade-pop {
+  0% {
+    opacity: 0;
+    transform: scale(1.9);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@utility animate-arcade-crt-on {
+  animation: arcade-crt-on 800ms ease-out both;
+}
+
+@utility animate-arcade-bob {
+  animation: arcade-bob 1600ms ease-in-out infinite;
+}
+
+@utility animate-arcade-nope {
+  animation: arcade-nope 450ms ease;
+}
+
+@utility animate-arcade-blink {
+  animation: arcade-blink 1s steps(1) infinite;
+}
+
+@utility animate-arcade-rise {
+  animation: arcade-rise 200ms ease both;
+}
+
+@utility animate-arcade-pop {
+  animation: arcade-pop 500ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
+}

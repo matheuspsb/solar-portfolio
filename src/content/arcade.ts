@@ -2,6 +2,80 @@ export const arcadeContent = {
   dialogLabel: 'Venus Arcade',
   backLabel: 'Sistema solar',
   title: 'VENUS ARCADE',
+  boot: {
+    lines: [
+      'VENUS ARCADE BIOS  v0.72',
+      'SURFACE TEMP ........ 464 °C',
+      'PRESSURE ............ 92 BAR',
+      'CLOUD COVER ......... 100 %',
+      'CARTRIDGE SLOTS ..... 3 FOUND',
+      'LAST OPERATOR ....... UNKNOWN',
+    ],
+    title: 'VENUS ARCADE — SYSTEM ONLINE',
+    skipHint: 'ANY KEY · SKIP',
+  },
+  home: {
+    kicker: '⟟ 3 CARTRIDGES DETECTED ⟟',
+    bestLabel: 'BEST',
+    insertHint: 'ENTER · CLICK TO INSERT',
+    brokenHint: 'DAMAGED · CANNOT INSERT',
+    sealedHint: 'LOCKED',
+    noSignalMessage: 'NO SIGNAL · CARTRIDGE REJECTED',
+    accessDeniedMessage: 'ACCESS DENIED · SCORE HIGHER',
+    sealed: {
+      name: '? ? ?',
+      code: 'CRT-03 · SEALED',
+      status: 'SEALED',
+      description: 'Sealed shut. The slot only opens for exceptional engineers.',
+    },
+  },
+  cartridges: [
+    {
+      id: 'bug-hunter',
+      name: 'BUG HUNTER',
+      code: 'CRT-01 · 45 SEC',
+      status: 'READY',
+      glyph: '⟟01',
+      sprite: 'crawler',
+      description:
+        'Production is under attack. Fly a debug drone through the Venus mainframe, squash bugs, clean corrupted data and dodge glitches. 45 seconds.',
+    },
+    {
+      id: 'sulfur-drift',
+      name: 'SULFUR DRIFT',
+      code: 'CRT-02 · 464 °C',
+      status: 'NO SIGNAL',
+      glyph: '⏚02',
+      sprite: 'eye',
+      description:
+        'Melted at 464 °C. The label still shifts when nobody is looking. It will not boot.',
+    },
+    {
+      id: 'root',
+      name: 'ROOT://',
+      code: 'CRT-03 · HOTFIX',
+      status: 'UNLOCKED',
+      glyph: '⍀03',
+      sprite: 'drone',
+      description:
+        'Hotfix build. Golden drone, triple shot, same production fire. You earned the root password.',
+    },
+  ],
+  game: {
+    leaveLabel: 'ARCADE · ESC',
+  },
+  a11y: {
+    cartridgeGroup: 'Cartuchos do fliperama',
+    bootSkip: 'Pressione qualquer tecla para pular a inicialização',
+    states: {
+      ready: 'pronto',
+      broken: 'sem sinal',
+      sealed: 'selado',
+    },
+    sealedName: 'Cartucho selado',
+    noSignalAnnouncement: 'Cartucho sem sinal, não foi aceito.',
+    accessDeniedAnnouncement: 'Acesso negado, cartucho selado.',
+  },
   ranks: [
     {
       minimumScore: 0,

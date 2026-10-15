@@ -11,4 +11,6 @@ export const arcadeTokens = {
   hotfixDroneColor: '#ffd36b',
   shotColor: '#fff1c9',
   shotGlowColor: '#f2b56b',
+  spriteDetailColor: '#1a0d06',
+  cartridgeSpriteColor: '#2a1206',
 } as const;
