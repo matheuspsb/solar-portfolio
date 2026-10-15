@@ -1,4 +1,4 @@
-import { mix } from './easing';
+import { mix } from '@/lib/math';
 import { STAGES, TOTAL_DESIGN_SECONDS, TOTAL_REAL_SECONDS } from './timeline';
 
 export function toDesignSeconds(realSeconds: number): number {

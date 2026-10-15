@@ -1,5 +1,6 @@
 import { loaderTokens } from '@/styles/loader-tokens';
-import { enter, mix, seg } from './easing';
+import { mix } from '@/lib/math';
+import { enter, seg } from './easing';
 import { createSeededRandom } from './seeded-random';
 import { DESIGN_CUES } from './timeline';
 
