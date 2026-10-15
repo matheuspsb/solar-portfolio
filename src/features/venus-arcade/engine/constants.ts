@@ -66,3 +66,16 @@ export const DATA_SPEED_RANGE = [40, 70] as const;
 export const SHARD_SPEED = { start: 170, end: 320 } as const;
 export const TEAR_TOP_RATIO = 0.3;
 export const TEAR_BOTTOM_RATIO = 0.88;
+
+export const SHOT_HIT_RADIUS_PIXELS = 3;
+export const HIT_FLASH_SECONDS = 0.08;
+export const DRONE_RADIUS_PIXEL_UNITS = 3.2;
+export const BODY_CONTACT_FACTOR = 0.8;
+export const TEAR_CONTACT_FACTOR = 0.6;
+export const PATCH_PICKUP_EXTRA_PIXELS = 8;
+export const PATCH_BONUS_POINTS = 50;
+export const PATCH_DROP_CHANCE = 0.14;
+export const INVULNERABLE_SECONDS = 1.4;
+export const COMBO_WINDOW_SECONDS = 2.4;
+export const KILLS_PER_MULTIPLIER_STEP = 6;
+export const MAX_MULTIPLIER_BONUS = 4;

@@ -481,3 +481,13 @@ Layers, cheapest first:
 - **Glyph and lane names.** `laneX` guarda a raia do bug (o que o protótipo chama `bx`); o `x` é a raia mais o zigue-zague, sempre limitado a `[raio, largura − raio]`.
 - **Difficulty uses the elapsed time of the step.** O protótipo calcula a dificuldade antes de somar o `dt`; aqui o tempo já vem somado. A diferença é de um quadro e não muda a sensação.
 - **Constants.** Todos os intervalos, velocidades e faixas do handoff estão nomeados em `constants.ts`, com `jitter` como par `[mínimo, máximo]`.
+
+## Arcade engine, part 3 (Venus Arcade, step 5)
+
+- **The engine is a set of small steps, not one big update.** O protótipo tem um `update` único; aqui cada regra é uma função pura (`advanceShots`, `spawnEntities`, `advanceEntities`, `resolveShotHits`, `applyDestroyed`, `resolveDroneContacts`, `applyLeaks`, `tickCombo`, `getRunOutcome`). A ordem de chamada (a do protótipo) fica por conta da sessão da etapa 7.
+- **No effects inside the engine.** Explosões, textos flutuantes, tremor e som saem de dados que o motor devolve (`destroyed`, `awards`, `collectedPatches`, `hasHurt`, `leakedBugs`), nunca de chamadas de efeito. O tremor de 0,35 s e o `prefers-reduced-motion` são da camada visual.
+- **One hit, one target.** Cada tiro acerta só o primeiro alvo da lista (como o `b.dead` do protótipo), e o dano é um por tiro. Brilho de 0,08 s no acerto que não mata.
+- **Hurt rules.** Um dano por passo (o respiro de 1,4 s começa no mesmo passo), a invulnerabilidade é descontada antes de olhar os contatos, o patch é coletado com ou sem respiro, e estilhaço e rasgo machucam sem desaparecer; bug e dado desaparecem ao tocar o drone.
+- **Patch.** Só dado solta patch (14%), e o sorteio só é feito para dado. Com integridade cheia o patch vale 50 pontos, sem multiplicador.
+- **Combo.** O multiplicador usa o combo _antes_ da morte (como no protótipo); vazamento e dano zeram combo e janela; a janela é de 2,4 s.
+- **Outcome.** Integridade 0 vence o fim do tempo no mesmo passo (derrota em vez de implantação).
