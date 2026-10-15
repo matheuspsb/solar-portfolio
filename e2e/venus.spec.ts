@@ -243,3 +243,27 @@ test('stays muted until the sound is turned on, then toggles with the button and
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
   expect(await countCreated()).toBe(1);
 });
+
+test('flies into Venus before the arcade appears, unless motion is reduced', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('canvas')).toBeVisible();
+  await page.getByRole('button', { name: 'Acesso rápido' }).click();
+  await page.getByRole('button', { name: 'Venus Arcade', exact: true }).click();
+  const arcade = page.getByRole('dialog', { name: 'Venus Arcade' });
+  await expect(arcade).toBeHidden();
+  await expect(arcade).toBeVisible({ timeout: 6000 });
+
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Escape');
+  await expect(arcade).toBeHidden({ timeout: 4000 });
+  await expect(page.getByRole('button', { name: /^Vênus/ })).toBeFocused();
+});
+
+test('opens the arcade at once when motion is reduced', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/');
+  await expect(page.locator('canvas')).toBeVisible();
+  await page.getByRole('button', { name: 'Acesso rápido' }).click();
+  await page.getByRole('button', { name: 'Venus Arcade', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Venus Arcade' })).toBeVisible({ timeout: 1200 });
+});

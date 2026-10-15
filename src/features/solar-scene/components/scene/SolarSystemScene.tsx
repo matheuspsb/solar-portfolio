@@ -16,6 +16,7 @@ import { BodyInteractionProvider } from '../../hooks/use-body-interaction';
 import { useSceneReveal } from '../../hooks/use-scene-reveal';
 import type { SceneProps } from '../../types';
 import { BodyTracker } from './BodyTracker';
+import { CameraDive } from '../camera/CameraDive';
 import { CameraDistance } from '../camera/CameraDistance';
 import { CameraFocus } from '../camera/CameraFocus';
 import { CameraViewOffset } from '../camera/CameraViewOffset';
@@ -61,8 +62,10 @@ export function SolarSystemScene({
   trackedBodyId,
   onTrackFrame,
   onRevealChange,
+  dive = null,
 }: SolarSystemSceneProps) {
   const maxZoomDistance = getMaxZoomDistance(cameraDistance);
+  const diveBodyRadius = bodies.find((body) => body.id === dive?.bodyId)?.radius ?? 0;
   const reveal = useSceneReveal({
     bodyIds: bodies.map((body) => body.id),
     maxWaitMs: SCENE_REVEAL_MAX_WAIT_MS,
@@ -98,6 +101,11 @@ export function SolarSystemScene({
         nonce={cameraTarget.nonce}
         easingRate={cameraFocusEasingRate}
         sideOffset={CAMERA_FOCUS_SIDE_OFFSET_RADIANS}
+      />
+      <CameraDive
+        dive={dive}
+        bodyRadius={diveBodyRadius}
+        fieldOfViewDegrees={CAMERA_FIELD_OF_VIEW}
       />
       <CameraViewOffset targetOffsetPixels={viewOffsetPixels} easingRate={viewOffsetEasingRate} />
       <BodyTracker

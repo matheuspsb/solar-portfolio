@@ -118,3 +118,37 @@
 @utility animate-arcade-pop {
   animation: arcade-pop 500ms cubic-bezier(0.2, 1.2, 0.4, 1) both;
 }
+
+@keyframes arcade-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes arcade-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@utility animate-arcade-fade-in {
+  animation: arcade-fade-in 700ms ease both;
+}
+
+@utility animate-arcade-fade-out {
+  animation: arcade-fade-out 650ms ease both;
+}
+
+@utility animate-arcade-fog-in {
+  animation: arcade-fade-in 1100ms ease 500ms both;
+}
+
+@utility animate-arcade-fog-out {
+  animation: arcade-fade-out 1100ms ease both;
+}

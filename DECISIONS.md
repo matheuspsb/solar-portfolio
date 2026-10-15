@@ -563,3 +563,13 @@ Layers, cheapest first:
 - **Failure is silent.** Sem Web Audio, ou com um contexto que lança, o jogo segue sem som e o player não tenta de novo a cada tom.
 - **One owner for M.** Fora da partida a tecla é tratada pelo fliperama; na partida, pelo hook do jogo (que já interpreta as teclas por fase). Assim uma tecla nunca alterna duas vezes.
 - **No persisted preference.** Guardar a escolha seria mais cômodo, mas o handoff pede mudo por padrão e áudio inesperado em um portfólio visto por recrutadores custa mais que reativar o som.
+
+## Camera dive (Venus Arcade, step 14)
+
+- **Real 3D, not a CSS zoom.** O handoff pede o planeta 3D de verdade: a câmera da cena voa até Vênus (posição e alvo interpolados com a curva do protótipo), em vez de ampliar o canvas por CSS, que borraria a textura.
+- **The path follows the planet.** O ponto final é recalculado a cada quadro a partir da posição atual de Vênus, na linha de onde a câmera partiu, a uma distância em que o planeta cobre a diagonal da tela. A volta usa a pose guardada na ida.
+- **Controls step aside.** Durante o voo e enquanto o fliperama está aberto o `OrbitControls` fica desligado (os limites de distância e de ângulo o fariam recuar). Ele volta, com uma atualização, quando a câmera chega em casa.
+- **A stage machine owns the timing.** `useImmersiveStage` decide quando o fliperama monta e quando a cena descansa; o tempo do voo e da volta é o mesmo que a câmera usa. A cena só para de renderizar no estágio `open`.
+- **Reduced motion skips it.** Sem voo, sem névoa, sem fade: abre e fecha na hora, como as outras transições do site.
+- **Focus.** Durante o voo a cena está inerte (como com o painel); o foco volta a Vênus ao fim da volta pelo mesmo caminho do painel.
+- **The dive cannot be cancelled.** Durante os 1,7 s a cena está inerte e o fliperama ainda não existe para receber `Esc`; a volta (`surfacing`) é interrompível, pois escolher Vênus de novo reinicia o mergulho a partir da pose atual.

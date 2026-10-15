@@ -16,4 +16,14 @@ export type SceneProps = {
   trackedBodyId: string | null;
   onTrackFrame: (frame: ScreenFrame | null) => void;
   onRevealChange?: (isRevealed: boolean) => void;
+  dive?: DiveRequest | null;
+};
+
+export type DiveDirection = 'in' | 'out';
+
+export type DiveRequest = {
+  bodyId: string;
+  direction: DiveDirection;
+  nonce: number;
+  durationSeconds: number;
 };

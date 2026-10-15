@@ -3,4 +3,4 @@ export { SolarSystemSceneLoader } from './components/scene/SolarSystemSceneLoade
 export { useSceneAvailability } from './hooks/use-scene-availability';
 export type { SceneStatus } from './hooks/use-scene-availability';
 export { detectWebGL } from './lib/webgl-support';
-export type { SceneProps } from './types';
+export type { DiveRequest, SceneProps } from './types';

@@ -19,6 +19,7 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { SoundToggle } from '../ui/SoundToggle';
 
 type ArcadeExperienceProps = {
+  isLeaving?: boolean;
   onExit: () => void;
   getFallbackFocus?: () => HTMLElement | null;
 };
@@ -40,7 +41,11 @@ function readAllRecords() {
   return { standard: readRecords(storage, 'standard'), hotfix: readRecords(storage, 'hotfix') };
 }
 
-export function ArcadeExperience({ onExit, getFallbackFocus }: ArcadeExperienceProps) {
+export function ArcadeExperience({
+  isLeaving = false,
+  onExit,
+  getFallbackFocus,
+}: ArcadeExperienceProps) {
   const arcadeRef = useRef<HTMLDivElement>(null);
   const cartridgeRefs = useRef<Partial<Record<CartridgeId, HTMLButtonElement | null>>>({});
   const [records, setRecords] = useState(readAllRecords);
@@ -104,6 +109,10 @@ export function ArcadeExperience({ onExit, getFallbackFocus }: ArcadeExperienceP
     return () => window.removeEventListener('keydown', listener);
   }, []);
 
+  const stageMotion = isLeaving
+    ? 'pointer-events-none motion-safe:animate-arcade-fade-out'
+    : 'motion-safe:animate-arcade-fade-in';
+
   return (
     <div
       ref={arcadeRef}
@@ -111,7 +120,8 @@ export function ArcadeExperience({ onExit, getFallbackFocus }: ArcadeExperienceP
       aria-modal="true"
       aria-label={arcadeContent.dialogLabel}
       tabIndex={-1}
-      className="fixed inset-0 z-(--z-panel) flex flex-col bg-arcade-screen text-arcade-ink-100 outline-none"
+      inert={isLeaving}
+      className={`fixed inset-0 z-(--z-panel) flex flex-col bg-arcade-screen text-arcade-ink-100 outline-none ${stageMotion}`}
     >
       <header className="flex items-center justify-between px-5 pt-5">
         <Button variant="secondary" onClick={onExit}>
