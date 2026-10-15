@@ -529,3 +529,14 @@ Layers, cheapest first:
 - **Sprites are data.** Os 8 bitmaps vêm do `SP` do protótipo (extraídos por script, não digitados) e são desenhados por `drawSprite`, que serve tanto para os rótulos dos cartuchos quanto, na etapa 10, para os sprites do jogo. Um teste garante linhas retangulares, só os pixels `.`, `X` e `o`, e quadros do mesmo tamanho.
 - **Motion is opt-in.** Ligar do CRT, subida das linhas, pop do título, bob do sprite e balanço da rejeição usam `motion-safe:`; com movimento reduzido a tela aparece direto.
 - **Cabinet comes later.** A moldura da cabine, as máquinas laterais, scanlines e o reflexo do CRT ficam para a etapa 15 (acabamento); nesta etapa a tela ocupa o fliperama inteiro.
+
+## Playable game (Venus Arcade, step 10)
+
+- **The game is data plus a thin loop.** `GameState` (sessão, efeitos, rolagem da grade) avança em `advanceGame`, uma função pura; o hook `useGameSession` só liga o relógio, o teclado, o ponteiro e o canvas. Assim a regra fica testada sem canvas.
+- **Drawing is a function of state.** `drawGame` recebe um contexto 2D mínimo (`GameContext`), o estado, um sorteio injetado e as medidas; nada de estado escondido. Cores vêm de `arcadeTokens`, números de `engine/constants`. Os sprites são centrados por um contexto deslocado em vez de `translate`, para o tremor ser o único `translate` do quadro.
+- **Reduced motion.** Sem tremor, sem rolagem da grade; as partículas ficam (não são movimento da câmera). O hook lê a preferência a cada quadro, então alternar em tempo de execução vale na hora.
+- **Escape belongs to the game.** Na tela de jogo o hook de modal não faz nada com `Esc`: o hook do jogo o interpreta por fase (título sai, partida pausa, pausa retoma, fim sai). Enter e Espaço em um botão focado ficam com o botão, para não disparar duas vezes.
+- **Records.** O resultado é gravado uma vez por partida (`hasReportedFinish`), os recordes da home são relidos, e "jogar de novo" já usa o recorde novo (`restartSession`).
+- **HUD is a snapshot.** O placar só re-renderiza quando muda algo visível (pontos, combo, segundo inteiro, integridade, fase); a fração de segundo não conta.
+- **Pause on hide.** Aba escondida e perda de foco pausam a partida e soltam as teclas; fora da partida não fazem nada.
+- **Minimal stand-ins.** Pausa e resumo de fim são mínimos e marcados com `TODO(venus-arcade-step-11)` e `TODO(venus-arcade-step-12)`.

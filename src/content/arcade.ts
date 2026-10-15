@@ -63,6 +63,21 @@ export const arcadeContent = {
   ],
   game: {
     leaveLabel: 'ARCADE · ESC',
+    tearWarning: '! GLITCH INCOMING',
+    floating: {
+      leak: 'LEAK',
+      integrity: '+1 INTEGRITY',
+      bonus: '+50',
+    },
+    hud: { score: 'SCORE', time: 'TIME', integrity: 'INTEGRITY' },
+    title: {
+      kicker: 'Production is on fire',
+      controls: 'MOVE · WASD / ARROWS / DRAG · AUTO-FIRE',
+      start: 'PRESS ENTER',
+    },
+    banners: { deploy: 'DEPLOYED', crash: 'SYSTEM CRASH' },
+    paused: { title: 'PAUSED', resume: 'RESUME', quit: 'ARCADE' },
+    finished: { title: 'RUN COMPLETE', restart: 'PLAY AGAIN', quit: 'ARCADE' },
   },
   a11y: {
     cartridgeGroup: 'Cartuchos do fliperama',
@@ -75,6 +90,19 @@ export const arcadeContent = {
     sealedName: 'Cartucho selado',
     noSignalAnnouncement: 'Cartucho sem sinal, não foi aceito.',
     accessDeniedAnnouncement: 'Acesso negado, cartucho selado.',
+    gameCanvas: 'Área do jogo BUG HUNTER. Mova o drone com WASD, setas ou arrastando.',
+    hudGroup: 'Placar da partida',
+    scoreAnnouncement: 'Pontuação',
+    integrityAnnouncement: 'Integridade',
+    timeAnnouncement: 'Segundos restantes',
+    phaseAnnouncements: {
+      title: 'Pressione Enter para começar.',
+      countdown: 'Prepare-se.',
+      running: 'Vai!',
+      paused: 'Jogo pausado.',
+      ending: 'Fim da partida.',
+      finished: 'Partida encerrada.',
+    },
   },
   ranks: [
     {

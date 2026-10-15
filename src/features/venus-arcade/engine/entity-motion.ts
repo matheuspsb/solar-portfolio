@@ -14,7 +14,7 @@ type AdvanceInput = {
   random: Random;
 };
 
-type AdvanceResult = { entities: Entity[]; leakedBugs: number };
+type AdvanceResult = { entities: Entity[]; leakedBugs: number; leakedXs: number[] };
 
 function coolFlash(flashSeconds: number, deltaSeconds: number): number {
   return Math.max(0, flashSeconds - deltaSeconds);
@@ -70,12 +70,12 @@ function moveEntity(entity: Entity, input: AdvanceInput): Entity {
 }
 
 export function advanceEntities(input: AdvanceInput): AdvanceResult {
-  if (!isValidStep(input.deltaSeconds)) return { entities: [...input.entities], leakedBugs: 0 };
+  if (!isValidStep(input.deltaSeconds))
+    return { entities: [...input.entities], leakedBugs: 0, leakedXs: [] };
 
   const moved = input.entities.map((entity) => moveEntity(entity, input));
   const survivors = moved.filter((entity) => !hasExited(entity, input.field));
-  const leakedBugs = moved.filter(
-    (entity) => isBug(entity) && hasExited(entity, input.field),
-  ).length;
-  return { entities: survivors, leakedBugs };
+  const leaked = moved.filter((entity) => isBug(entity) && hasExited(entity, input.field));
+  const leakedXs = leaked.map((entity) => (isBug(entity) ? entity.x : 0));
+  return { entities: survivors, leakedBugs: leaked.length, leakedXs };
 }

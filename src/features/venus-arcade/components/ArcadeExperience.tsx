@@ -9,9 +9,10 @@ import { getLocalStorage } from '@/lib/safe-storage';
 import { CARTRIDGE_IDS, getBestMode, interpretHomeKey } from '../flow/cartridges';
 import type { CartridgeId } from '../flow/cartridges';
 import { useArcadeFlow } from '../flow/use-arcade-flow';
-import { readRecords } from '../results/records';
+import { readRecords, saveRunResult } from '../results/records';
+import type { RunResult } from '../results/run-result';
 import { BootScreen } from '../screens/BootScreen';
-import { GamePlaceholder } from '../screens/GamePlaceholder';
+import { GameScreen } from '../screens/GameScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 
 type ArcadeExperienceProps = {
@@ -37,7 +38,7 @@ function readAllRecords() {
 export function ArcadeExperience({ onExit, getFallbackFocus }: ArcadeExperienceProps) {
   const arcadeRef = useRef<HTMLDivElement>(null);
   const cartridgeRefs = useRef<Partial<Record<CartridgeId, HTMLButtonElement | null>>>({});
-  const [records] = useState(readAllRecords);
+  const [records, setRecords] = useState(readAllRecords);
   const isRootUnlocked = records.standard.isRootUnlocked;
   const arcade = useArcadeFlow({ isRootUnlocked });
   const { flow } = arcade;
@@ -45,8 +46,12 @@ export function ArcadeExperience({ onExit, getFallbackFocus }: ArcadeExperienceP
 
   const handleEscape = () => {
     if (flow.screen === 'boot') arcade.finishBoot();
-    else if (flow.screen === 'game') arcade.leaveGame();
-    else onExit();
+    else if (flow.screen === 'home') onExit();
+  };
+
+  const handleRunFinished = (result: RunResult) => {
+    saveRunResult(getLocalStorage(), result);
+    setRecords(readAllRecords());
   };
   useModalFocus({
     isOpen: true,
@@ -110,7 +115,14 @@ export function ArcadeExperience({ onExit, getFallbackFocus }: ArcadeExperienceP
             onInsert={arcade.insert}
           />
         )}
-        {flow.screen === 'game' && <GamePlaceholder onLeave={arcade.leaveGame} />}
+        {flow.screen === 'game' && flow.mode !== null && (
+          <GameScreen
+            mode={flow.mode}
+            previousBest={records[flow.mode].best}
+            onFinish={handleRunFinished}
+            onLeave={arcade.leaveGame}
+          />
+        )}
       </div>
     </div>
   );

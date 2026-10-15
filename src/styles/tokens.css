@@ -59,6 +59,8 @@
   --color-arcade-cabinet-edge: #3a261a;
   --color-arcade-grid: #2e1c11;
   --color-arcade-lane: #1e130b;
+  --color-arcade-data-panel: #2a1608;
+  --color-arcade-flash: #ffffff;
   --color-arcade-outline: #5a3a26;
   --color-arcade-ink-100: #ffe2b0;
   --color-arcade-ink-200: #d8c7b8;
@@ -123,6 +125,8 @@
   --text-arcade-hint: clamp(0.5625rem, 1.1cqw, 0.6875rem);
   --text-arcade-boot: clamp(0.6875rem, 1.5cqw, 0.9375rem);
   --text-arcade-boot-title: clamp(1.25rem, 4.6cqw, 3rem);
+  --text-arcade-hud: clamp(0.75rem, 2.2cqw, 1.25rem);
+  --text-arcade-countdown: clamp(3rem, 16cqw, 9rem);
   --text-pixel-title: clamp(1.75rem, 6vw, 3.5rem);
   --text-eyebrow: 0.6875rem;
   --text-label: 0.625rem;

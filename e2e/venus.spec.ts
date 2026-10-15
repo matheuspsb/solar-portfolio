@@ -116,3 +116,55 @@ test('has no accessibility violations on the shelf, with a cartridge selected', 
   expect(results.violations).toEqual([]);
   await expect(arcade).toBeVisible();
 });
+
+async function openBugHunter(page: Page) {
+  const arcade = await openArcadeHome(page);
+  await arcade
+    .getByRole('group', { name: 'Cartuchos do fliperama' })
+    .getByRole('button')
+    .first()
+    .click();
+  await expect(arcade.getByRole('img', { name: /BUG HUNTER/ })).toBeVisible();
+  return arcade;
+}
+
+test('starts a run from the title, shows the scoreboard and pauses and resumes with Escape', async ({
+  page,
+}) => {
+  const arcade = await openBugHunter(page);
+  const scoreboard = arcade.getByRole('group', { name: 'Placar da partida' });
+  await expect(scoreboard).toBeVisible();
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(3000);
+  await expect(scoreboard).toBeVisible();
+
+  await page.keyboard.down('ArrowLeft');
+  await page.waitForTimeout(400);
+  await page.keyboard.up('ArrowLeft');
+  await page.keyboard.press('Escape');
+  const resume = arcade.getByRole('button').filter({ hasText: /RESUME/ });
+  await expect(resume).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(resume).toBeHidden();
+});
+
+test('has no accessibility violations on the title card and while the game runs', async ({
+  page,
+}) => {
+  const arcade = await openBugHunter(page);
+  await waitForFiniteAnimations(page);
+  const onTitle = await new AxeBuilder({ page }).analyze();
+  expect(onTitle.violations).toEqual([]);
+
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(3200);
+  const whileRunning = await new AxeBuilder({ page }).analyze();
+  expect(whileRunning.violations).toEqual([]);
+  await expect(arcade).toBeVisible();
+});
+
+test('the game leaves the arcade shelf back with Escape from the title card', async ({ page }) => {
+  const arcade = await openBugHunter(page);
+  await page.keyboard.press('Escape');
+  await expect(arcade.getByRole('group', { name: 'Cartuchos do fliperama' })).toBeVisible();
+});

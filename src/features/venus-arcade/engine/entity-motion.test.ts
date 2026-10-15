@@ -81,6 +81,20 @@ describe('advanceEntities with bugs', () => {
   });
 });
 
+describe('advanceEntities leak positions', () => {
+  it('reports the lane where each bug slipped past the base', () => {
+    const lowBugs = [
+      { ...makeCrawler({ x: 120 }), y: 600 },
+      { ...makeCrawler({ x: 840 }), y: 600 },
+    ];
+    expect(advance(lowBugs, 1).leakedXs).toEqual([120, 840]);
+  });
+
+  it('reports no positions when nothing leaked', () => {
+    expect(advance([makeCrawler()], 0.1).leakedXs).toEqual([]);
+  });
+});
+
 describe('advanceEntities with corrupted data', () => {
   it('falls slowly and is removed below the bottom without counting as a leak', () => {
     const data = { ...createCorruptedData({ x: 300, speed: 50, radius: 18 }), y: 640 };
@@ -160,7 +174,7 @@ describe('advanceEntities with odd input', () => {
   );
 
   it('handles an empty list', () => {
-    expect(advance([], 1)).toEqual({ entities: [], leakedBugs: 0 });
+    expect(advance([], 1)).toEqual({ entities: [], leakedBugs: 0, leakedXs: [] });
   });
 
   it('does not change the list it was given', () => {

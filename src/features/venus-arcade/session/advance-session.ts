@@ -25,6 +25,7 @@ export type StepEvents = {
   awards: Award[];
   collectedPatches: Patch[];
   leakedBugs: number;
+  leakedXs: number[];
   hasHurt: boolean;
   hasFired: boolean;
 };
@@ -35,6 +36,7 @@ const NO_EVENTS: StepEvents = {
   awards: [],
   collectedPatches: [],
   leakedBugs: 0,
+  leakedXs: [],
   hasHurt: false,
   hasFired: false,
 };
@@ -126,6 +128,7 @@ function advanceRun(input: StepInput, deltaSeconds: number): StepResult {
       awards: scored.awards,
       collectedPatches: contacts.collectedPatches,
       leakedBugs: motion.leakedBugs,
+      leakedXs: motion.leakedXs,
       hasHurt: contacts.hasHurt,
       hasFired: weaponStep.hasFired,
     },

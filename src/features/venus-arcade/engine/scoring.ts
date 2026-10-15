@@ -25,6 +25,7 @@ export type RunStats = {
 };
 
 export type Award = {
+  kind: Bug['kind'] | 'data';
   x: number;
   y: number;
   radius: number;
@@ -85,7 +86,14 @@ export function applyDestroyed({
       dataCleaned: current.dataCleaned + (isData ? 1 : 0),
       bugsSquashed: current.bugsSquashed + (isData ? 0 : 1),
     };
-    awards.push({ x: target.x, y: target.y, radius: target.radius, points, multiplier });
+    awards.push({
+      kind: target.kind,
+      x: target.x,
+      y: target.y,
+      radius: target.radius,
+      points,
+      multiplier,
+    });
     if (isData && random() < PATCH_DROP_CHANCE) {
       patches.push(
         createPatch({ x: target.x, y: target.y, radius: PATCH_RADIUS_PIXEL_UNITS * pixelScale }),

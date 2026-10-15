@@ -89,3 +89,34 @@ export const COUNTDOWN_TWO_THRESHOLD_SECONDS = 1.2;
 export const COUNTDOWN_ONE_THRESHOLD_SECONDS = 0.6;
 export const ENDING_SECONDS = 1.7;
 export const MAX_STEP_SECONDS = 0.05;
+
+export const BURST_SPEED_RANGE = [60, 260] as const;
+export const BURST_LIFE_RANGE_SECONDS = [0.3, 0.7] as const;
+export const BURST_SIZE_RANGE = [2, 4] as const;
+export const BURST_LIFT = 60;
+export const PARTICLE_GRAVITY = 240;
+export const MAX_PARTICLES = 400;
+export const FLOATING_TEXT_SECONDS = 0.8;
+export const FLOATING_TEXT_RISE = 34;
+export const SHAKE_SECONDS = 0.35;
+export const BEETLE_BURST_COUNT = 18;
+export const DEFAULT_BURST_COUNT = 11;
+export const HURT_BURST_COUNT = 14;
+export const LEAK_TEXT_BASE_OFFSET = 14;
+
+export const URGENT_SECONDS = 10;
+
+export const SHAKE_PIXELS_PER_SECOND = 14;
+export const GRID_SPACING_PIXELS = 32;
+export const GRID_SCROLL_PIXELS_PER_SECOND = 24;
+export const GRID_DOT_PIXELS = 2;
+export const LANE_COUNT = 6;
+export const INVULNERABLE_BLINK_RATE = 14;
+export const SHOT_GLOW_BLUR_PIXELS = 8;
+export const SHOT_WIDTH_PIXELS = 3;
+export const SHOT_HEIGHT_PIXELS = 12;
+export const TEAR_BAND_COUNT = 7;
+export const TEAR_GHOST_ALPHA = 0.35;
+export const TEAR_BAND_ALPHA = 0.85;
+export const TEAR_WARNING_FLASH_RATE = 30;
+export const MAX_DEVICE_PIXEL_RATIO = 2;

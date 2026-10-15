@@ -98,7 +98,9 @@ describe('applyDestroyed', () => {
     });
     expect(stats).toMatchObject({ score: 10, combo: 1, maxCombo: 1, bugsSquashed: 1 });
     expect(stats.comboSeconds).toBeGreaterThan(0);
-    expect(awards).toEqual([{ x: 300, y: 200, radius: 16, points: 10, multiplier: 1 }]);
+    expect(awards).toEqual([
+      { kind: 'crawler', x: 300, y: 200, radius: 16, points: 10, multiplier: 1 },
+    ]);
   });
 
   it('pays beetles and data their own points and counts data apart from bugs', () => {
@@ -109,6 +111,16 @@ describe('applyDestroyed', () => {
       pixelScale: PIXEL_SCALE,
     });
     expect(stats).toMatchObject({ score: 40 + 25, bugsSquashed: 1, dataCleaned: 1, combo: 2 });
+  });
+
+  it('says what kind of target each prize came from', () => {
+    const { awards } = applyDestroyed({
+      stats: createRunStats(),
+      destroyed: [beetleAt(0, 0), dataAt(0, 0), crawlerAt(0, 0)],
+      random: neverDrops,
+      pixelScale: PIXEL_SCALE,
+    });
+    expect(awards.map((award) => award.kind)).toEqual(['beetle', 'data', 'crawler']);
   });
 
   it('applies the multiplier that the combo had before the kill', () => {
