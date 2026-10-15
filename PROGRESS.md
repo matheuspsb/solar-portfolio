@@ -268,3 +268,13 @@ Etapas: 1 Vênus vira entrada · 2 casca imersiva (menu fora do `inert`, Esc em 
 - **Feito.** `venus-arcade/cabinet/` (`CabinetShell`, `CabinetFrame`, `CrtOverlays`, `SideCabinets`, `KeyLegend`), utilitários de movimento e de fundo (`flicker`, `glow`, scanlines, ruído SVG, vinheta) em `styles/motion/arcade.css` e tokens de cor, sombra e tamanho em `tokens.css`; o `ArcadeExperience` agora compõe cabeçalho fixo de 64 px e cabine; o título do jogo ficou como no handoff (`GameOverlay`).
 - **Testes.** A cabine expõe só o que está dentro da tela, esconde as decorações de tecnologias assistivas e lista os atalhos só quando pedido. O visual em si é validado no navegador e pelo axe nos e2e.
 - **Validação.** Lint, typecheck, unitários, e2e (axe incluído) e build. No navegador, 1500x900, 1100x760 e 390x780: cabine, cabines laterais só na tela larga, legenda só no desktop, jogo e HUD legíveis no celular, console limpo.
+
+### Etapa 16: easter egg (em standby)
+
+Pausada a pedido do Matheus. O que já existe, o que o handoff pede e as ideias em discussão estão em `EASTER-EGG-STANDBY.md`. Enquanto isso, o cartucho ROOT:// continua destravando com 5000 pontos (sem o bloco "ROOT ACCESS").
+
+### Etapa 17: medição final (parcial)
+
+- **Build de produção, SwiftShader (`scripts/lighthouse.mjs`).** Mobile: desempenho 77, acessibilidade 100, boas práticas 100, SEO 100 (LCP 2,6 s, TBT 780 ms, CLS 0,003). Desktop: desempenho 82, demais 100 (LCP 0,5 s, TBT 390 ms, CLS 0,002). Os números ficam na faixa registrada antes do fliperama (mobile 69 a 79, desktop 81 a 95), porque o fliperama é um chunk carregado sob demanda.
+- **Total de JS gzip (`scripts/bundle-size.mjs`).** 634,7 KB somando todos os chunks; o maior (cena 3D) tem 228,9 KB.
+- **Ainda não medido.** Quadros por segundo da partida e do mergulho em GPU real, e o arrasto por toque em um aparelho de verdade.
