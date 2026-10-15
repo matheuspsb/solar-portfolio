@@ -82,3 +82,10 @@ export const MAX_MULTIPLIER_BONUS = 4;
 
 export const ROOT_SCORE = 5000;
 export const ROOT_HINT_RATIO = 0.6;
+
+export const COUNTDOWN_SECONDS = 2.4;
+export const COUNTDOWN_THREE_THRESHOLD_SECONDS = 1.8;
+export const COUNTDOWN_TWO_THRESHOLD_SECONDS = 1.2;
+export const COUNTDOWN_ONE_THRESHOLD_SECONDS = 0.6;
+export const ENDING_SECONDS = 1.7;
+export const MAX_STEP_SECONDS = 0.05;

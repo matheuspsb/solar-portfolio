@@ -21,7 +21,7 @@ function readAxis(value: number): number {
   return Number.isFinite(value) ? value : 0;
 }
 
-function clampToBounds(drone: Drone, field: PlayField): Drone {
+export function clampDroneToField(drone: Drone, field: PlayField): Drone {
   const bounds = getDroneBounds(field);
   return {
     x: clamp(drone.x, bounds.minimumX, bounds.maximumX),
@@ -62,11 +62,11 @@ export function stepDrone({ drone, direction, deltaSeconds, field }: StepDroneIn
     const distance = DRONE_KEYBOARD_SPEED * deltaSeconds;
     const nextX = drone.x + (directionX / length) * distance;
     const nextY = drone.y + (directionY / length) * distance;
-    return clampToBounds({ x: nextX, y: nextY, targetX: nextX, targetY: nextY }, field);
+    return clampDroneToField({ x: nextX, y: nextY, targetX: nextX, targetY: nextY }, field);
   }
 
   const followFactor = 1 - Math.exp(-deltaSeconds * DRONE_FOLLOW_RATE);
-  return clampToBounds(
+  return clampDroneToField(
     {
       ...drone,
       x: drone.x + (drone.targetX - drone.x) * followFactor,
