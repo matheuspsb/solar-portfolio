@@ -12,6 +12,7 @@ function resultFor(overrides: Partial<Parameters<typeof buildRunResult>[0]> = {}
   return buildRunResult({
     stats: statsWith({ score: 1000 }),
     end: 'deploy',
+    mode: 'standard',
     previousBest: 0,
     ...overrides,
   });
@@ -51,6 +52,13 @@ describe('buildRunResult summary', () => {
     const result = resultFor({ stats: statsWith({ score }) });
     expect(result.score).toBe(0);
     expect(result.rank.minimumScore).toBe(0);
+  });
+});
+
+describe('buildRunResult mode', () => {
+  it('remembers the mode the run was played in', () => {
+    expect(resultFor({ mode: 'hotfix' }).mode).toBe('hotfix');
+    expect(resultFor().mode).toBe('standard');
   });
 });
 

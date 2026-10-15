@@ -1,5 +1,6 @@
 import { ROOT_HINT_RATIO, ROOT_SCORE } from '../engine/constants';
 import type { RunStats } from '../engine/scoring';
+import type { FireMode } from '../engine/shots';
 import { getRank } from './rank';
 import type { Rank } from './rank';
 
@@ -7,6 +8,7 @@ export type RunEnd = 'deploy' | 'crash';
 
 export type RunResult = {
   end: RunEnd;
+  mode: FireMode;
   score: number;
   bugsSquashed: number;
   dataCleaned: number;
@@ -22,6 +24,7 @@ export type RunResult = {
 type BuildRunResultInput = {
   stats: RunStats;
   end: RunEnd;
+  mode: FireMode;
   previousBest: number;
   rootScore?: number;
 };
@@ -33,6 +36,7 @@ function toSafeScore(value: number): number {
 export function buildRunResult({
   stats,
   end,
+  mode,
   previousBest,
   rootScore = ROOT_SCORE,
 }: BuildRunResultInput): RunResult {
@@ -42,6 +46,7 @@ export function buildRunResult({
 
   return {
     end,
+    mode,
     score,
     bugsSquashed: stats.bugsSquashed,
     dataCleaned: stats.dataCleaned,
