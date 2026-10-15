@@ -4,8 +4,9 @@ import type {
   ContactSubmission,
   ContactSubmitResult,
 } from '@/domain/contact-message';
+import { uiContent } from '@/content/ui';
 
-export const UNEXPECTED_FAILURE = 'Não foi possível enviar agora. Tente novamente em instantes.';
+export const UNEXPECTED_FAILURE = uiContent.contactUnexpectedFailure;
 
 export function readHoneypot(form: HTMLFormElement | null): string {
   const value = form ? new FormData(form).get(HONEYPOT_FIELD) : null;

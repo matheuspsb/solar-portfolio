@@ -1,37 +1,28 @@
 'use client';
 
-import { useRef, useState } from 'react';
 import type { ComponentType } from 'react';
 import { AttributionNote, ContentPanel } from '@/features/content-panel';
 import { LoadingGate } from '@/features/loading-screen';
 import { QuickAccessMenu } from '@/features/quick-access-menu';
-import {
-  SceneErrorBoundary,
-  SolarSystemSceneLoader,
-  detectWebGL,
-  useSceneAvailability,
-} from '@/features/solar-scene';
-import type { SceneProps, SceneStatus } from '@/features/solar-scene';
+import { SceneErrorBoundary, SolarSystemSceneLoader, detectWebGL } from '@/features/solar-scene';
+import type { SceneProps } from '@/features/solar-scene';
 import { TargetLock } from '@/features/target-lock';
-import type { FrameScheduler } from '@/hooks/frame-scheduler';
-import type { IdleScheduler } from '@/hooks/use-idle-ready';
-import { getInteractiveBodies } from '@/domain/celestial-body';
+import { uiContent } from '@/content/ui';
 import type { CelestialBodyConfig } from '@/domain/celestial-body';
 import type { Credit } from '@/domain/credit';
+import type { FrameScheduler } from '@/hooks/frame-scheduler';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
-import { createFrameChannel } from '@/lib/screen-frame';
-import { getBodyAccessibleLabel } from './body-labels';
-import { buildLockTargets } from './lock-targets';
+import type { IdleScheduler } from '@/hooks/use-idle-ready';
+import { ImmersiveView } from './ImmersiveView';
+import { getImmersiveTarget } from './open-section';
 import { SceneFallback } from './SceneFallback';
 import { SceneKeyboardControls } from './SceneKeyboardControls';
-import type { SceneKeyboardControlsHandle } from './SceneKeyboardControls';
-import { ImmersiveView } from './ImmersiveView';
-import { getOpenExperience, getOpenPanel } from './open-section';
-import { getTrackedBodyId } from './tracked-body';
 import { SectionView } from './SectionView';
-import { useBodyInteraction } from './use-body-interaction';
-import { useCameraTarget } from './use-camera-target';
 import { useImmersiveStage } from './use-immersive-stage';
+import { usePortfolioModel } from './use-portfolio-model';
+import { useSceneShell } from './use-scene-shell';
+
+type ImmersiveTransition = { diveSeconds: number; surfaceSeconds: number };
 
 type PortfolioExperienceProps = {
   bodies: readonly CelestialBodyConfig[];
@@ -44,20 +35,7 @@ type PortfolioExperienceProps = {
   immersiveTransition?: ImmersiveTransition;
 };
 
-type ImmersiveTransition = { diveSeconds: number; surfaceSeconds: number };
-
 const DEFAULT_IMMERSIVE_TRANSITION: ImmersiveTransition = { diveSeconds: 1.7, surfaceSeconds: 1.1 };
-
-const UNAVAILABLE_MESSAGE =
-  'Não foi possível exibir a cena 3D neste dispositivo. O conteúdo continua disponível pelo menu de acesso rápido e pelos botões abaixo.';
-const CONTEXT_LOST_MESSAGE = 'A cena 3D perdeu o contexto gráfico e está tentando se recuperar.';
-const FALLBACK_TITLE = 'Visualização 3D indisponível';
-
-const fallbackMessageByStatus: Record<SceneStatus, string | null> = {
-  working: null,
-  contextLost: CONTEXT_LOST_MESSAGE,
-  unavailable: UNAVAILABLE_MESSAGE,
-};
 
 export function PortfolioExperience({
   bodies,
@@ -69,132 +47,86 @@ export function PortfolioExperience({
   loaderScheduler,
   immersiveTransition = DEFAULT_IMMERSIVE_TRANSITION,
 }: PortfolioExperienceProps) {
-  const availability = useSceneAvailability(probeWebGL, idleScheduler);
-  const keyboardControlsRef = useRef<SceneKeyboardControlsHandle>(null);
-  const lastOpenedIdRef = useRef<string | null>(null);
-  const [frameChannel] = useState(createFrameChannel);
-  const [isSceneRevealed, setIsSceneRevealed] = useState(false);
-
-  const interactiveBodies = getInteractiveBodies(bodies);
-  const labeledBodies = interactiveBodies.map((body) => ({
-    id: body.id,
-    name: body.name,
-    menuLabel: body.section.menuLabel,
-    presentation: body.section.presentation,
-  }));
-  const interaction = useBodyInteraction(labeledBodies.map((body) => body.id));
-  const keyboardItems = labeledBodies.map((body) => ({
-    id: body.id,
-    label: getBodyAccessibleLabel(body),
-  }));
-  const menuItems = interactiveBodies.map((body) => ({
-    id: body.id,
-    label: body.section.menuLabel,
-    tone: body.section.menuTone,
-  }));
-  const cameraTarget = useCameraTarget(interaction.state.selectedId ?? interaction.state.focusedId);
-  const fallbackMessage = fallbackMessageByStatus[availability.status];
-  const isSceneUnavailable = availability.isChecked && availability.status === 'unavailable';
-  const canMountScene = availability.isChecked && !isSceneUnavailable;
-  const isSceneReady = isSceneRevealed || isSceneUnavailable;
-  const retryHandler = availability.canRetry ? availability.retry : undefined;
-  const selectedBody = interactiveBodies.find((body) => body.id === interaction.state.selectedId);
-  const openPanel = getOpenPanel(selectedBody);
-  const openExperience = getOpenExperience(selectedBody);
+  const { keyboardControlsRef, model } = usePortfolioModel(bodies);
+  const shell = useSceneShell({ probeWebGL, idleScheduler });
   const prefersReducedMotion = usePrefersReducedMotion();
-  const hasImmersiveTransition = immersiveTransition.diveSeconds > 0;
+  const skipsImmersiveTransition = prefersReducedMotion || immersiveTransition.diveSeconds <= 0;
   const immersive = useImmersiveStage({
-    target:
-      selectedBody && openExperience
-        ? { experience: openExperience, bodyId: selectedBody.id }
-        : null,
-    reducedMotion: prefersReducedMotion || !hasImmersiveTransition,
+    target: getImmersiveTarget(model.selectedBody),
+    reducedMotion: skipsImmersiveTransition,
     diveSeconds: immersiveTransition.diveSeconds,
     surfaceSeconds: immersiveTransition.surfaceSeconds,
   });
   const sceneCameraTarget =
-    immersive.stage === 'idle' ? cameraTarget : { ...cameraTarget, id: null };
-  const trackedBodyId = getTrackedBodyId(interaction.state);
-  const lockTargets = buildLockTargets(interactiveBodies);
-
-  const changeHover = (id: string, isHovered: boolean) => {
-    if (isHovered) interaction.hover(id);
-    else interaction.unhover(id);
-  };
-
-  const openBody = (id: string) => {
-    lastOpenedIdRef.current = id;
-    interaction.select(id);
-  };
-
-  const focusLastOpenedBody = () => {
-    const lastOpenedId = lastOpenedIdRef.current;
-    if (lastOpenedId === null) return null;
-    return keyboardControlsRef.current?.focusItem(lastOpenedId) ?? null;
-  };
+    immersive.stage === 'idle' ? model.cameraTarget : { ...model.cameraTarget, id: null };
+  const isBodyOpen = model.selectedBody !== undefined;
 
   return (
     <>
-      <LoadingGate isSceneReady={isSceneReady} scheduler={loaderScheduler} />
-      <div inert={selectedBody !== undefined} className="contents">
+      <LoadingGate isSceneReady={shell.isSceneReady} scheduler={loaderScheduler} />
+      <div inert={isBodyOpen} className="contents">
         <SceneErrorBoundary
           fallback={null}
-          resetKey={availability.resetKey}
-          onError={availability.markCrashed}
+          resetKey={shell.availability.resetKey}
+          onError={shell.availability.markCrashed}
         >
-          {canMountScene && (
+          {shell.canMountScene && (
             <SceneComponent
               bodies={bodies}
-              highlightOf={interaction.highlightOf}
-              onHoverChange={changeHover}
-              onSelect={openBody}
-              onContextLost={availability.markContextLost}
-              onContextRestored={availability.markContextRestored}
-              isActive={selectedBody === undefined}
+              highlightOf={model.highlightOf}
+              onHoverChange={model.changeHover}
+              onSelect={model.openBody}
+              onContextLost={shell.availability.markContextLost}
+              onContextRestored={shell.availability.markContextRestored}
+              isActive={!isBodyOpen}
               isHidden={immersive.stage === 'open'}
               cameraTarget={sceneCameraTarget}
               dive={immersive.dive}
               description={sceneDescription}
-              trackedBodyId={trackedBodyId}
-              onTrackFrame={frameChannel.publish}
-              onRevealChange={setIsSceneRevealed}
+              trackedBodyId={model.trackedBodyId}
+              onTrackFrame={shell.frameChannel.publish}
+              onRevealChange={shell.setIsSceneRevealed}
             />
           )}
         </SceneErrorBoundary>
-        {fallbackMessage && (
+        {shell.fallbackMessage && (
           <SceneFallback
-            title={FALLBACK_TITLE}
-            message={fallbackMessage}
-            items={menuItems}
-            onSelectItem={openBody}
-            onRetry={retryHandler}
+            title={uiContent.sceneFallback.title}
+            message={shell.fallbackMessage}
+            items={model.menuItems}
+            onSelectItem={model.openBody}
+            onRetry={shell.retryHandler}
           />
         )}
         <SceneKeyboardControls
           ref={keyboardControlsRef}
-          groupLabel="Corpos celestes"
-          items={keyboardItems}
-          onItemFocus={interaction.focus}
-          onItemBlur={interaction.blur}
-          onItemActivate={openBody}
+          groupLabel={uiContent.celestialBodiesGroup}
+          items={model.keyboardItems}
+          onItemFocus={model.focusBody}
+          onItemBlur={model.blurBody}
+          onItemActivate={model.openBody}
         />
-        {selectedBody === undefined && (
-          <TargetLock targets={lockTargets} activeId={trackedBodyId} channel={frameChannel} />
+        {!isBodyOpen && (
+          <TargetLock
+            targets={model.lockTargets}
+            activeId={model.trackedBodyId}
+            channel={shell.frameChannel}
+          />
         )}
-        <QuickAccessMenu items={menuItems} onSelectItem={openBody} />
+        <QuickAccessMenu items={model.menuItems} onSelectItem={model.openBody} />
       </div>
       <ContentPanel
-        isOpen={openPanel !== null}
-        title={openPanel?.title ?? ''}
-        panelLabel={openPanel?.panelLabel ?? ''}
-        onClose={interaction.deselect}
-        getFallbackFocus={focusLastOpenedBody}
+        isOpen={model.openPanel !== null}
+        title={model.openPanel?.title ?? ''}
+        panelLabel={model.openPanel?.panelLabel ?? ''}
+        onClose={model.deselect}
+        getFallbackFocus={model.focusLastOpenedBody}
         footer={<AttributionNote credits={credits} />}
       >
-        {openPanel && (
+        {model.openPanel && (
           <SectionView
-            content={openPanel.content}
-            emblemTextureUrl={selectedBody?.texture?.smallUrl ?? null}
+            content={model.openPanel.content}
+            emblemTextureUrl={model.selectedBody?.texture?.smallUrl ?? null}
           />
         )}
       </ContentPanel>
@@ -202,9 +134,9 @@ export function PortfolioExperience({
         <ImmersiveView
           experience={immersive.experience}
           stage={immersive.stage}
-          reducedMotion={prefersReducedMotion || !hasImmersiveTransition}
-          onExit={interaction.deselect}
-          getFallbackFocus={focusLastOpenedBody}
+          reducedMotion={skipsImmersiveTransition}
+          onExit={model.deselect}
+          getFallbackFocus={model.focusLastOpenedBody}
         />
       )}
     </>

@@ -15,3 +15,11 @@ export function getOpenExperience(
   if (!body || body.section.presentation !== 'immersive') return null;
   return body.section.experience;
 }
+
+export function getImmersiveTarget(
+  body: InteractiveCelestialBody | undefined,
+): { experience: ImmersiveSection['experience']; bodyId: string } | null {
+  const experience = getOpenExperience(body);
+  if (!body || experience === null) return null;
+  return { experience, bodyId: body.id };
+}

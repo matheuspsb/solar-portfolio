@@ -18,6 +18,7 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **T21, listeners do contexto WebGL.** `onCreated` registrava `webglcontextlost` e `webglcontextrestored` sem nunca remover e com os callbacks da primeira renderização. Agora o hook `useWebglContextEvents` (usado pelo componente `WebglContextEvents`, dentro do `Canvas`) registra com `useEffect`, remove no cleanup, troca de alvo se o canvas mudar e chama sempre a versão atual dos callbacks (`useEffectEvent`).
 - **T22, o cometa re-renderizava a seção de contato inteira.** A posição do cometa saiu do estado do React: `useComet` guarda `head` e `tail` em um store externo (`comet-store`) e só o `ArcJourney` o lê, com `useCometPosition` (`useSyncExternalStore`). Durante a viagem a `ContactSection` não re-renderiza (teste no `use-comet.test.tsx`).
 - **T5, T8 e T11, `ContactSection` concentrava responsabilidades demais.** A lógica (formulário, máquina de estados, cometa, envio com travas, rascunho) foi para o hook `useContactJourney`, que devolve um modelo pronto (`delivered`, `stage`, `form`); `ContactSection` caiu de 338 para 77 linhas e só compõe `JourneyStage`, `ContactForm` (nova, em `question/`), `DeliveryReceipt` e `LinkedInCard`. Os ternários repetidos viraram uma variável de visão (`delivered`) e o contador de caracteres é calculado antes do JSX. `deliverSafely` e `readHoneypot` saíram para `delivery/submit-message`, os atributos dos campos para `question/input-attributes`. O envio agora é testável sem a árvore (9 testes do hook, 5 dos helpers).
+- **T6 e T12, textos de interface e `PortfolioExperience`.** Os textos que estavam dentro de componentes (mensagens da cena indisponível, "Fechar painel", "Acesso rápido", rótulos do "Sobre", grupo "Corpos celestes", glifo `←` e a falha inesperada do envio) foram para `content/ui.ts`. `PortfolioExperience` caiu de 212 para 144 linhas: `usePortfolioModel` guarda as listas, a seleção e os handlers, `useSceneShell` a disponibilidade da cena, o canal de frames e a revelação, e `getImmersiveTarget` (em `open-section`) monta o alvo do mergulho.
 
 ## Tasks abertas
 
@@ -38,18 +39,6 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **Proposta:** as folhas (`JourneyPlanet`, `MercuryPlanet`, `ArcJourney`, `DeliveryScene`) chamarem `usePrefersReducedMotion()` diretamente. O
   hook já é barato e usa `useSyncExternalStore`. Mantém-se a prop só onde o teste precisa forçar o valor (e aí vale injetar o provider do hook).
 - **Pronto quando:** `ContactSection` deixa de passar `reducedMotion` aos filhos, e os testes dos filhos continuam determinísticos.
-
-### T6 (B) Textos de interface dentro de componentes (fora de `src/content/`)
-
-- **Regra do projeto:** todo conteúdo e texto de interface fica em `src/content/`.
-- **Casos encontrados:**
-  - `PortfolioExperience.tsx`: `UNAVAILABLE_MESSAGE`, `CONTEXT_LOST_MESSAGE`, `FALLBACK_TITLE` e `groupLabel="Corpos celestes"`.
-  - `PanelHeader.tsx`: `"Fechar painel"`.
-  - `QuickAccessMenu.tsx`: `"Acesso rápido"` (duas vezes, no `nav` e no botão).
-  - `AboutSection.tsx`: os rótulos `"Experiência"`, `"Localização"` e `STACK_LABEL`.
-  - `StepActions.tsx`: o glifo `←` do botão de voltar.
-- **Proposta:** um módulo `content/ui.ts` e importá-lo direto onde for usado, como o `TargetCard` faz com `content/targeting.ts`.
-- **Pronto quando:** nenhum componente de `features/` tem texto em português literal.
 
 ### T7 (C) Props de teste misturadas com as de produção
 
@@ -98,13 +87,6 @@ abaixo é uma task. Prioridade: **A** (vale fazer logo), **B** (melhora clara), 
 - **Proposta:** pré-calcular uma lista de itens prontos (`getOrbitItems`) e extrair o handler do canvas para um hook (ver T21).
 
 ## Arquivos com mais de uma responsabilidade
-
-### T12 (B) `PortfolioExperience.tsx` (164 linhas)
-
-- **Mistura:** disponibilidade da cena, foco do teclado (`lastOpenedIdRef`), listas derivadas (`menuItems`, `keyboardItems`, `lockTargets`),
-  mensagens de interface (constantes `UNAVAILABLE_MESSAGE` etc.) e a composição de seis filhos.
-- **Proposta:** um hook `usePortfolioModel(bodies)` que devolve as listas e os handlers (`openBody`, `changeHover`, `focusLastOpenedBody`), e as
-  mensagens indo para `content/` (T6). O componente fica só com o JSX.
 
 ### T13 (B) `QuickAccessMenu.tsx` (160 linhas)
 

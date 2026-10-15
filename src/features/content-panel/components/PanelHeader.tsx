@@ -1,6 +1,7 @@
 import { CloseIcon } from '@/components/icons/CloseIcon';
 import { IconButton } from '@/components/IconButton';
 import { Label } from '@/components/Label';
+import { uiContent } from '@/content/ui';
 
 type PanelHeaderProps = {
   label: string;
@@ -17,7 +18,7 @@ export function PanelHeader({ label, onClose }: PanelHeaderProps) {
         />
         <Label size="eyebrow">{label}</Label>
       </div>
-      <IconButton label="Fechar painel" onClick={onClose}>
+      <IconButton label={uiContent.closePanel} onClick={onClose}>
         <CloseIcon />
       </IconButton>
     </header>

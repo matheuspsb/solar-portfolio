@@ -285,3 +285,10 @@ Pausada a pedido do Matheus. O que já existe, o que o handoff pede e as ideias 
 - **Feito.** Hook `useContactJourney` (formulário, máquina de estados, cometa, envio, rascunho) que devolve `delivered`, `stage` e `form`; `ContactForm` (apresentação) em `question/`; `delivery/submit-message` (`deliverSafely`, `readHoneypot`, mensagem de falha) e `question/input-attributes`. `ContactSection` ficou com 77 linhas e sem ternário repetido. O comportamento não mudou: os 181 testes que já existiam do contato continuam passando sem alteração.
 - **Testes novos.** 9 do hook (resposta vazia recusada, avanço e volta, envio com honeypot e tempo gasto, segundo envio ignorado, falha e nova tentativa, submitter que lança, enviar outra mensagem, `Ctrl+Enter` só na mensagem) e 5 dos helpers. Uma mutação (falha de envio tratada como entregue) derruba dois deles.
 - **Achado.** A trava `isSendingRef` é redundante na prática: o estado `sending` já bloqueia o segundo envio entre eventos. Só protegeria duas chamadas no mesmo tick, que a interface não produz. Mantida como estava, sem teste próprio.
+
+## T6 e T12: textos de interface e `PortfolioExperience`
+
+- **Caso de uso.** Quem mantém o site precisa trocar um texto sem abrir componentes, e quem o usa espera o mesmo comportamento de antes: cena 3D, fallback sem WebGL ou com contexto perdido, menu, painel e fliperama. Se falhasse: fallback que não aparece, nova tentativa oferecida sem WebGL, foco que não volta ao astro, seleção de um corpo inexistente.
+- **Feito.** `content/ui.ts` com os textos; `usePortfolioModel` (listas, seleção, hover, foco e câmera), `useSceneShell` (disponibilidade, fallback, canal de frames, revelação) e `getImmersiveTarget`. `PortfolioExperience` ficou só com composição (212 para 144 linhas). Os 82 e2e e os testes antigos passam sem alteração.
+- **Testes novos.** 10 do modelo, 7 do shell e 4 de `open-section`. Duas mutações (nova tentativa sempre oferecida, foco devolvido sem ter aberto nada) derrubam testes.
+- **Regra nova.** Todo bug achado ao testar vira teste automatizado permanente, que nunca é apagado nem enfraquecido (`CLAUDE.md` do projeto e do usuário).

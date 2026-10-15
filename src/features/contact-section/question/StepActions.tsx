@@ -1,4 +1,5 @@
 import { Button } from '@/components/Button';
+import { uiContent } from '@/content/ui';
 
 type StepActionsProps = {
   label: string;
@@ -36,7 +37,7 @@ export function StepActions({
           onClick={onBack}
           className="ml-auto cursor-pointer px-1 py-2 text-sm text-ink-300 transition-colors duration-fast hover:text-ink-100"
         >
-          <span aria-hidden="true">← </span>
+          <span aria-hidden="true">{uiContent.backArrow} </span>
           {backLabel}
         </button>
       )}

@@ -10,8 +10,7 @@ import { DataGrid } from './DataGrid';
 import { OrbitEmblem } from './OrbitEmblem';
 import { RuledHeading } from './RuledHeading';
 import { StackList } from './StackList';
-
-const STACK_LABEL = 'Stack principal';
+import { uiContent } from '@/content/ui';
 
 type AboutSectionProps = {
   content: AboutContent;
@@ -40,7 +39,7 @@ export function AboutSection({ content, emblemTextureUrl }: AboutSectionProps) {
       <Text tone="secondary">{content.summary}</Text>
 
       <DataGrid>
-        <DataCell label="Experiência">
+        <DataCell label={uiContent.about.experience}>
           <div className="flex items-baseline gap-1.5">
             <span className="text-stat font-bold text-ember-400">{content.experience.value}</span>
             <span className="text-sm text-ink-200">{content.experience.unit}</span>
@@ -49,7 +48,7 @@ export function AboutSection({ content, emblemTextureUrl }: AboutSectionProps) {
             {content.experience.description}
           </Text>
         </DataCell>
-        <DataCell label="Localização">
+        <DataCell label={uiContent.about.location}>
           <span className="text-body leading-snug font-medium">{content.location.name}</span>
           <span className="font-mono text-eyebrow text-nebula-300">
             {content.location.coordinates}
@@ -59,8 +58,8 @@ export function AboutSection({ content, emblemTextureUrl }: AboutSectionProps) {
 
       {hasStack && (
         <section className="flex flex-col gap-3">
-          <RuledHeading level={3} title={STACK_LABEL} trailing={stackCount} />
-          <StackList label={STACK_LABEL} items={content.stack} />
+          <RuledHeading level={3} title={uiContent.about.stack} trailing={stackCount} />
+          <StackList label={uiContent.about.stack} items={content.stack} />
         </section>
       )}
 

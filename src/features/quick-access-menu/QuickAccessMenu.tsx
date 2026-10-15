@@ -7,6 +7,7 @@ import { joinClassNames } from '@/lib/join-class-names';
 import { formatObjectCode, getMenuLayout, getOrbitDelaySeconds } from './orbit-layout';
 import { OrbitMenuItem } from './OrbitMenuItem';
 import { OrbitMenuToggle } from './OrbitMenuToggle';
+import { uiContent } from '@/content/ui';
 
 type QuickAccessMenuProps = {
   items: ReadonlyArray<{ id: string; label: string; tone: PlanetTone }>;
@@ -89,7 +90,7 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
 
   return (
     <nav
-      aria-label="Acesso rápido"
+      aria-label={uiContent.quickAccess}
       ref={containerRef}
       className="fixed top-5 right-5 z-(--z-chrome)"
       onBlur={closeWhenFocusLeaves}
@@ -111,7 +112,7 @@ export function QuickAccessMenu({ items, onSelectItem }: QuickAccessMenuProps) {
     >
       <OrbitMenuToggle
         ref={toggleRef}
-        label="Acesso rápido"
+        label={uiContent.quickAccess}
         isOpen={isOpen}
         controlsId={listId}
         onClick={() => setIsOpen((wasOpen) => !wasOpen)}
