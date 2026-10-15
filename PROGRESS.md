@@ -171,3 +171,11 @@ Etapas: 1 Vênus vira entrada · 2 casca imersiva (menu fora do `inert`, Esc em 
 - **Medição.** Desenhos WebGL por segundo (Chromium headless, SwiftShader): 308 com o fliperama fechado, 0 aberto, 174 depois de sair.
 - **Validação.** Lint, typecheck, 1021 unitários, e2e de Vênus, menu, Mercúrio e painel, build.
 - **Fora desta etapa.** A T27 (pausar a cena sob o loader) continua aberta: o `isHidden` serve para ela, mas o loader depende da cena para revelar e a T27 pede medição própria com `scripts/measure-loader.mjs`.
+
+### Etapa 3: motor puro, parte 1 (regras base, drone e tiros)
+
+- **Caso de uso** (anotado antes dos testes). O jogo do fliperama precisa de um motor sem React nem canvas, em funções puras, para que as regras do handoff (45 s, drone que segue o mouse ou anda a 480 px/s pelo teclado, tiro automático a cada 0,15 s, leque de 3 tiros no Hotfix) sejam testáveis sem navegador. Quem joga espera que o drone nunca saia da área permitida, que um quadro longo (aba em segundo plano) não o faça atravessar a tela nem dispare dezenas de tiros, e que a diagonal não seja mais rápida. Se falhasse: drone fora da tela, rajada de tiros após uma pausa, partida mais fácil ou mais difícil que a desenhada.
+- **Feito.** `features/venus-arcade/engine/`: `constants` (todos os números do handoff com nome), `play-field` (escala de pixel 4/3 e limites do drone), `difficulty` (`t / 45`, limitado), `drone` (`createDrone`, `aimDrone`, `stepDrone`), `shots` (`createWeapon`, `advanceWeapon`, `spawnShots`, `advanceShots`) e `time-step`. Tudo imutável: cada função devolve um valor novo.
+- **Bordas cobertas.** Passo `0`, negativo, `NaN` e enorme; direção e ponteiro `NaN`; campo menor que o drone ou que a área útil; redimensionamento que deixa o drone fora; diagonal; teclas que se anulam; tiros que saem por cima ou pelos lados; lista vazia; a lista de entrada não é alterada.
+- **Dedupe.** `clamp` e `mix` foram para `lib/math.ts` (o loading-screen tinha o próprio `mix`, agora importa de lá).
+- **Validação.** Lint, typecheck e testes unitários. Nenhuma tela mudou, então não rodei e2e nem abri o navegador. Dois testes de mutação (diagonal sem normalizar e corte de tiros desligado) falham como esperado.

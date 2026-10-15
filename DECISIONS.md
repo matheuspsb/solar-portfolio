@@ -464,3 +464,11 @@ Layers, cheapest first:
 
 - **No quick menu inside the arcade (Matheus).** O handoff mantinha o "Acesso rápido" visível no fliperama. Uma primeira versão fez isso (menu por slot, `Esc` em camadas com `preventDefault`/`defaultPrevented`, rótulo curto no celular), mas o Matheus preferiu tirar o menu do fliperama para simplificar. Dentro dele só há "← Sistema solar" e `Esc`; para ir a Sobre ou Contato, o visitante volta ao sistema solar.
 - **Paused scene.** `SceneProps.isHidden` (cena totalmente coberta) leva o `frameloop` a `'never'`. Atrás de um painel a cena continua viva (`isHidden` falso). Medido: 0 desenhos por segundo com o fliperama aberto.
+
+## Arcade engine, part 1 (Venus Arcade, step 3)
+
+- **Pure and immutable.** O motor vive em `venus-arcade/engine/` e nunca importa React nem DOM. Cada passo recebe o estado e devolve um novo, o que torna os testes simples e permite repetir uma partida passo a passo.
+- **Step semantics.** Um passo inválido (`0`, negativo, `NaN`, `Infinity`) não move nada. Um passo enorme **não** é limitado dentro do motor: o seguimento do mouse usa `1 - exp(-14 dt)` e chega ao alvo sem passar dele; a arma dispara no máximo um tiro por passo e reinicia o intervalo, como no protótipo. Quem limita o `dt` do laço (aba em segundo plano) é a máquina de sessão da etapa 7.
+- **Pointer and keyboard.** O mouse só muda o alvo (`aimDrone`); o teclado move o drone direto e arrasta o alvo junto, como no protótipo (`stepDrone`). A direção do teclado entra como `{ x, y }` já resolvida (teclas que se anulam viram 0).
+- **Cadence is frame-quantized.** O recarregamento volta ao intervalo cheio a cada tiro (sem carregar o resto), igual ao protótipo; a 60 fps o tiro de 0,15 s sai a cada 9 ou 10 quadros. Os testes comparam com o ideal numa tolerância, não com igualdade.
+- **Shared math.** `lib/math.ts` ganhou `clamp` (NaN vira o mínimo) e `mix`; o `mix` do loading-screen foi removido de lá.
