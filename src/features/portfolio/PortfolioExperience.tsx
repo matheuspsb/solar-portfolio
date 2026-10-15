@@ -18,16 +18,20 @@ import type { IdleScheduler } from '@/hooks/use-idle-ready';
 import { getInteractiveBodies } from '@/domain/celestial-body';
 import type { CelestialBodyConfig } from '@/domain/celestial-body';
 import type { Credit } from '@/domain/credit';
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { createFrameChannel } from '@/lib/screen-frame';
 import { getBodyAccessibleLabel } from './body-labels';
 import { buildLockTargets } from './lock-targets';
 import { SceneFallback } from './SceneFallback';
 import { SceneKeyboardControls } from './SceneKeyboardControls';
 import type { SceneKeyboardControlsHandle } from './SceneKeyboardControls';
+import { ImmersiveView } from './ImmersiveView';
+import { getOpenExperience, getOpenPanel } from './open-section';
 import { getTrackedBodyId } from './tracked-body';
 import { SectionView } from './SectionView';
 import { useBodyInteraction } from './use-body-interaction';
 import { useCameraTarget } from './use-camera-target';
+import { useImmersiveStage } from './use-immersive-stage';
 
 type PortfolioExperienceProps = {
   bodies: readonly CelestialBodyConfig[];
@@ -37,7 +41,12 @@ type PortfolioExperienceProps = {
   detectWebGL?: () => boolean;
   idleScheduler?: IdleScheduler;
   loaderScheduler?: FrameScheduler;
+  immersiveTransition?: ImmersiveTransition;
 };
+
+type ImmersiveTransition = { diveSeconds: number; surfaceSeconds: number };
+
+const DEFAULT_IMMERSIVE_TRANSITION: ImmersiveTransition = { diveSeconds: 1.7, surfaceSeconds: 1.1 };
 
 const UNAVAILABLE_MESSAGE =
   'Não foi possível exibir a cena 3D neste dispositivo. O conteúdo continua disponível pelo menu de acesso rápido e pelos botões abaixo.';
@@ -58,6 +67,7 @@ export function PortfolioExperience({
   detectWebGL: probeWebGL = detectWebGL,
   idleScheduler,
   loaderScheduler,
+  immersiveTransition = DEFAULT_IMMERSIVE_TRANSITION,
 }: PortfolioExperienceProps) {
   const availability = useSceneAvailability(probeWebGL, idleScheduler);
   const keyboardControlsRef = useRef<SceneKeyboardControlsHandle>(null);
@@ -70,6 +80,7 @@ export function PortfolioExperience({
     id: body.id,
     name: body.name,
     menuLabel: body.section.menuLabel,
+    presentation: body.section.presentation,
   }));
   const interaction = useBodyInteraction(labeledBodies.map((body) => body.id));
   const keyboardItems = labeledBodies.map((body) => ({
@@ -88,6 +99,21 @@ export function PortfolioExperience({
   const isSceneReady = isSceneRevealed || isSceneUnavailable;
   const retryHandler = availability.canRetry ? availability.retry : undefined;
   const selectedBody = interactiveBodies.find((body) => body.id === interaction.state.selectedId);
+  const openPanel = getOpenPanel(selectedBody);
+  const openExperience = getOpenExperience(selectedBody);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const hasImmersiveTransition = immersiveTransition.diveSeconds > 0;
+  const immersive = useImmersiveStage({
+    target:
+      selectedBody && openExperience
+        ? { experience: openExperience, bodyId: selectedBody.id }
+        : null,
+    reducedMotion: prefersReducedMotion || !hasImmersiveTransition,
+    diveSeconds: immersiveTransition.diveSeconds,
+    surfaceSeconds: immersiveTransition.surfaceSeconds,
+  });
+  const sceneCameraTarget =
+    immersive.stage === 'idle' ? cameraTarget : { ...cameraTarget, id: null };
   const trackedBodyId = getTrackedBodyId(interaction.state);
   const lockTargets = buildLockTargets(interactiveBodies);
 
@@ -125,7 +151,9 @@ export function PortfolioExperience({
               onContextLost={availability.markContextLost}
               onContextRestored={availability.markContextRestored}
               isActive={selectedBody === undefined}
-              cameraTarget={cameraTarget}
+              isHidden={immersive.stage === 'open'}
+              cameraTarget={sceneCameraTarget}
+              dive={immersive.dive}
               description={sceneDescription}
               trackedBodyId={trackedBodyId}
               onTrackFrame={frameChannel.publish}
@@ -156,20 +184,29 @@ export function PortfolioExperience({
         <QuickAccessMenu items={menuItems} onSelectItem={openBody} />
       </div>
       <ContentPanel
-        isOpen={selectedBody !== undefined}
-        title={selectedBody?.section.title ?? ''}
-        panelLabel={selectedBody?.section.panelLabel ?? ''}
+        isOpen={openPanel !== null}
+        title={openPanel?.title ?? ''}
+        panelLabel={openPanel?.panelLabel ?? ''}
         onClose={interaction.deselect}
         getFallbackFocus={focusLastOpenedBody}
         footer={<AttributionNote credits={credits} />}
       >
-        {selectedBody && (
+        {openPanel && (
           <SectionView
-            content={selectedBody.section.content}
-            emblemTextureUrl={selectedBody.texture?.smallUrl ?? null}
+            content={openPanel.content}
+            emblemTextureUrl={selectedBody?.texture?.smallUrl ?? null}
           />
         )}
       </ContentPanel>
+      {immersive.experience && (
+        <ImmersiveView
+          experience={immersive.experience}
+          stage={immersive.stage}
+          reducedMotion={prefersReducedMotion || !hasImmersiveTransition}
+          onExit={interaction.deselect}
+          getFallbackFocus={focusLastOpenedBody}
+        />
+      )}
     </>
   );
 }

@@ -10,9 +10,20 @@ export type SceneProps = {
   onContextLost: () => void;
   onContextRestored: () => void;
   isActive: boolean;
+  isHidden: boolean;
   cameraTarget: { id: string | null; nonce: number };
   description: string;
   trackedBodyId: string | null;
   onTrackFrame: (frame: ScreenFrame | null) => void;
   onRevealChange?: (isRevealed: boolean) => void;
+  dive?: DiveRequest | null;
+};
+
+export type DiveDirection = 'in' | 'out';
+
+export type DiveRequest = {
+  bodyId: string;
+  direction: DiveDirection;
+  nonce: number;
+  durationSeconds: number;
 };

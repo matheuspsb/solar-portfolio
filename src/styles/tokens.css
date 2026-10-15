@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './motion/journey.css';
 @import './motion/target.css';
+@import './motion/arcade.css';
 
 /*
  * Design tokens. Tailwind v4 turns each --color-*, --text-*, --radius-*, etc. into a utility class.
@@ -52,6 +53,55 @@
   --color-focus-ring: #7cc4ff;
 
   /* Stack "planets" */
+  --color-arcade-screen: #0b0705;
+  --color-arcade-cabinet-high: #22160f;
+  --color-arcade-cabinet-low: #120b08;
+  --color-arcade-cabinet-edge: #3a261a;
+  --color-arcade-grid: #2e1c11;
+  --color-arcade-lane: #1e130b;
+  --color-arcade-data-panel: #2a1608;
+  --color-arcade-flash: #ffffff;
+  --color-arcade-crash-wash: #1a0606;
+  --color-venus-fog-edge: #8a3415;
+  --color-venus-fog-deep: #1a0805;
+  --color-arcade-backdrop-glow: #4a1a0a;
+  --color-arcade-backdrop-mid: #1a0a06;
+  --color-arcade-backdrop-deep: #06050a;
+  --color-arcade-cabinet-label: #6b4c38;
+  --color-arcade-cabinet-dim: #5d4636;
+  --color-arcade-side-high: #1c120c;
+  --color-arcade-side-low: #0c0705;
+  --color-arcade-side-edge: #2a1b13;
+  --color-arcade-side-screen: #2a1206;
+  --color-arcade-side-glyph: #7a4a2a;
+  --color-arcade-key-border: #4a3324;
+  --color-arcade-led-red: #e0603a;
+  --color-arcade-led-off: #3a271b;
+  --color-arcade-outline: #5a3a26;
+  --color-arcade-ink-100: #ffe2b0;
+  --color-arcade-ink-200: #d8c7b8;
+  --color-arcade-ink-300: #a98a72;
+  --color-venus-phosphor: #ffcf8a;
+  --color-venus-amber: #ffb347;
+  --color-venus-burnt: #e0603a;
+  --color-venus-alert: #e2574c;
+  --color-venus-root: #ffd36b;
+  --color-venus-copper: #c0895c;
+  --color-venus-bolt: #fff1c9;
+  --color-cartridge-bug-from: #ffc46b;
+  --color-cartridge-bug-to: #d9662e;
+  --color-cartridge-sulfur-from: #c9a36a;
+  --color-cartridge-sulfur-to: #7a4a2a;
+  --color-cartridge-root-from: #ffe6a8;
+  --color-cartridge-root-to: #e8a23a;
+  --color-cartridge-sealed-from: #6a4a33;
+  --color-cartridge-sealed-to: #2a1810;
+  --color-cartridge-body-high: #2a1b13;
+  --color-cartridge-body-low: #160e0a;
+  --color-cartridge-edge: #3a271b;
+  --color-cartridge-ink: #1a0d06;
+  --color-cartridge-sprite: #2a1206;
+
   --color-planet-cyan: #7fd3f0;
   --color-planet-white: #e8e6ef;
   --color-planet-blue: #6f9cf0;
@@ -59,6 +109,7 @@
   --color-planet-orchid: #d58ff0;
   --color-planet-amber: #f2b56b;
   --color-planet-periwinkle: #9fb4e8;
+  --color-planet-copper: #e0803a;
 
   /* The little Sun emblem (a gradient fallback for when its texture is not available) */
   --color-emblem-light: #f6a352;
@@ -66,6 +117,7 @@
   --color-emblem-dark: #6e260b;
 
   --font-sans: var(--font-bricolage), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-pixel: var(--font-silkscreen), ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
   --font-mono: var(--font-jetbrains), ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   --text-sm: 0.875rem;
@@ -78,6 +130,26 @@
   --text-body--line-height: 1.6;
   --text-tag: 0.8125rem;
   --text-credit: 0.71875rem;
+  --text-arcade-kicker: clamp(0.5625rem, 1.2cqw, 0.75rem);
+  --text-arcade-home-title: clamp(1.875rem, 6.6cqw, 4.5rem);
+  --text-arcade-best: clamp(0.625rem, 1.2cqw, 0.75rem);
+  --text-arcade-cartridge-name: clamp(0.625rem, 1.7cqw, 1.0625rem);
+  --text-arcade-cartridge-meta: clamp(0.5rem, 1cqw, 0.625rem);
+  --text-arcade-glyph: clamp(0.5rem, 1cqw, 0.6875rem);
+  --text-arcade-detail-title: clamp(0.8125rem, 1.8cqw, 1.125rem);
+  --text-arcade-detail: clamp(0.8125rem, 1.6cqw, 1rem);
+  --text-arcade-hint: clamp(0.5625rem, 1.1cqw, 0.6875rem);
+  --text-arcade-boot: clamp(0.6875rem, 1.5cqw, 0.9375rem);
+  --text-arcade-boot-title: clamp(1.25rem, 4.6cqw, 3rem);
+  --text-arcade-result-score: clamp(2.75rem, 9cqw, 6rem);
+  --text-arcade-rank: clamp(1.125rem, 3cqw, 1.875rem);
+  --text-arcade-stat: clamp(1rem, 2.4cqw, 1.25rem);
+  --text-arcade-end-title: clamp(1.75rem, 6cqw, 4rem);
+  --text-arcade-cabinet-caption: 0.5625rem;
+  --text-arcade-legend: 0.6875rem;
+  --text-arcade-hud: clamp(0.75rem, 2.2cqw, 1.25rem);
+  --text-arcade-countdown: clamp(3rem, 16cqw, 9rem);
+  --text-pixel-title: clamp(1.75rem, 6vw, 3.5rem);
   --text-eyebrow: 0.6875rem;
   --text-label: 0.625rem;
   --text-question: 1.875rem;
@@ -107,6 +179,13 @@
   --radius-pill: 999px;
   --radius-ellipse: 50%;
 
+  --text-shadow-pixel-glow: 0 0 14px rgb(255 207 138 / 0.4);
+  --shadow-cabinet: 0 30px 80px rgb(0 0 0 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.07);
+  --shadow-screen: inset 0 0 70px #000;
+  --shadow-crt-glass: inset 0 0 90px rgb(242 181 107 / 0.07);
+  --shadow-led: 0 0 8px var(--color-ember-400);
+  --shadow-cartridge-rest: 0 10px 24px rgb(0 0 0 / 0.5);
+  --shadow-cartridge-lift: 0 18px 40px rgb(0 0 0 / 0.6), 0 0 30px rgb(242 181 107 / 0.2);
   --shadow-glow: 0 0 40px rgb(255 138 31 / 0.25);
   --shadow-panel: 0 24px 80px rgb(0 0 0 / 0.55);
   --shadow-dot: 0 0 10px currentColor;

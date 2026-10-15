@@ -32,10 +32,7 @@ export function TargetCard({ target, decodedName, card }: TargetCardProps) {
       </span>
       <span className="text-xs text-ink-300">{target.description}</span>
       <span className="mt-1 text-tag text-ink-100">
-        {targetingCopy.ctaPrefix}{' '}
-        <span className="text-(--lock-accent)">
-          {target.ctaLabel} {targetingCopy.ctaArrow}
-        </span>
+        {target.cta.lead} <span className="text-(--lock-accent)">{target.cta.accent}</span>
       </span>
     </div>
   );

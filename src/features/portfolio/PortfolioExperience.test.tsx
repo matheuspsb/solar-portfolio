@@ -21,6 +21,8 @@ function FakeScene({
   onContextLost,
   onContextRestored,
   isActive,
+  isHidden,
+  dive,
   cameraTarget,
   description,
   trackedBodyId,
@@ -34,6 +36,8 @@ function FakeScene({
     <div
       data-testid="fake-scene"
       data-active={String(isActive)}
+      data-hidden={String(isHidden)}
+      data-dive={dive ? `${dive.direction}:${dive.bodyId}` : 'none'}
       data-camera-target={cameraTarget.id ?? 'none'}
       role="group"
       aria-label={description}
@@ -70,16 +74,20 @@ function ThrowingScene(): never {
   throw new Error('scene failed');
 }
 
+const INSTANT_TRANSITION = { diveSeconds: 0, surfaceSeconds: 0 };
+
 function setup({
   bodies = celestialBodies,
   scene = FakeScene,
   hasWebGL = true,
   loaderScheduler,
+  immersiveTransition = INSTANT_TRANSITION,
 }: {
   bodies?: readonly CelestialBodyConfig[];
   scene?: React.ComponentType<SceneProps>;
   hasWebGL?: boolean;
   loaderScheduler?: FrameScheduler;
+  immersiveTransition?: { diveSeconds: number; surfaceSeconds: number };
 } = {}) {
   render(
     <PortfolioProviders contactSubmitter={async () => ({ ok: true })}>
@@ -91,6 +99,7 @@ function setup({
         detectWebGL={() => hasWebGL}
         idleScheduler={immediateScheduler}
         loaderScheduler={loaderScheduler}
+        immersiveTransition={immersiveTransition}
       />
     </PortfolioProviders>,
   );
@@ -199,6 +208,7 @@ describe('PortfolioExperience', () => {
     expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'true');
     await user.click(screen.getByRole('img', { name: /Sol \(cena\)/ }));
     expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'false');
+    expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
     await user.keyboard('{Escape}');
     expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'true');
   });
@@ -277,6 +287,135 @@ describe('PortfolioExperience', () => {
     expect(screen.getByRole('dialog', { name: 'Sobre' })).toBeInTheDocument();
   });
 
+  describe('Venus Arcade', () => {
+    const findArcade = () => screen.findByRole('dialog', { name: 'Venus Arcade' });
+
+    it('opens the arcade, not a content panel, from the Venus keyboard control', async () => {
+      const user = setup();
+      await user.tab();
+      await user.keyboard('{ArrowLeft}');
+      expect(screen.getByRole('button', { name: /^Vênus/ })).toHaveFocus();
+      await user.keyboard('{Enter}');
+      expect(await findArcade()).toBeInTheDocument();
+      expect(screen.getAllByRole('dialog')).toHaveLength(1);
+    });
+
+    it('opens the arcade when Venus is clicked in the scene', async () => {
+      const user = setup();
+      await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
+      expect(await findArcade()).toBeInTheDocument();
+    });
+
+    it('opens the arcade from the quick-access menu', async () => {
+      const user = setup();
+      await user.click(screen.getByRole('button', { name: 'Acesso rápido' }));
+      await user.click(screen.getByRole('button', { name: 'Venus Arcade' }));
+      expect(await findArcade()).toBeInTheDocument();
+    });
+
+    it('takes the keyboard into the arcade and gives it back to Venus on the way out', async () => {
+      const user = setup();
+      await user.tab();
+      await user.keyboard('{ArrowLeft}{Enter}');
+      const arcade = await findArcade();
+      expect(arcade).toContainElement(document.activeElement as HTMLElement);
+      await user.click(within(arcade).getByRole('button', { name: /Sistema solar/ }));
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^Vênus/ })).toHaveFocus();
+    });
+
+    it('skips the boot with the first Escape and goes back to the solar system with the second', async () => {
+      const user = setup();
+      await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
+      await findArcade();
+      await user.keyboard('{Escape}');
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      await user.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    const openArcadeFromScene = async (user: ReturnType<typeof userEvent.setup>) => {
+      await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
+      return findArcade();
+    };
+
+    it('stops rendering the covered scene while the arcade is open and resumes afterwards', async () => {
+      const user = setup();
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
+      await openArcadeFromScene(user);
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'true');
+      await user.keyboard('{Escape}{Escape}');
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
+    });
+
+    it('leaves the quick-access menu out of the arcade', async () => {
+      const user = setup();
+      const arcade = await openArcadeFromScene(user);
+      expect(
+        within(arcade).queryByRole('button', { name: 'Acesso rápido' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('keeps Tab cycling inside the arcade', async () => {
+      const user = setup();
+      const arcade = await openArcadeFromScene(user);
+      for (let press = 0; press < 4; press += 1) {
+        await user.tab();
+        expect(arcade).toContainElement(document.activeElement as HTMLElement);
+      }
+    });
+
+    it('keeps the scene idle and the rest of the page inert while the arcade is open', async () => {
+      const user = setup();
+      await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
+      await findArcade();
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-active', 'false');
+      expect(screen.getByTestId('fake-scene').closest('[inert]')).not.toBeNull();
+    });
+  });
+
+  describe('Venus Arcade transition', () => {
+    const TRANSITION = { diveSeconds: 1.7, surfaceSeconds: 1.1 };
+    const scene = () => screen.getByTestId('fake-scene');
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    const setupWithTimers = () => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      return setup({ immersiveTransition: TRANSITION });
+    };
+
+    it('dives into Venus with the scene running, then opens the arcade and rests the scene', async () => {
+      const user = setupWithTimers();
+      await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
+      expect(scene()).toHaveAttribute('data-dive', 'in:venus');
+      expect(scene()).toHaveAttribute('data-hidden', 'false');
+      expect(screen.queryByRole('dialog', { name: 'Venus Arcade' })).not.toBeInTheDocument();
+
+      await act(() => vi.advanceTimersByTimeAsync(TRANSITION.diveSeconds * 1000 + 50));
+      expect(await screen.findByRole('dialog', { name: 'Venus Arcade' })).toBeInTheDocument();
+      expect(scene()).toHaveAttribute('data-hidden', 'true');
+    });
+
+    it('keeps the arcade up while the camera pulls back, then gives the scene back', async () => {
+      const user = setupWithTimers();
+      await user.click(screen.getByRole('img', { name: /Vênus \(cena\)/ }));
+      await act(() => vi.advanceTimersByTimeAsync(TRANSITION.diveSeconds * 1000 + 50));
+      await screen.findByRole('dialog', { name: 'Venus Arcade' });
+      await user.keyboard('{Escape}{Escape}');
+      expect(scene()).toHaveAttribute('data-dive', 'out:venus');
+      expect(scene()).toHaveAttribute('data-hidden', 'false');
+      expect(screen.getByRole('dialog', { name: 'Venus Arcade' })).toBeInTheDocument();
+
+      await act(() => vi.advanceTimersByTimeAsync(TRANSITION.surfaceSeconds * 1000 + 50));
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(scene()).toHaveAttribute('data-dive', 'none');
+      expect(screen.getByRole('button', { name: /^Vênus/ })).toBeInTheDocument();
+    });
+  });
+
   describe('with a body that is only scenery', () => {
     const bodiesWithSection = celestialBodies.filter((body) => body.section !== null);
     const sceneryPlanet: CelestialBodyConfig = {
@@ -296,7 +435,7 @@ describe('PortfolioExperience', () => {
     it('cycles the keyboard focus over the bodies that open a section only', async () => {
       const user = setup({ bodies: bodiesWithScenery });
       await user.tab();
-      await user.keyboard('{ArrowRight}{ArrowRight}');
+      await user.keyboard('{ArrowRight}'.repeat(bodiesWithSection.length));
       expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-camera-target', 'sun');
     });
 

@@ -28,6 +28,7 @@ const sun: CelestialBodyConfig = {
   texture: { url: '/textures/sun.webp', smallUrl: '/textures/sun-small.webp' },
   targeting: { code: '001', description: 'Estrela tipo G · centro do sistema', anchor: 'top-left' },
   section: {
+    presentation: 'panel',
     menuLabel: 'Sobre',
     menuTone: 'amber',
     title: 'Sobre',
@@ -50,6 +51,7 @@ const mercury: CelestialBodyConfig = {
   texture: { url: '/textures/mercury.webp', smallUrl: '/textures/mercury-small.webp' },
   targeting: { code: '002', description: 'Planeta mensageiro · 0,39 UA', anchor: 'bottom-left' },
   section: {
+    presentation: 'panel',
     menuLabel: 'Contato',
     menuTone: 'periwinkle',
     title: 'Contato',
@@ -72,10 +74,16 @@ const venus: CelestialBodyConfig = {
   texture: { url: '/textures/venus.webp', smallUrl: '/textures/venus-small.webp' },
   targeting: {
     code: '003',
-    description: 'Planeta mais brilhante · 0,72 UA',
+    description: 'Algo zumbe sob as nuvens',
     anchor: 'bottom-left',
   },
-  section: null,
+  section: {
+    presentation: 'immersive',
+    experience: 'venus-arcade',
+    menuLabel: 'Venus Arcade',
+    menuTone: 'copper',
+    callToAction: 'Clique para pousar',
+  },
 };
 
 export const celestialBodies = assertValidCelestialBodies([sun, mercury, venus]);

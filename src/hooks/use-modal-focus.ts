@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent } from 'react';
 import type { RefObject } from 'react';
-import { getTabTarget } from '../lib/focus-trap';
+import { getTabTarget } from '@/lib/focus-trap';
 
 const FOCUSABLE_SELECTOR = [
   'a[href]',

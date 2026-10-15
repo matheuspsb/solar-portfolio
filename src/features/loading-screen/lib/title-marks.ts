@@ -1,5 +1,6 @@
 import { loaderContent } from '@/content/loader';
-import { enter, mix, seg } from './easing';
+import { mix } from '@/lib/math';
+import { enter, seg } from './easing';
 import { DESIGN_CUES } from './timeline';
 
 export type LetterMark = { character: string; opacity: number; offsetY: number; blur: number };

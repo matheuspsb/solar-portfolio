@@ -10,10 +10,6 @@ export function seg(time: number, start: number, end: number): number {
   return clamp01((time - start) / (end - start));
 }
 
-export function mix(from: number, to: number, progress: number): number {
-  return from + (to - from) * progress;
-}
-
 export function enter(progress: number): number {
   return 1 - Math.pow(1 - progress, 3);
 }

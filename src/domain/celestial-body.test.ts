@@ -4,7 +4,25 @@ import {
   getInteractiveBodies,
   validateCelestialBodies,
 } from './celestial-body';
-import type { CelestialBodyConfig } from './celestial-body';
+import type { BodySection, CelestialBodyConfig, PanelSection } from './celestial-body';
+
+const panelSection: PanelSection = {
+  presentation: 'panel',
+  menuLabel: 'Sobre',
+  menuTone: 'amber',
+  title: 'Sobre',
+  panelLabel: 'Sobre · Objeto 001',
+  content: {
+    type: 'about',
+    name: 'Matheus',
+    role: 'Software Engineer',
+    summary: 'Resumo',
+    experience: { value: '~5', unit: 'órbitas', description: 'anos em frontend' },
+    location: { name: 'Brasil', coordinates: '0° · 0°' },
+    stack: [{ name: 'React', tone: 'cyan', size: 'lg' }],
+    links: [{ label: 'LinkedIn', href: 'https://linkedin.com/in/x' }],
+  },
+};
 
 function buildBody(overrides: Partial<CelestialBodyConfig> = {}): CelestialBodyConfig {
   return {
@@ -16,22 +34,7 @@ function buildBody(overrides: Partial<CelestialBodyConfig> = {}): CelestialBodyC
     orbit: null,
     texture: { url: '/textures/sun.webp', smallUrl: '/textures/sun-small.webp' },
     targeting: { code: '001', description: 'Estrela tipo G', anchor: 'top-left' },
-    section: {
-      menuLabel: 'Sobre',
-      menuTone: 'amber',
-      title: 'Sobre',
-      panelLabel: 'Sobre · Objeto 001',
-      content: {
-        type: 'about',
-        name: 'Matheus',
-        role: 'Software Engineer',
-        summary: 'Resumo',
-        experience: { value: '~5', unit: 'órbitas', description: 'anos em frontend' },
-        location: { name: 'Brasil', coordinates: '0° · 0°' },
-        stack: [{ name: 'React', tone: 'cyan', size: 'lg' }],
-        links: [{ label: 'LinkedIn', href: 'https://linkedin.com/in/x' }],
-      },
-    },
+    section: panelSection,
     ...overrides,
   };
 }
@@ -46,6 +49,14 @@ function buildPlanet(overrides: Partial<CelestialBodyConfig> = {}): CelestialBod
     ...overrides,
   });
 }
+
+const immersiveSection: BodySection = {
+  presentation: 'immersive',
+  experience: 'venus-arcade',
+  menuLabel: 'Venus Arcade',
+  menuTone: 'copper',
+  callToAction: 'Clique para pousar',
+};
 
 function errorsFor(bodies: CelestialBodyConfig[]): string[] {
   const result = validateCelestialBodies(bodies);
@@ -186,6 +197,26 @@ describe('sections', () => {
     const blankMenu = buildPlanet({ section: { ...planet.section!, menuLabel: ' ' } });
     expect(errorsFor([buildBody(), blankMenu])).toEqual([expect.stringContaining('menuLabel')]);
   });
+
+  it('accepts a planet that opens an immersive experience instead of a panel', () => {
+    const venus = buildPlanet({ section: immersiveSection });
+    expect(validateCelestialBodies([buildBody(), venus]).valid).toBe(true);
+  });
+
+  it('rejects an immersive section without a call to action for the target lock', () => {
+    const venus = buildPlanet({ section: { ...immersiveSection, callToAction: '  ' } });
+    expect(errorsFor([buildBody(), venus])).toEqual([expect.stringContaining('callToAction')]);
+  });
+
+  it('rejects an immersive section without a menu label, like any other section', () => {
+    const venus = buildPlanet({ section: { ...immersiveSection, menuLabel: '' } });
+    expect(errorsFor([buildBody(), venus])).toEqual([expect.stringContaining('menuLabel')]);
+  });
+
+  it('keeps asking a panel section for the label of its panel', () => {
+    const blankPanel = buildPlanet({ section: { ...panelSection, panelLabel: '' } });
+    expect(errorsFor([buildBody(), blankPanel])).toEqual([expect.stringContaining('panelLabel')]);
+  });
 });
 
 describe('orbits between planets', () => {
@@ -219,6 +250,11 @@ describe('getInteractiveBodies', () => {
     const venus = buildPlanet({ id: 'venus', section: null });
     const mercury = buildPlanet();
     expect(getInteractiveBodies([sun, venus, mercury])).toEqual([sun, mercury]);
+  });
+
+  it('keeps a body that opens an immersive experience', () => {
+    const venus = buildPlanet({ id: 'venus', section: immersiveSection });
+    expect(getInteractiveBodies([buildBody(), venus])).toHaveLength(2);
   });
 
   it('returns an empty list when nothing opens a section', () => {
