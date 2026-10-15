@@ -1,3 +1,4 @@
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import type { CSSProperties } from 'react';
 import type { ContactContent } from '@/domain/contact-content';
 import { DELIVERY_HEIGHT } from '../journey/arc-geometry';
@@ -24,10 +25,10 @@ type TwinkleStyle = CSSProperties & { '--animation-delay': string; '--twinkle-du
 type DeliverySceneProps = {
   delivered: ContactContent['delivered'];
   dateLabel: string;
-  reducedMotion: boolean;
 };
 
-export function DeliveryScene({ delivered, dateLabel, reducedMotion }: DeliverySceneProps) {
+export function DeliveryScene({ delivered, dateLabel }: DeliverySceneProps) {
+  const reducedMotion = usePrefersReducedMotion();
   return (
     <div
       aria-hidden="true"
@@ -98,7 +99,7 @@ export function DeliveryScene({ delivered, dateLabel, reducedMotion }: DeliveryS
         {delivered.originLabel}
       </span>
 
-      <MercuryPlanet label={delivered.destinationLabel} reducedMotion={reducedMotion} />
+      <MercuryPlanet label={delivered.destinationLabel} />
       {!reducedMotion && <FlyingEnvelope />}
       <DeliveryStamp stamp={delivered.stamp} dateLabel={dateLabel} />
     </div>

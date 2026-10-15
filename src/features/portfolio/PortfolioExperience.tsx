@@ -123,12 +123,7 @@ export function PortfolioExperience({
         getFallbackFocus={model.focusLastOpenedBody}
         footer={<AttributionNote credits={credits} />}
       >
-        {model.openPanel && (
-          <SectionView
-            content={model.openPanel.content}
-            emblemTextureUrl={model.selectedBody?.texture?.smallUrl ?? null}
-          />
-        )}
+        {model.openPanel && <SectionView content={model.openPanel.content} />}
       </ContentPanel>
       {immersive.experience && (
         <ImmersiveView

@@ -8,13 +8,12 @@ const ContactSection = lazy(() =>
 
 type SectionViewProps = {
   content: SectionContent;
-  emblemTextureUrl: string | null;
 };
 
-export function SectionView({ content, emblemTextureUrl }: SectionViewProps) {
+export function SectionView({ content }: SectionViewProps) {
   switch (content.type) {
     case 'about':
-      return <AboutSection content={content} emblemTextureUrl={emblemTextureUrl} />;
+      return <AboutSection content={content} />;
     case 'contact':
       return (
         <Suspense fallback={null}>

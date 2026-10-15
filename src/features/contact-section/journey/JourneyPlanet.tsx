@@ -1,3 +1,4 @@
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { joinClassNames } from '@/lib/join-class-names';
 import type { PlanetState, Point } from './arc-geometry';
 
@@ -9,7 +10,6 @@ type JourneyPlanetProps = {
   label: string;
   jumpLabel: string;
   isJumpable: boolean;
-  reducedMotion: boolean;
   onJump: () => void;
 };
 
@@ -31,9 +31,9 @@ export function JourneyPlanet({
   label,
   jumpLabel,
   isJumpable,
-  reducedMotion,
   onJump,
 }: JourneyPlanetProps) {
+  const reducedMotion = usePrefersReducedMotion();
   const pulseClass = state === 'current' && !reducedMotion ? 'motion-safe:animate-dot-pulse' : '';
   const dot = (
     <span

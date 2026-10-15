@@ -74,6 +74,7 @@ function ThrowingScene(): never {
   throw new Error('scene failed');
 }
 
+const LAZY_CHUNK_TIMEOUT_MS = 5000;
 const INSTANT_TRANSITION = { diveSeconds: 0, surfaceSeconds: 0 };
 
 function setup({
@@ -288,7 +289,8 @@ describe('PortfolioExperience', () => {
   });
 
   describe('Venus Arcade', () => {
-    const findArcade = () => screen.findByRole('dialog', { name: 'Venus Arcade' });
+    const findArcade = () =>
+      screen.findByRole('dialog', { name: 'Venus Arcade' }, { timeout: LAZY_CHUNK_TIMEOUT_MS });
 
     it('opens the arcade, not a content panel, from the Venus keyboard control', async () => {
       const user = setup();

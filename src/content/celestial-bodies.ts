@@ -2,6 +2,7 @@ import { assertValidCelestialBodies } from '@/domain/celestial-body';
 import type { CelestialBodyConfig } from '@/domain/celestial-body';
 import { aboutContent } from './about';
 import { contactContent } from './contact';
+import { sunTexture } from './textures';
 
 const SUN_RADIUS = 2.4;
 const SUN_ROTATION_PERIOD_SECONDS = 180;
@@ -25,7 +26,7 @@ const sun: CelestialBodyConfig = {
   radius: SUN_RADIUS,
   rotationPeriodSeconds: SUN_ROTATION_PERIOD_SECONDS,
   orbit: null,
-  texture: { url: '/textures/sun.webp', smallUrl: '/textures/sun-small.webp' },
+  texture: sunTexture,
   targeting: { code: '001', description: 'Estrela tipo G · centro do sistema', anchor: 'top-left' },
   section: {
     presentation: 'panel',

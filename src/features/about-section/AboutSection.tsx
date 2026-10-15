@@ -14,10 +14,9 @@ import { uiContent } from '@/content/ui';
 
 type AboutSectionProps = {
   content: AboutContent;
-  emblemTextureUrl: string | null;
 };
 
-export function AboutSection({ content, emblemTextureUrl }: AboutSectionProps) {
+export function AboutSection({ content }: AboutSectionProps) {
   const hasStack = content.stack.length > 0;
   const hasLinks = content.links.length > 0;
   const stackCount = formatBodyCount(content.stack.length);
@@ -25,7 +24,7 @@ export function AboutSection({ content, emblemTextureUrl }: AboutSectionProps) {
   return (
     <div className="flex flex-col gap-6.5 p-7 pb-6">
       <div className="flex items-center gap-5">
-        <OrbitEmblem textureUrl={emblemTextureUrl} />
+        <OrbitEmblem textureUrl={content.emblem.textureUrl} />
         <div className="flex min-w-0 flex-col gap-1">
           <Heading level={2} size="display">
             {content.name}

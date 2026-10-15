@@ -15,12 +15,27 @@ const content: AboutContent = {
     { name: 'Next.js', tone: 'white', size: 'md' },
   ],
   links: [{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/matheuspaulosouza' }],
+  emblem: { textureUrl: '/textures/sun-small.webp' },
 };
 
 describe('AboutSection', () => {
   it('omits the stack and the links when there are none', () => {
-    render(<AboutSection content={{ ...content, stack: [], links: [] }} emblemTextureUrl={null} />);
+    render(<AboutSection content={{ ...content, stack: [], links: [] }} />);
     expect(screen.queryByRole('heading', { name: 'Stack principal' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  it('draws the emblem with the texture the content gives it', () => {
+    const { container } = render(<AboutSection content={content} />);
+    expect(container.querySelector('img')?.getAttribute('src')).toContain(
+      encodeURIComponent('/textures/sun-small.webp'),
+    );
+  });
+
+  it('draws the emblem without a texture when the content has none', () => {
+    const { container } = render(
+      <AboutSection content={{ ...content, emblem: { textureUrl: null } }} />,
+    );
+    expect(container.querySelector('img')).toBeNull();
   });
 });

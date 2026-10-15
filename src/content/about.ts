@@ -1,4 +1,5 @@
 import type { AboutContent } from '@/domain/celestial-body';
+import { sunTexture } from './textures';
 
 export const aboutContent: AboutContent = {
   type: 'about',
@@ -24,4 +25,5 @@ export const aboutContent: AboutContent = {
     { name: 'React Native', tone: 'amber', size: 'md' },
   ],
   links: [{ label: 'LinkedIn', href: 'https://www.linkedin.com/in/matheuspaulosouza' }],
+  emblem: { textureUrl: sunTexture.smallUrl },
 };

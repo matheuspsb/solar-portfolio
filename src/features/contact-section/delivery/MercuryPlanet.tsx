@@ -1,3 +1,4 @@
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { MERCURY_CENTER, MERCURY_DIAMETER } from './delivery-geometry';
 
 const LABEL_WIDTH = 100;
@@ -14,10 +15,10 @@ const CRATERS = [
 
 type MercuryPlanetProps = {
   label: string;
-  reducedMotion: boolean;
 };
 
-export function MercuryPlanet({ label, reducedMotion }: MercuryPlanetProps) {
+export function MercuryPlanet({ label }: MercuryPlanetProps) {
+  const reducedMotion = usePrefersReducedMotion();
   const box = { left: MERCURY_CENTER.x - RADIUS, top: MERCURY_CENTER.y - RADIUS };
 
   return (

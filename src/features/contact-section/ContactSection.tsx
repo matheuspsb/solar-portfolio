@@ -1,6 +1,5 @@
 import type { ContactContent } from '@/domain/contact-content';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
-import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { getLocalStorage } from '@/lib/safe-storage';
 import type { KeyValueStorage } from '@/lib/safe-storage';
 import { DeliveryReceipt } from './delivery/DeliveryReceipt';
@@ -25,7 +24,6 @@ export function ContactSection({
   getNow = () => new Date(),
   draftStorage = getLocalStorage(),
 }: ContactSectionProps) {
-  const reducedMotion = usePrefersReducedMotion();
   const journey = useContactJourney({ content, frameScheduler, getNow, draftStorage });
   const { delivered, stage, form } = journey;
 
@@ -36,7 +34,6 @@ export function ContactSection({
           <DeliveryScene
             delivered={content.delivered}
             dateLabel={formatStampDate(delivered.deliveredAt)}
-            reducedMotion={reducedMotion}
           />
         ) : (
           <ArcJourney
@@ -44,7 +41,6 @@ export function ContactSection({
             currentStep={stage.currentStep}
             isDelivered={stage.isDone}
             isSending={stage.isSending}
-            reducedMotion={reducedMotion}
             comet={stage.comet}
             canJump={stage.canJump}
             onJump={stage.onJump}

@@ -21,6 +21,7 @@ const panelSection: PanelSection = {
     location: { name: 'Brasil', coordinates: '0° · 0°' },
     stack: [{ name: 'React', tone: 'cyan', size: 'lg' }],
     links: [{ label: 'LinkedIn', href: 'https://linkedin.com/in/x' }],
+    emblem: { textureUrl: null },
   },
 };
 

@@ -20,6 +20,7 @@ export type AboutContent = {
   location: { name: string; coordinates: string };
   stack: readonly StackItem[];
   links: ReadonlyArray<{ label: string; href: string }>;
+  emblem: { textureUrl: string | null };
 };
 
 export type SectionContent = AboutContent | ContactContent;

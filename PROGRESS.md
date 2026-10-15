@@ -292,3 +292,10 @@ Pausada a pedido do Matheus. O que já existe, o que o handoff pede e as ideias 
 - **Feito.** `content/ui.ts` com os textos; `usePortfolioModel` (listas, seleção, hover, foco e câmera), `useSceneShell` (disponibilidade, fallback, canal de frames, revelação) e `getImmersiveTarget`. `PortfolioExperience` ficou só com composição (212 para 144 linhas). Os 82 e2e e os testes antigos passam sem alteração.
 - **Testes novos.** 10 do modelo, 7 do shell e 4 de `open-section`. Duas mutações (nova tentativa sempre oferecida, foco devolvido sem ter aberto nada) derrubam testes.
 - **Regra nova.** Todo bug achado ao testar vira teste automatizado permanente, que nunca é apagado nem enfraquecido (`CLAUDE.md` do projeto e do usuário).
+
+## T3 e T4: props que só atravessavam componentes
+
+- **Caso de uso.** O emblema do Sol no "Sobre" continua com a textura do Sol e os efeitos do contato (ondulação dos planetas, linhas de dobra durante o envio, pulsar do planeta atual, envelope voando, flash de Mercúrio) continuam desligados com movimento reduzido, inclusive se a preferência mudar com a página aberta. Se falhasse: emblema sem textura, ou animação rodando para quem pediu para reduzir movimento.
+- **Feito.** `AboutContent.emblem` e `content/textures.ts`; as quatro folhas do contato leem o hook de movimento reduzido. Nenhum componente do meio repassa mais esses valores.
+- **Testes novos.** 2 do emblema (com e sem textura), 1 de conteúdo (a textura do emblema é a do corpo que abre o "Sobre") e 4 de movimento reduzido nas folhas. Cada um falhou antes da mudança, pelo motivo certo.
+- **Teste instável encontrado.** Em uma rodada completa, o teste "opens the arcade ... from the Venus keyboard control" falhou uma vez e passou isolado: ele esperava o fliperama (carregado sob demanda) com o limite padrão de 1 s, que estoura quando a máquina está ocupada. Ficou com limite de 5 s (`LAZY_CHUNK_TIMEOUT_MS`) para todos os testes que esperam o fliperama. Duas rodadas completas seguintes passaram; o teste continua e não pode ser removido nem enfraquecido.

@@ -19,26 +19,9 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **T22, o cometa re-renderizava a seção de contato inteira.** A posição do cometa saiu do estado do React: `useComet` guarda `head` e `tail` em um store externo (`comet-store`) e só o `ArcJourney` o lê, com `useCometPosition` (`useSyncExternalStore`). Durante a viagem a `ContactSection` não re-renderiza (teste no `use-comet.test.tsx`).
 - **T5, T8 e T11, `ContactSection` concentrava responsabilidades demais.** A lógica (formulário, máquina de estados, cometa, envio com travas, rascunho) foi para o hook `useContactJourney`, que devolve um modelo pronto (`delivered`, `stage`, `form`); `ContactSection` caiu de 338 para 77 linhas e só compõe `JourneyStage`, `ContactForm` (nova, em `question/`), `DeliveryReceipt` e `LinkedInCard`. Os ternários repetidos viraram uma variável de visão (`delivered`) e o contador de caracteres é calculado antes do JSX. `deliverSafely` e `readHoneypot` saíram para `delivery/submit-message`, os atributos dos campos para `question/input-attributes`. O envio agora é testável sem a árvore (9 testes do hook, 5 dos helpers).
 - **T6 e T12, textos de interface e `PortfolioExperience`.** Os textos que estavam dentro de componentes (mensagens da cena indisponível, "Fechar painel", "Acesso rápido", rótulos do "Sobre", grupo "Corpos celestes", glifo `←` e a falha inesperada do envio) foram para `content/ui.ts`. `PortfolioExperience` caiu de 212 para 144 linhas: `usePortfolioModel` guarda as listas, a seleção e os handlers, `useSceneShell` a disponibilidade da cena, o canal de frames e a revelação, e `getImmersiveTarget` (em `open-section`) monta o alvo do mergulho.
+- **T3 e T4, props que só atravessavam componentes.** A textura do emblema do Sol virou dado do conteúdo "Sobre" (`AboutContent.emblem.textureUrl`, derivada de `content/textures.ts`, a mesma constante do corpo), então `SectionView` e `AboutSection` perderam a prop `emblemTextureUrl`. `ArcJourney`, `JourneyPlanet`, `DeliveryScene` e `MercuryPlanet` leem `usePrefersReducedMotion()` direto; `ContactSection` não repassa mais `reducedMotion`. Os testes forçam o valor com `stubReducedMotion` (`src/test`).
 
 ## Tasks abertas
-
-### T3 (B) `emblemTextureUrl` atravessa três níveis para chegar ao `OrbitEmblem`
-
-- **Onde:** `PortfolioExperience → SectionView → AboutSection → OrbitEmblem`.
-- **O que acontece:** só o `OrbitEmblem` usa a URL da textura pequena do Sol; os três componentes acima apenas a repassam.
-- **Proposta:** a textura do emblema é um dado do conteúdo "Sobre": colocá-la em `AboutContent` (por exemplo `emblem: { textureUrl }`, em
-  `content/about.ts`), o que elimina a prop e o acoplamento da seção com o corpo. Alternativa: um `SelectedBodyContext` se outras seções
-  precisarem de dados do corpo.
-- **Pronto quando:** `SectionView` e `AboutSection` perdem a prop `emblemTextureUrl`.
-
-### T4 (B) `reducedMotion` é repassado por componentes que poderiam ler o hook
-
-- **Onde (contato):** `ContactSection → ArcJourney → JourneyPlanet` e `ContactSection → DeliveryScene → MercuryPlanet`.
-- **O que acontece:** `ContactSection` lê `usePrefersReducedMotion()` e passa o booleano por dois níveis até as folhas que o usam.
-  Em outros lugares o mesmo hook é chamado direto (`TargetLock`, `SolarSystemSceneLoader`), então o padrão está misturado.
-- **Proposta:** as folhas (`JourneyPlanet`, `MercuryPlanet`, `ArcJourney`, `DeliveryScene`) chamarem `usePrefersReducedMotion()` diretamente. O
-  hook já é barato e usa `useSyncExternalStore`. Mantém-se a prop só onde o teste precisa forçar o valor (e aí vale injetar o provider do hook).
-- **Pronto quando:** `ContactSection` deixa de passar `reducedMotion` aos filhos, e os testes dos filhos continuam determinísticos.
 
 ### T7 (C) Props de teste misturadas com as de produção
 

@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { stubReducedMotion } from '@/test/stub-reduced-motion';
 import { ArcJourney } from './ArcJourney';
 import { STEP_PROGRESS } from './arc-geometry';
 import { createCometStore } from './comet-store';
@@ -23,7 +24,6 @@ function renderJourney({ head = STEP_PROGRESS[1], ...overrides }: JourneyOverrid
       currentStep={1}
       isDelivered={false}
       isSending={false}
-      reducedMotion={false}
       comet={createCometStore({ head, tail: head })}
       canJump
       onJump={onJump}
@@ -32,6 +32,8 @@ function renderJourney({ head = STEP_PROGRESS[1], ...overrides }: JourneyOverrid
   );
   return { ...view, onJump };
 }
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe('ArcJourney', () => {
   it('lets the visitor go back to a step already answered, and only those', async () => {
@@ -49,5 +51,17 @@ describe('ArcJourney', () => {
   it('offers no jumps while jumping is not allowed (sending)', () => {
     renderJourney({ canJump: false });
     expect(screen.queryAllByRole('button')).toHaveLength(0);
+  });
+
+  it('ripples the planets already reached and warps while sending, unless the visitor prefers reduced motion', () => {
+    const normal = renderJourney({ isSending: true });
+    const normalCircles = normal.container.querySelectorAll('circle').length;
+    const normalElements = normal.container.querySelectorAll('*').length;
+    normal.unmount();
+
+    stubReducedMotion(true);
+    const reduced = renderJourney({ isSending: true });
+    expect(reduced.container.querySelectorAll('circle').length).toBeLessThan(normalCircles);
+    expect(reduced.container.querySelectorAll('*').length).toBeLessThan(normalElements);
   });
 });

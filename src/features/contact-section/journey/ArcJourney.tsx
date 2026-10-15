@@ -1,3 +1,4 @@
+import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import {
   ARC_HEIGHT,
   ARC_WIDTH,
@@ -24,7 +25,6 @@ type ArcJourneyProps = {
   currentStep: number;
   isDelivered: boolean;
   isSending: boolean;
-  reducedMotion: boolean;
   comet: CometStore;
   canJump: boolean;
   onJump: (index: number) => void;
@@ -35,11 +35,11 @@ export function ArcJourney({
   currentStep,
   isDelivered,
   isSending,
-  reducedMotion,
   comet,
   canJump,
   onJump,
 }: ArcJourneyProps) {
+  const reducedMotion = usePrefersReducedMotion();
   const { head, tail } = useCometPosition(comet);
   const headPoint = getArcPoint(head);
   const trail = getCometTrail({ head, tail });
@@ -92,7 +92,6 @@ export function ArcJourney({
           label={planet.label}
           jumpLabel={planet.jumpLabel}
           isJumpable={canJump && states[index] === 'done'}
-          reducedMotion={reducedMotion}
           onJump={() => onJump(index)}
         />
       ))}
