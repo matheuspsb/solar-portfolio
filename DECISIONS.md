@@ -555,3 +555,11 @@ Layers, cheapest first:
 - **Focus lands on "play again".** É a ação principal; Esc e o segundo botão saem para a prateleira.
 - **Results are announced, not repeated.** Um `role="status"` lê pontos, rank e novo recorde em português; o resto da tela é leitura normal.
 - **A full-run e2e is slow on purpose.** O teste de resultados joga uma partida real (cerca de 50 s) porque é o único jeito de provar o laço jogo, fim, resultados e recomeço no navegador.
+
+## Audio (Venus Arcade, step 13)
+
+- **Muted until asked.** O `AudioContext` só nasce quando o visitante liga o som (clique ou `M`), dentro do gesto, e é retomado se o navegador o suspender. Não há preferência salva: a cada visita o fliperama volta mudo, como no handoff.
+- **Sounds are data.** Os 7 tons (onda, frequência inicial e final, duração, volume) vivem em `sound-specs`; o player só os executa. O que soa em cada passo é a função pura `getStepSounds`.
+- **Failure is silent.** Sem Web Audio, ou com um contexto que lança, o jogo segue sem som e o player não tenta de novo a cada tom.
+- **One owner for M.** Fora da partida a tecla é tratada pelo fliperama; na partida, pelo hook do jogo (que já interpreta as teclas por fase). Assim uma tecla nunca alterna duas vezes.
+- **No persisted preference.** Guardar a escolha seria mais cômodo, mas o handoff pede mudo por padrão e áudio inesperado em um portfólio visto por recrutadores custa mais que reativar o som.

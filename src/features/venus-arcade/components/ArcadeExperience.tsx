@@ -6,6 +6,8 @@ import { arcadeContent } from '@/content/arcade';
 import { useModalFocus } from '@/hooks/use-modal-focus';
 import { getAdjacentId } from '@/lib/circular-navigation';
 import { getLocalStorage } from '@/lib/safe-storage';
+import { useArcadeSounds } from '../audio/use-arcade-sounds';
+import { useSoundPlayer } from '../audio/use-sound-player';
 import { CARTRIDGE_IDS, getBestMode, interpretHomeKey } from '../flow/cartridges';
 import type { CartridgeId } from '../flow/cartridges';
 import { useArcadeFlow } from '../flow/use-arcade-flow';
@@ -14,11 +16,14 @@ import type { RunResult } from '../results/run-result';
 import { BootScreen } from '../screens/BootScreen';
 import { GameScreen } from '../screens/GameScreen';
 import { HomeScreen } from '../screens/HomeScreen';
+import { SoundToggle } from '../ui/SoundToggle';
 
 type ArcadeExperienceProps = {
   onExit: () => void;
   getFallbackFocus?: () => HTMLElement | null;
 };
+
+const SOUND_KEY = 'm';
 
 const KEYS_THAT_DO_NOT_SKIP_THE_BOOT = new Set([
   'Tab',
@@ -42,6 +47,14 @@ export function ArcadeExperience({ onExit, getFallbackFocus }: ArcadeExperienceP
   const isRootUnlocked = records.standard.isRootUnlocked;
   const arcade = useArcadeFlow({ isRootUnlocked });
   const { flow } = arcade;
+  const sound = useSoundPlayer();
+  useArcadeSounds({
+    screen: flow.screen,
+    selectedId: flow.selectedId,
+    rejection: flow.rejection,
+    visibleLines: arcade.bootProgress.visibleLines,
+    play: sound.play,
+  });
   const bestScore = records[getBestMode(flow.selectedId, isRootUnlocked)].best;
 
   const handleEscape = () => {
@@ -62,6 +75,11 @@ export function ArcadeExperience({ onExit, getFallbackFocus }: ArcadeExperienceP
 
   const handleKeyDown = useEffectEvent((event: KeyboardEvent) => {
     if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+    const isSoundKey = event.key.toLowerCase() === SOUND_KEY;
+    if (isSoundKey && flow.screen !== 'game') {
+      if (!event.repeat) sound.toggleSound();
+      return;
+    }
     if (flow.screen === 'boot') {
       if (!KEYS_THAT_DO_NOT_SKIP_THE_BOOT.has(event.key)) arcade.finishBoot();
       return;
@@ -95,13 +113,14 @@ export function ArcadeExperience({ onExit, getFallbackFocus }: ArcadeExperienceP
       tabIndex={-1}
       className="fixed inset-0 z-(--z-panel) flex flex-col bg-arcade-screen text-arcade-ink-100 outline-none"
     >
-      <header className="flex px-5 pt-5">
+      <header className="flex items-center justify-between px-5 pt-5">
         <Button variant="secondary" onClick={onExit}>
           <span aria-hidden="true" className="text-ember-400">
             ←
           </span>
           {arcadeContent.backLabel}
         </Button>
+        <SoundToggle isOn={sound.isSoundOn} onToggle={sound.toggleSound} />
       </header>
       <div className="relative flex-1">
         {flow.screen === 'boot' && <BootScreen progress={arcade.bootProgress} />}
@@ -121,6 +140,8 @@ export function ArcadeExperience({ onExit, getFallbackFocus }: ArcadeExperienceP
             previousBest={records[flow.mode].best}
             onFinish={handleRunFinished}
             onLeave={arcade.leaveGame}
+            onToggleSound={sound.toggleSound}
+            onSound={sound.play}
           />
         )}
       </div>

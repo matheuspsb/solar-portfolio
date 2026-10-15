@@ -208,3 +208,38 @@ test('shows the results after a run, focuses play again and has no axe violation
   await expect(playAgain).toBeHidden();
   await expect(arcade.getByRole('button', { name: 'Pausar' })).toBeVisible();
 });
+
+test('stays muted until the sound is turned on, then toggles with the button and with M', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const NativeAudioContext = window.AudioContext;
+    const created: number[] = [];
+    Object.assign(window, { __audioContextsCreated: created });
+    window.AudioContext = class extends NativeAudioContext {
+      constructor(options?: AudioContextOptions) {
+        super(options);
+        created.push(Date.now());
+      }
+    };
+  });
+  const arcade = await openArcadeHome(page);
+  const countCreated = () =>
+    page.evaluate(
+      () =>
+        (window as unknown as { __audioContextsCreated: number[] }).__audioContextsCreated.length,
+    );
+  const toggle = arcade.getByRole('button', { name: 'Som do fliperama' });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await page.keyboard.press('ArrowRight');
+  expect(await countCreated()).toBe(0);
+
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  expect(await countCreated()).toBe(1);
+  await page.keyboard.press('m');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await page.keyboard.press('m');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  expect(await countCreated()).toBe(1);
+});

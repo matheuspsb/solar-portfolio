@@ -2,6 +2,7 @@ import { arcadeContent } from '@/content/arcade';
 import { VisuallyHidden } from '@/components/VisuallyHidden';
 import { useMediaQuery } from '@/hooks/use-media-query';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
+import type { SoundName } from '../audio/sound-specs';
 import type { FireMode } from '../engine/shots';
 import { useGameSession } from '../game/use-game-session';
 import { GameHud } from '../hud/GameHud';
@@ -15,9 +16,18 @@ type GameScreenProps = {
   previousBest: number;
   onFinish: (result: RunResult) => void;
   onLeave: () => void;
+  onToggleSound: () => void;
+  onSound: (name: SoundName) => void;
 };
 
-export function GameScreen({ mode, previousBest, onFinish, onLeave }: GameScreenProps) {
+export function GameScreen({
+  mode,
+  previousBest,
+  onFinish,
+  onLeave,
+  onToggleSound,
+  onSound,
+}: GameScreenProps) {
   const reducedMotion = usePrefersReducedMotion();
   const isTouch = useMediaQuery(COARSE_POINTER_QUERY);
   const { stageRef, canvasRef, hud, sendCommand } = useGameSession({
@@ -26,6 +36,8 @@ export function GameScreen({ mode, previousBest, onFinish, onLeave }: GameScreen
     reducedMotion,
     onFinish,
     onQuit: onLeave,
+    onToggleSound,
+    onSound,
   });
 
   return (

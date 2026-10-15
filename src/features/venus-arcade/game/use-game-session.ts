@@ -2,6 +2,8 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { browserFrameScheduler } from '@/hooks/frame-scheduler';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
+import { getStepSounds } from '../audio/step-sounds';
+import type { SoundName } from '../audio/sound-specs';
 import { MAX_DEVICE_PIXEL_RATIO } from '../engine/constants';
 import { getPixelScale } from '../engine/play-field';
 import type { FireMode } from '../engine/shots';
@@ -27,6 +29,8 @@ type UseGameSessionOptions = {
   reducedMotion: boolean;
   onFinish: (result: RunResult) => void;
   onQuit: () => void;
+  onToggleSound: () => void;
+  onSound: (name: SoundName) => void;
   scheduler?: FrameScheduler;
 };
 
@@ -43,6 +47,8 @@ export function useGameSession({
   reducedMotion,
   onFinish,
   onQuit,
+  onToggleSound,
+  onSound,
   scheduler = browserFrameScheduler,
 }: UseGameSessionOptions): GameSessionApi {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -51,12 +57,17 @@ export function useGameSession({
   const [hud, setHud] = useState<HudSnapshot | null>(null);
 
   const readReducedMotion = useEffectEvent(() => reducedMotion);
+  const playSound = useEffectEvent((name: SoundName) => onSound(name));
   const finish = useEffectEvent((result: RunResult) => onFinish(result));
   const readPreviousBest = useEffectEvent(() => previousBest);
 
   const sendCommand = (command: SessionCommand) => {
     if (command === 'quit') {
       onQuit();
+      return;
+    }
+    if (command === 'toggleSound') {
+      onToggleSound();
       return;
     }
     const state = stateRef.current;
@@ -76,6 +87,7 @@ export function useGameSession({
     let pressedKeys: ReadonlySet<string> = new Set();
     let hasReportedFinish = false;
     let lastHud: HudSnapshot | null = null;
+    let shotCount = 0;
 
     stateRef.current = null;
 
@@ -142,6 +154,14 @@ export function useGameSession({
           reducedMotion: readReducedMotion(),
         });
         stateRef.current = advanced.state;
+        const stepSounds = getStepSounds({
+          before: state.session,
+          after: advanced.state.session,
+          events: advanced.events,
+          shotCount,
+        });
+        shotCount = stepSounds.shotCount;
+        stepSounds.sounds.forEach(playSound);
         render(advanced.state);
         syncHud(advanced.state);
         reportFinish(advanced.state);

@@ -1,5 +1,6 @@
 export const arcadeContent = {
   dialogLabel: 'Venus Arcade',
+  sound: { on: 'SOUND ON', off: 'SOUND OFF' },
   backLabel: 'Sistema solar',
   title: 'VENUS ARCADE',
   boot: {
@@ -123,6 +124,7 @@ export const arcadeContent = {
     finalRank: 'Rank',
     newBestAnnouncement: 'Novo recorde.',
     pauseButton: 'Pausar',
+    soundToggle: 'Som do fliperama',
     scoreAnnouncement: 'Pontuação',
     integrityAnnouncement: 'Integridade',
     timeAnnouncement: 'Segundos restantes',
