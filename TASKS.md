@@ -17,6 +17,7 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **T2, interação do corpo atravessava `CelestialBody` até a malha.** A cena monta `BodyInteractionProvider`; cada malha chama `useBodyInteraction(id)` (destaque, easing, handlers e cursor) e o corpo lê o destaque e o movimento reduzido do mesmo contexto. `CelestialBody` não repassa nenhuma prop de interação; `SunMesh` caiu de 10 para 5 props e `PlanetMesh` de 9 para 5 (ver DECISIONS.md).
 - **T21, listeners do contexto WebGL.** `onCreated` registrava `webglcontextlost` e `webglcontextrestored` sem nunca remover e com os callbacks da primeira renderização. Agora o hook `useWebglContextEvents` (usado pelo componente `WebglContextEvents`, dentro do `Canvas`) registra com `useEffect`, remove no cleanup, troca de alvo se o canvas mudar e chama sempre a versão atual dos callbacks (`useEffectEvent`).
 - **T22, o cometa re-renderizava a seção de contato inteira.** A posição do cometa saiu do estado do React: `useComet` guarda `head` e `tail` em um store externo (`comet-store`) e só o `ArcJourney` o lê, com `useCometPosition` (`useSyncExternalStore`). Durante a viagem a `ContactSection` não re-renderiza (teste no `use-comet.test.tsx`).
+- **T5, T8 e T11, `ContactSection` concentrava responsabilidades demais.** A lógica (formulário, máquina de estados, cometa, envio com travas, rascunho) foi para o hook `useContactJourney`, que devolve um modelo pronto (`delivered`, `stage`, `form`); `ContactSection` caiu de 338 para 77 linhas e só compõe `JourneyStage`, `ContactForm` (nova, em `question/`), `DeliveryReceipt` e `LinkedInCard`. Os ternários repetidos viraram uma variável de visão (`delivered`) e o contador de caracteres é calculado antes do JSX. `deliverSafely` e `readHoneypot` saíram para `delivery/submit-message`, os atributos dos campos para `question/input-attributes`. O envio agora é testável sem a árvore (9 testes do hook, 5 dos helpers).
 
 ## Tasks abertas
 
@@ -37,15 +38,6 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **Proposta:** as folhas (`JourneyPlanet`, `MercuryPlanet`, `ArcJourney`, `DeliveryScene`) chamarem `usePrefersReducedMotion()` diretamente. O
   hook já é barato e usa `useSyncExternalStore`. Mantém-se a prop só onde o teste precisa forçar o valor (e aí vale injetar o provider do hook).
 - **Pronto quando:** `ContactSection` deixa de passar `reducedMotion` aos filhos, e os testes dos filhos continuam determinísticos.
-
-### T5 (B) `ContactSection` concentra responsabilidades demais
-
-- **Onde:** `features/contact-section/ContactSection.tsx` (323 linhas).
-- **O que acontece:** o mesmo componente orquestra o formulário (react-hook-form), a máquina de estados, o cometa, o envio com travas e a
-  montagem de todas as peças visuais, além de ter props só para teste (`frameScheduler`, `getNow`).
-- **Proposta:** extrair um hook `useContactJourney` (estado + submissão + movimento do cometa) que devolve um modelo pronto para renderizar, e
-  deixar `ContactSection` só compondo. Isso também diminui o número de valores que ele passa aos filhos.
-- **Pronto quando:** o componente fica abaixo de ~150 linhas e a lógica de envio é testável sem renderizar a árvore inteira.
 
 ### T6 (B) Textos de interface dentro de componentes (fora de `src/content/`)
 
@@ -94,15 +86,6 @@ abaixo é uma task. Prioridade: **A** (vale fazer logo), **B** (melhora clara), 
 
 ## Ternários e lógica dentro do JSX
 
-### T8 (B) `ContactSection` repete `isDone && delivery ? … : …` e mistura lógica no JSX
-
-- **Onde:** `contact/ContactSection.tsx:222`, `:244` (a mesma condição duas vezes, uma para a cena e outra para o corpo), `:258` e `:285`
-  (`attributes.multiline ? { current, max } : undefined` passado como prop).
-- **Proposta:** calcular antes do `return` uma variável de visão (`const deliveredView = isDone && delivery ? delivery : null`) e o
-  objeto `count`, e renderizar com `&&`/early return. Duas ramificações iguais lado a lado é sinal para extrair dois componentes
-  (`AskingView` e `DeliveredView`).
-- **Pronto quando:** nenhuma condição composta aparece repetida no JSX.
-
 ### T9 (C) Lógica e ternários pequenos em props de malha
 
 - **Onde:** `PlanetMesh.tsx:49` e `:52` (`texture ? … : …` em `key` e em `emissive`), `SolarSystemScene.tsx:98` (`frameloop`).
@@ -115,12 +98,6 @@ abaixo é uma task. Prioridade: **A** (vale fazer logo), **B** (melhora clara), 
 - **Proposta:** pré-calcular uma lista de itens prontos (`getOrbitItems`) e extrair o handler do canvas para um hook (ver T21).
 
 ## Arquivos com mais de uma responsabilidade
-
-### T11 (A) `ContactSection.tsx` (324 linhas)
-
-Já registrado como T5. Detalhe da varredura: 5 hooks, estado de formulário (RHF), máquina de estados, cometa, envio com travas, medição de
-tempo para o anti-bot e a montagem de 12 componentes. É o maior risco de manutenção do projeto. Extrair `useContactJourney` (estado, comet,
-envio) e deixar o componente só compondo.
 
 ### T12 (B) `PortfolioExperience.tsx` (164 linhas)
 
