@@ -472,3 +472,12 @@ Layers, cheapest first:
 - **Pointer and keyboard.** O mouse só muda o alvo (`aimDrone`); o teclado move o drone direto e arrasta o alvo junto, como no protótipo (`stepDrone`). A direção do teclado entra como `{ x, y }` já resolvida (teclas que se anulam viram 0).
 - **Cadence is frame-quantized.** O recarregamento volta ao intervalo cheio a cada tiro (sem carregar o resto), igual ao protótipo; a 60 fps o tiro de 0,15 s sai a cada 9 ou 10 quadros. Os testes comparam com o ideal numa tolerância, não com igualdade.
 - **Shared math.** `lib/math.ts` ganhou `clamp` (NaN vira o mínimo) e `mix`; o `mix` do loading-screen foi removido de lá.
+
+## Arcade engine, part 2 (Venus Arcade, step 4)
+
+- **Randomness is injected.** O motor nunca chama `Math.random`: `spawnEntities` e `advanceEntities` recebem um `Random` (`() => número`). Os testes passam sorteios fixos (0, 0,5, 1) e a sessão (etapa 7) passará `Math.random`.
+- **Bugs leak, nothing else does.** `advanceEntities` devolve `{ entities, leakedBugs }`. Só `crawler` e `beetle` contam como vazamento (o combo zera na etapa 5); dado, estilhaço e patch somem sem custo. O dado e o estilhaço saem 10 px abaixo da base, o bug sai quando passa da base.
+- **Spawn order and one-per-step.** Como no protótipo, cada relógio gera no máximo uma entidade por chamada; depois de uma pausa enorme o jogo não despeja uma enxurrada. O relógio de estilhaços só corre depois de 6 s e o de rasgos depois de 14 s, e o rasgo espera o anterior terminar (o relógio fica negativo e o próximo sai logo em seguida).
+- **Glyph and lane names.** `laneX` guarda a raia do bug (o que o protótipo chama `bx`); o `x` é a raia mais o zigue-zague, sempre limitado a `[raio, largura − raio]`.
+- **Difficulty uses the elapsed time of the step.** O protótipo calcula a dificuldade antes de somar o `dt`; aqui o tempo já vem somado. A diferença é de um quadro e não muda a sensação.
+- **Constants.** Todos os intervalos, velocidades e faixas do handoff estão nomeados em `constants.ts`, com `jitter` como par `[mínimo, máximo]`.
