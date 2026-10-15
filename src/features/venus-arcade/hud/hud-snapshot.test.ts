@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MATCH_DURATION_SECONDS, STARTING_INTEGRITY } from '../engine/constants';
 import { createRunStats } from '../engine/scoring';
+import { buildRunResult } from '../results/run-result';
 import { createSession } from '../session/session';
 import type { GameSession } from '../session/session';
 import { getHudSnapshot, isSameHudSnapshot } from './hud-snapshot';
@@ -97,6 +98,20 @@ describe('getHudSnapshot integrity and phase', () => {
   it('carries the phase and the way the run ended', () => {
     const ending = sessionWith({ phase: 'ending', end: 'crash' });
     expect(getHudSnapshot(ending)).toMatchObject({ phase: 'ending', end: 'crash' });
+  });
+});
+
+describe('getHudSnapshot result', () => {
+  it('carries the finished run so the results screen can show it', () => {
+    const result = buildRunResult({
+      stats: createRunStats(),
+      end: 'deploy',
+      mode: 'standard',
+      previousBest: 0,
+    });
+    const finished = sessionWith({ phase: 'finished', result });
+    expect(getHudSnapshot(finished).result).toBe(result);
+    expect(isSameHudSnapshot(getHudSnapshot(sessionWith()), getHudSnapshot(finished))).toBe(false);
   });
 });
 

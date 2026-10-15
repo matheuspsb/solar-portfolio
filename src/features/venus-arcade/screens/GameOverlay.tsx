@@ -5,7 +5,9 @@ import type { SessionCommand } from '../session/keyboard';
 import { ArcadeButton } from '../ui/ArcadeButton';
 import { Kicker } from '../ui/Kicker';
 import { PixelTitle } from '../ui/PixelTitle';
+import { EndBanner } from './EndBanner';
 import { PauseScreen } from './PauseScreen';
+import { ResultsScreen } from './ResultsScreen';
 
 const { game } = arcadeContent;
 
@@ -54,13 +56,7 @@ export function GameOverlay({ hud, isTouch, onCommand }: GameOverlayProps) {
   }
 
   if (hud.phase === 'ending' && hud.end !== null) {
-    return (
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <PixelTitle tone={hud.end === 'crash' ? 'alert' : 'root'}>
-          {game.banners[hud.end]}
-        </PixelTitle>
-      </div>
-    );
+    return <EndBanner end={hud.end} />;
   }
 
   if (hud.phase === 'paused') {
@@ -73,20 +69,8 @@ export function GameOverlay({ hud, isTouch, onCommand }: GameOverlayProps) {
     );
   }
 
-  // TODO(venus-arcade-step-12): replace this minimal summary with the results screen.
-  if (hud.phase === 'finished') {
-    return (
-      <OverlayFrame>
-        <PixelTitle>{game.finished.title}</PixelTitle>
-        <p className="font-pixel text-arcade-detail-title text-venus-phosphor tabular-nums">
-          {hud.scoreText}
-        </p>
-        <ArcadeButton onClick={() => onCommand('restart')}>{game.finished.restart}</ArcadeButton>
-        <ArcadeButton variant="secondary" onClick={() => onCommand('quit')}>
-          {game.finished.quit}
-        </ArcadeButton>
-      </OverlayFrame>
-    );
+  if (hud.phase === 'finished' && hud.result !== null) {
+    return <ResultsScreen result={hud.result} onCommand={onCommand} />;
   }
 
   return null;

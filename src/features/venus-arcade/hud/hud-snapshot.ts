@@ -4,7 +4,7 @@ import { getComboMultiplier } from '../engine/scoring';
 import { getCountdownLabel } from '../session/countdown';
 import type { CountdownLabel } from '../session/countdown';
 import type { GameSession, SessionPhase } from '../session/session';
-import type { RunEnd } from '../results/run-result';
+import type { RunEnd, RunResult } from '../results/run-result';
 
 const SCORE_DIGITS = 6;
 const MAX_SCORE_SHOWN = 999_999;
@@ -21,6 +21,7 @@ export type HudSnapshot = {
   phase: SessionPhase;
   countdownLabel: CountdownLabel | null;
   end: RunEnd | null;
+  result: RunResult | null;
 };
 
 function toShownScore(score: number): string {
@@ -47,6 +48,7 @@ export function getHudSnapshot(session: GameSession): HudSnapshot {
     countdownLabel:
       session.phase === 'countdown' ? getCountdownLabel(session.countdownSeconds) : null,
     end: session.end,
+    result: session.result,
   };
 }
 
@@ -58,6 +60,7 @@ export function isSameHudSnapshot(first: HudSnapshot, second: HudSnapshot): bool
     first.integrity === second.integrity &&
     first.phase === second.phase &&
     first.countdownLabel === second.countdownLabel &&
-    first.end === second.end
+    first.end === second.end &&
+    first.result === second.result
   );
 }

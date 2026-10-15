@@ -78,6 +78,23 @@
   }
 }
 
+@keyframes arcade-crash {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(-6px, 3px);
+  }
+  66% {
+    transform: translate(6px, -3px);
+  }
+}
+
+@utility animate-arcade-crash {
+  animation: arcade-crash 500ms steps(3) 3;
+}
+
 @utility animate-arcade-crt-on {
   animation: arcade-crt-on 800ms ease-out both;
 }

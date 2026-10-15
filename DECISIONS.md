@@ -547,3 +547,11 @@ Layers, cheapest first:
 - **Touch is detected by pointer, not by screen width.** `(pointer: coarse)` decide os textos de toque; um tablet com mouse recebe os textos de teclado.
 - **One media query hook.** `useMediaQuery` serve ao movimento reduzido e ao ponteiro grosseiro; o hook antigo virou uma casca de uma linha com a mesma API.
 - **Pause screen owns focus.** Ao abrir, o foco vai para "retomar"; ao fechar, volta para quem o tinha (o botão de pausa ou o diálogo).
+
+## End and results (Venus Arcade, step 12)
+
+- **The screen reads a view, not the run.** `getResultsView` formata tudo o que a tela mostra; o componente só renderiza. A tela de resultados e o banner moram em `screens/` e recebem só o que usam.
+- **Best never shows below the score.** O recorde exibido é o maior entre o guardado e a pontuação da partida.
+- **Focus lands on "play again".** É a ação principal; Esc e o segundo botão saem para a prateleira.
+- **Results are announced, not repeated.** Um `role="status"` lê pontos, rank e novo recorde em português; o resto da tela é leitura normal.
+- **A full-run e2e is slow on purpose.** O teste de resultados joga uma partida real (cerca de 50 s) porque é o único jeito de provar o laço jogo, fim, resultados e recomeço no navegador.

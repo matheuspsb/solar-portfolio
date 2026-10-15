@@ -190,3 +190,21 @@ test('pauses with the scoreboard button, restarts from the pause screen and has 
   await expect(arcade.getByRole('button', { name: 'Pausar' })).toBeDisabled();
   await expect(arcade.getByRole('button', { name: 'Pausar' })).toBeEnabled({ timeout: 6000 });
 });
+
+test('shows the results after a run, focuses play again and has no axe violations', async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  const arcade = await openBugHunter(page);
+  await page.keyboard.press('Enter');
+  const playAgain = arcade.getByRole('button').filter({ hasText: /PLAY AGAIN/ });
+  await expect(playAgain).toBeVisible({ timeout: 80_000 });
+  await expect(playAgain).toBeFocused();
+  await waitForFiniteAnimations(page);
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations).toEqual([]);
+
+  await page.keyboard.press('r');
+  await expect(playAgain).toBeHidden();
+  await expect(arcade.getByRole('button', { name: 'Pausar' })).toBeVisible();
+});
