@@ -10,7 +10,7 @@ import {
 } from './constants';
 import type { Drone } from './drone';
 import type { PlayField } from './play-field';
-import { isValidStep } from './time-step';
+import { isValidStep } from '@/lib/time-step';
 
 export type FireMode = 'standard' | 'hotfix';
 

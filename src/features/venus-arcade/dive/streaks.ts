@@ -1,7 +1,7 @@
 import { arcadeTokens } from '@/styles/arcade-tokens';
 import { randomBetween, pickOne } from '../engine/random';
 import type { Random } from '../engine/random';
-import { isValidStep } from '../engine/time-step';
+import { isValidStep } from '@/lib/time-step';
 
 export type Streak = { angle: number; radius: number; speed: number; width: number; color: string };
 

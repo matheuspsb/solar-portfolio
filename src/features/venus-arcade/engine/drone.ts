@@ -2,7 +2,7 @@ import { clamp } from '@/lib/math';
 import { DRONE_FOLLOW_RATE, DRONE_KEYBOARD_SPEED, DRONE_START_HEIGHT_RATIO } from './constants';
 import { getDroneBounds } from './play-field';
 import type { PlayField } from './play-field';
-import { isValidStep } from './time-step';
+import { isValidStep } from '@/lib/time-step';
 
 export type Drone = { x: number; y: number; targetX: number; targetY: number };
 

@@ -18,7 +18,7 @@ const RIPPLE_RADIUS = 7;
 const HALO_RADIUS = 12;
 const CORE_RADIUS = 4.5;
 
-type PlanetLabels = { label: string; jumpLabel: string };
+type PlanetLabels = { id: string; label: string; jumpLabel: string };
 
 type ArcJourneyProps = {
   planets: readonly PlanetLabels[];
@@ -73,7 +73,7 @@ export function ArcJourney({
             const point = getArcPoint(STEP_PROGRESS[index] ?? 0);
             return (
               <circle
-                key={planets[index]?.label}
+                key={planets[index]?.id}
                 cx={point.x}
                 cy={point.y}
                 r={RIPPLE_RADIUS}
@@ -86,7 +86,7 @@ export function ArcJourney({
 
       {planets.map((planet, index) => (
         <JourneyPlanet
-          key={planet.label}
+          key={planet.id}
           position={getArcPoint(STEP_PROGRESS[index] ?? 0)}
           state={states[index] ?? 'future'}
           label={planet.label}

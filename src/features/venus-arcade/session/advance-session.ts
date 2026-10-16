@@ -10,7 +10,7 @@ import { applyDestroyed, applyLeaks, getRunOutcome, tickCombo } from '../engine/
 import type { Award } from '../engine/scoring';
 import { spawnEntities } from '../engine/spawn';
 import { advanceShots, advanceWeapon, spawnShots } from '../engine/shots';
-import { isValidStep } from '../engine/time-step';
+import { isValidStep } from '@/lib/time-step';
 import { buildRunResult } from '../results/run-result';
 import type { GameSession } from './session';
 

@@ -26,16 +26,10 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **T18 e T20, mantidos de propósito.** O effect do `SceneEffects` marca que o compositor de pós-processamento está montado; avisar pela promessa do `import()` sinalizaria só que o código chegou, um instante antes do bloom existir, e exigiria criar o `lazy` dentro do componente. O effect de movimento reduzido do `use-comet` reage a uma preferência que muda com o tween em andamento e é o uso legítimo do effect. O `isMountedRef` citado no T20 já não existe (ver `DECISIONS.md`).
 - **T14, arquivos com mais de uma responsabilidade.** `SolarSystemScene` (176 para 116 linhas) agora só monta o `Canvas`, a revelação e o rastreador; a câmera inteira (distância, foco, mergulho, deslocamento, zoom por teclado e `OrbitControls`) é `SceneCamera` e a lista de corpos com o contexto de interação é `SceneBodies`. O `use-comet` (143 para 38 linhas) só liga o React: o motor do cometa (laço de quadros, interpolação, promessas e movimento reduzido) é `createCometEngine`, testável sem React. `domain/celestial-body.ts` ficou só com os tipos e `getInteractiveBodies`; a validação foi para `celestial-body-validation.ts` e os construtores dos testes para `src/test/celestial-body-builders.ts`.
 - **T27, cena renderizando atrás do loader.** A cena fica em repouso (`frameloop="never"`) enquanto o loader a cobre e acorda quando ele termina ou é pulado. O `LoadingGate` avisa quando está ativo (`onActiveChange`) e o `PortfolioExperience` junta isso com o fliperama aberto em `isHidden`. Medido com `scripts/measure-loader.mjs first` (CPU 4x mais lenta, 390x844, WebGL por software): quadro mediano 50 ms para 17 ms, p95 133 ms para 17 ms, bloqueio de 866 ms para 86 ms; com CPU 6x, 1275 ms para 215 ms de bloqueio. Em 15 s de janela, que inclui o fim do loader, o p95 continua 17 ms: não há tranco na revelação.
+- **T9, T29 e as observações avulsas.** `PlanetMesh` nomeia a chave e a cor emissiva do material antes do JSX; `isValidStep` foi para `lib/time-step` (o fliperama e o loader usam o mesmo; a rotação da cena mantém seu limite próprio, que trata `Infinity` como o teto, e tem teste que exige isso); `toStepIndex` valida o índice da etapa do contato (nenhum `as ContactStepIndex` fora da função); os planetas da jornada têm `id` próprio (`field` da etapa) e a chave deixou de ser o rótulo.
+- **T7 e `useMemo` do `StarField`, decididos.** Ver `DECISIONS.md`: a injeção de dependências por props opcionais fica como está, e o `useMemo` do campo de estrelas fica porque o buffer de posições precisa ter identidade estável para o R3F.
 
 ## Tasks abertas
-
-### T7 (C) Props de teste misturadas com as de produção
-
-- **Onde:** `PortfolioExperience` (`scene`, `detectWebGL`, `idleScheduler`), `ContactSection` (`frameScheduler`, `getNow`), `CelestialBody`
-  (`loadTexture`).
-- **Observação:** é injeção de dependência feita por prop opcional, coerente com o guia (SOLID, D). O custo é que o tipo de props mistura o que
-  a produção usa com o que só o teste usa.
-- **Proposta (só se incomodar):** agrupar em um único objeto `testing`/`deps` opcional por componente, ou usar providers de dependências.
 
 ## Fora do escopo desta varredura, mas anotado
 
@@ -63,11 +57,6 @@ abaixo é uma task. Prioridade: **A** (vale fazer logo), **B** (melhora clara), 
 | Re-renders desnecessários                 | 1 problema relevante (T22) e 3 riscos menores (T23 a T25).                                                       |
 
 ## Ternários e lógica dentro do JSX
-
-### T9 (C) Lógica e ternários pequenos em props de malha
-
-- **Onde:** `PlanetMesh.tsx:49` e `:52` (`texture ? … : …` em `key` e em `emissive`), `SolarSystemScene.tsx:98` (`frameloop`).
-- **Proposta:** nomear o valor antes do JSX (`const materialKey = texture ? 'textured' : 'plain'`). Baixo risco, ganho de leitura.
 
 ## Arquivos com mais de uma responsabilidade
 
@@ -112,17 +101,6 @@ Auditoria de listeners, timers, `requestAnimationFrame`, observers e recursos 3D
 - **Proposta:** limitar a taxa (throttle por frame) dentro do hook, ou derivar só o que cada um precisa (por exemplo, o menu só precisa da faixa de
   largura que muda o raio da órbita).
 
-### T29 (C) Três versões da mesma proteção contra passo de tempo inválido
-
-- **Onde:** `solar-scene/lib/rotation.ts` (`clampFrameDelta`), `loading-screen/lib/loader-clock.ts` (`sanitizeDelta`) e `venus-arcade/engine/time-step.ts` (`isValidStep`).
-- **Problema:** as três tratam `NaN`, negativo e zero de formas quase iguais, mas com regras de teto diferentes; cada feature não pode importar da outra.
-- **Proposta:** promover o núcleo comum (`isValidStep`) para `lib/` quando uma quarta feature precisar, e deixar o teto por conta de cada uma.
-
 ## Outras observações da varredura
 
-- **`StarField.tsx` usa `useMemo`** (a única ocorrência), contra a regra do projeto de não usá-lo com o React Compiler sem justificativa. Remover
-  ou registrar o motivo no `DECISIONS.md` (gera ~2600 posições; vale medir se o compilador já cobre).
-- **Casts `as ContactStepIndex` em 4 lugares** (`contact-flow.ts`, `ContactSection.tsx`): o índice da etapa é um número que o tipo não
-  garante. Trocar por uma função `toStepIndex(value)` que valida, ou modelar a etapa como união nomeada (`'name' | 'email' | 'message'`).
-- **`key` do planeta usa `label`** (`ArcJourney.tsx:75`): está certo enquanto os rótulos forem únicos; o dado deveria ter um `id` próprio.
 - **`console` só em `app/actions.ts`** com `eslint-disable` justificado (log de servidor), sem outros usos; nenhuma ação necessária.

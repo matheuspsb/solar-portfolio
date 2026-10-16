@@ -22,7 +22,7 @@ import {
 } from './journey/comet-motion';
 import { useComet } from './journey/use-comet';
 import { getActionPresentation } from './question/action-presentation';
-import { contactFlowReducer, createInitialFlowState } from './question/contact-flow';
+import { contactFlowReducer, createInitialFlowState, toStepIndex } from './question/contact-flow';
 import type { ContactStepIndex } from './question/contact-flow';
 import type { ContactFormModel } from './question/contact-form-model';
 import { INPUT_ATTRIBUTES } from './question/input-attributes';
@@ -40,7 +40,7 @@ type UseContactJourneyOptions = {
 };
 
 type StageModel = {
-  planets: { label: string; jumpLabel: string }[];
+  planets: { id: string; label: string; jumpLabel: string }[];
   currentStep: ContactStepIndex;
   isSending: boolean;
   isDone: boolean;
@@ -140,7 +140,7 @@ export function useContactJourney({
       return;
     }
     if (!isLastStep) {
-      const nextStep = (flow.step + 1) as ContactStepIndex;
+      const nextStep = toStepIndex(flow.step + 1);
       dispatch({ type: 'advance' });
       saveDraft(nextStep);
       void comet.travelTo(STEP_PROGRESS[nextStep], COMET_ADVANCE_MS);
@@ -175,7 +175,7 @@ export function useContactJourney({
 
   const handleBack = () => {
     if (flow.step === 0) return;
-    goBackTo((flow.step - 1) as ContactStepIndex);
+    goBackTo(toStepIndex(flow.step - 1));
   };
 
   const handleSendAnother = () => {
@@ -192,6 +192,7 @@ export function useContactJourney({
     onSendAnother: handleSendAnother,
     stage: {
       planets: content.steps.map((planetStep) => ({
+        id: planetStep.field,
         label: planetStep.label,
         jumpLabel: fillTemplate(content.actions.jumpLabel, { label: planetStep.label }),
       })),
@@ -200,7 +201,7 @@ export function useContactJourney({
       isDone,
       comet: comet.position,
       canJump: flow.status === 'asking',
-      onJump: (index) => goBackTo(index as ContactStepIndex),
+      onJump: (index) => goBackTo(toStepIndex(index)),
     },
     form: {
       noteId,

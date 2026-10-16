@@ -5,7 +5,7 @@ import type { Bug, CorruptedData, Entity, Patch, Shard, Tear } from './entities'
 import type { PlayField } from './play-field';
 import { pickOne, randomBetween } from './random';
 import type { Random } from './random';
-import { isValidStep } from './time-step';
+import { isValidStep } from '@/lib/time-step';
 
 type AdvanceInput = {
   entities: readonly Entity[];

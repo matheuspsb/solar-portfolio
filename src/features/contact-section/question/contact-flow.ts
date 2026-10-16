@@ -22,6 +22,12 @@ export type ContactFlowAction =
 
 const LAST_STEP: ContactStepIndex = 2;
 
+export function toStepIndex(value: number): ContactStepIndex {
+  if (Number.isNaN(value) || value <= 0) return 0;
+  if (value >= LAST_STEP) return LAST_STEP;
+  return Math.floor(value) as ContactStepIndex;
+}
+
 export function createInitialFlowState(step: ContactStepIndex = 0): ContactFlowState {
   return { step, status: 'asking', error: null, fieldMotion: { kind: 'enter', id: 0 } };
 }
@@ -45,10 +51,10 @@ export function contactFlowReducer(
   switch (action.type) {
     case 'advance':
       if (state.status !== 'asking' || state.step >= LAST_STEP) return state;
-      return moveToStep(state, (state.step + 1) as ContactStepIndex);
+      return moveToStep(state, toStepIndex(state.step + 1));
     case 'back':
       if (state.status !== 'asking' || state.step <= 0) return state;
-      return moveToStep(state, (state.step - 1) as ContactStepIndex);
+      return moveToStep(state, toStepIndex(state.step - 1));
     case 'jump':
       if (state.status !== 'asking' || action.step >= state.step) return state;
       return moveToStep(state, action.step);

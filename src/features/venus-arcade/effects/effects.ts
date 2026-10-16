@@ -11,7 +11,7 @@ import {
 } from '../engine/constants';
 import { randomBetween } from '../engine/random';
 import type { Random } from '../engine/random';
-import { isValidStep } from '../engine/time-step';
+import { isValidStep } from '@/lib/time-step';
 
 export { MAX_PARTICLES, SHAKE_SECONDS };
 

@@ -38,7 +38,7 @@ import { getPixelScale } from './play-field';
 import type { PlayField } from './play-field';
 import { randomBetween } from './random';
 import type { Random } from './random';
-import { isValidStep } from './time-step';
+import { isValidStep } from '@/lib/time-step';
 
 export type SpawnTimers = {
   bugSeconds: number;

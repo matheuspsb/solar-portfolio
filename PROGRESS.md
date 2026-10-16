@@ -334,3 +334,9 @@ Pausada a pedido do Matheus. O que já existe, o que o handoff pede e as ideias 
 - **Feito.** `LoadingGate` ganhou `onActiveChange`; `PortfolioExperience` guarda `isLoaderActive` e repassa à cena como `isHidden`, junto com o fliperama aberto. A cena só deixa de renderizar; texturas, revelação e o bloom montam normalmente.
 - **Medição antes e depois** (build de produção, SwiftShader, 390x844): CPU 4x, quadro mediano 50 ms para 17 ms, p95 133 ms para 17 ms, bloqueio de tarefas longas 866 ms para 86 ms (o loader sozinho, sem WebGL, dava 17 ms e 101 ms); CPU 6x, bloqueio de 1275 ms para 215 ms. Numa janela de 15 s, que inclui a saída do loader, o p95 segue em 17 ms.
 - **Testes novos.** 4 do `LoadingGate` (ativo enquanto visível, inativo depois de uma volta inteira, após pular, já visto, e o loader estático do movimento reduzido) e 3 do portfólio (cena em repouso sob o loader, acorda ao pular, não repousa para quem já viu).
+
+## Itens menores: T7, T9, T29 e avulsos
+
+- **Caso de uso.** Nada muda para o visitante: o planeta sem textura continua cinza e brilhante, o contato continua com três etapas, o fliperama e o loader seguem ignorando passos de tempo inválidos. Quem mantém o código perde três casts, uma chave frágil e três cópias da mesma guarda. Se falhasse: etapa do contato fora do intervalo, planetas da jornada com chave repetida, loader ou jogo avançando com `NaN`.
+- **Feito.** `toStepIndex` (4 casts viraram uma função que limita ao intervalo), `id` nos planetas da jornada, `lib/time-step`, nomes antes do JSX no `PlanetMesh`. T7 e o `useMemo` do `StarField` foram decididos e registrados no `DECISIONS.md`.
+- **Testes novos.** 10 de `toStepIndex`, 1 de planetas com o mesmo rótulo (falha com a chave antiga: verificado por mutação) e 10 de `isValidStep`.

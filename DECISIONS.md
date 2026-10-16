@@ -592,3 +592,9 @@ Layers, cheapest first:
 
 - **The engine is a closure, not a hook.** `createCometEngine({ store, scheduler, isReducedMotion })` guarda a viagem em andamento, o laço de quadros e as promessas; o hook cria uma vez, avisa quando o movimento reduzido muda (`setReducedMotion`, que termina a viagem na hora) e chama `dispose` na limpeza. O motor continua utilizável depois do `dispose`, porque o React roda a limpeza e os efeitos duas vezes em desenvolvimento.
 - **The scheduler is read once.** O agendador de quadros é injetado na criação; trocá-lo com o componente montado não tem efeito. Nada na aplicação faz isso, e os testes passam o mesmo agendador durante todo o teste.
+
+## Small items settled (T7, T9, T29, StarField)
+
+- **Optional dependency props stay as they are (T7).** `scene`, `detectWebGL`, `idleScheduler`, `loaderScheduler`, `immersiveTransition`, `frameScheduler`, `getNow`, `draftStorage` e `loadTexture` são injeção de dependência por props opcionais, coerente com o guia (SOLID, D). Agrupá-las em um objeto `testing` mexeria em dezenas de testes e chamadas para trocar um nome por outro, sem tirar nenhuma prop de produção; fica para quando um componente passar de cinco dessas props.
+- **`StarField` keeps its `useMemo`.** O compilador do React não roda nos testes, então a estabilidade do buffer não pode ser provada ali, e `bufferAttribute args` recria o atributo e reenvia as 2600 posições à GPU quando a identidade muda. É o caso que o guia aceita: identidade estável exigida por uma biblioteca externa.
+- **One step guard, two caps (T29).** `lib/time-step.isValidStep` é a regra comum (finito e positivo). O fliperama e o loader a usam; a rotação da cena mantém `clampFrameDelta`, que trata `Infinity` como o teto em vez de zero (há teste que exige isso) e por isso não foi unificada.

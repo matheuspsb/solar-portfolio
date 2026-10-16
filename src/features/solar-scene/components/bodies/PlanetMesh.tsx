@@ -35,17 +35,19 @@ export function PlanetMesh({
     isArmed: highlight !== 'none',
   });
   const hitRadius = Math.max(radius, MIN_HIT_RADIUS);
+  const materialKey = texture ? 'textured' : 'plain';
   const fallbackColor = texture ? undefined : sceneTokens.planetFallbackColor;
+  const emissiveColor = texture ? sceneTokens.planetGlowColor : sceneTokens.planetFallbackColor;
 
   return (
     <group>
       <mesh ref={meshRef}>
         <sphereGeometry args={[radius, SPHERE_SEGMENTS, SPHERE_SEGMENTS]} />
         <meshLambertMaterial
-          key={texture ? 'textured' : 'plain'}
+          key={materialKey}
           map={texture}
           color={fallbackColor}
-          emissive={texture ? sceneTokens.planetGlowColor : sceneTokens.planetFallbackColor}
+          emissive={emissiveColor}
           emissiveMap={texture}
           emissiveIntensity={getHighlightGlow(highlight)}
         />

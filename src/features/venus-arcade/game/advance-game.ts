@@ -4,7 +4,7 @@ import { applyStepEffects } from '../effects/step-effects';
 import { MAX_STEP_SECONDS } from '../engine/constants';
 import type { Direction } from '../engine/drone';
 import type { Random } from '../engine/random';
-import { isValidStep } from '../engine/time-step';
+import { isValidStep } from '@/lib/time-step';
 import { advanceSession } from '../session/advance-session';
 import type { StepEvents } from '../session/advance-session';
 import type { GameSession } from '../session/session';

@@ -11,7 +11,7 @@ import {
 import { createPatch } from './entities';
 import type { Bug, CorruptedData, Patch } from './entities';
 import type { Random } from './random';
-import { isValidStep } from './time-step';
+import { isValidStep } from '@/lib/time-step';
 
 export type RunStats = {
   score: number;

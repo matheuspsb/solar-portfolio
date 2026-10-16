@@ -15,7 +15,7 @@ import type { Bug, CorruptedData, Entity, Patch, Tear } from './entities';
 import type { RunStats } from './scoring';
 import type { Shot } from './shots';
 import { isTearActive } from './entities';
-import { isValidStep } from './time-step';
+import { isValidStep } from '@/lib/time-step';
 
 type Shootable = Bug | CorruptedData;
 

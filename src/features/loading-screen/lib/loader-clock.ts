@@ -1,4 +1,5 @@
 import { HOLD_REAL_SECONDS, TOTAL_REAL_SECONDS } from './timeline';
+import { isValidStep } from '@/lib/time-step';
 
 export type LoaderClock = {
   elapsedSeconds: number;
@@ -14,7 +15,7 @@ export function createLoaderClock(): LoaderClock {
 }
 
 function sanitizeDelta(deltaSeconds: number): number {
-  if (!Number.isFinite(deltaSeconds) || deltaSeconds <= 0) return 0;
+  if (!isValidStep(deltaSeconds)) return 0;
   return Math.min(deltaSeconds, MAX_FRAME_DELTA_SECONDS);
 }
 

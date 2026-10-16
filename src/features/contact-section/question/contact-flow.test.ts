@@ -1,9 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import { contactFlowReducer, createInitialFlowState } from './contact-flow';
+import { contactFlowReducer, createInitialFlowState, toStepIndex } from './contact-flow';
 import type { ContactFlowState } from './contact-flow';
 
 const initial = createInitialFlowState();
 const atStep = (step: 0 | 1 | 2): ContactFlowState => ({ ...initial, step });
+
+describe('toStepIndex', () => {
+  it.each([0, 1, 2])('keeps the step %s', (value) => {
+    expect(toStepIndex(value)).toBe(value);
+  });
+
+  it.each([
+    [-1, 0],
+    [-100, 0],
+    [3, 2],
+    [99, 2],
+    [Number.POSITIVE_INFINITY, 2],
+    [Number.NEGATIVE_INFINITY, 0],
+  ])('keeps %s inside the steps that exist', (value, expected) => {
+    expect(toStepIndex(value)).toBe(expected);
+  });
+
+  it('rounds a fraction down and falls back to the first step for NaN', () => {
+    expect(toStepIndex(1.9)).toBe(1);
+    expect(toStepIndex(Number.NaN)).toBe(0);
+  });
+});
 
 describe('contactFlowReducer', () => {
   it('starts asking the first question, with no error', () => {

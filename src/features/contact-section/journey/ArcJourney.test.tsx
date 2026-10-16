@@ -7,9 +7,9 @@ import { STEP_PROGRESS } from './arc-geometry';
 import { createCometStore } from './comet-store';
 
 const planets = [
-  { label: 'NOME', jumpLabel: 'Voltar para NOME' },
-  { label: 'E-MAIL', jumpLabel: 'Voltar para E-MAIL' },
-  { label: 'MENSAGEM', jumpLabel: 'Voltar para MENSAGEM' },
+  { id: 'name', label: 'NOME', jumpLabel: 'Voltar para NOME' },
+  { id: 'email', label: 'E-MAIL', jumpLabel: 'Voltar para E-MAIL' },
+  { id: 'message', label: 'MENSAGEM', jumpLabel: 'Voltar para MENSAGEM' },
 ] as const;
 
 type JourneyOverrides = Partial<Omit<React.ComponentProps<typeof ArcJourney>, 'comet'>> & {
@@ -63,5 +63,21 @@ describe('ArcJourney', () => {
     const reduced = renderJourney({ isSending: true });
     expect(reduced.container.querySelectorAll('circle').length).toBeLessThan(normalCircles);
     expect(reduced.container.querySelectorAll('*').length).toBeLessThan(normalElements);
+  });
+
+  it('draws every planet even when two of them share a label', () => {
+    const errors = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    renderJourney({
+      planets: [
+        { id: 'first', label: 'ETAPA', jumpLabel: 'Voltar para a primeira' },
+        { id: 'second', label: 'ETAPA', jumpLabel: 'Voltar para a segunda' },
+        { id: 'third', label: 'ETAPA', jumpLabel: 'Voltar para a terceira' },
+      ],
+      currentStep: 2,
+      head: STEP_PROGRESS[2],
+    });
+    expect(screen.getAllByRole('button')).toHaveLength(2);
+    expect(errors).not.toHaveBeenCalled();
+    errors.mockRestore();
   });
 });
