@@ -77,6 +77,7 @@ function stubReducedMotion(isReduced: boolean): void {
 function setup(
   options: {
     isSceneReady?: boolean;
+    onActiveChange?: (isActive: boolean) => void;
     storage?: SeenStorage | null;
   } = {},
 ) {
@@ -85,6 +86,7 @@ function setup(
   const view = render(
     <LoadingGate
       isSceneReady={options.isSceneReady ?? true}
+      onActiveChange={options.onActiveChange}
       storage={storage}
       scheduler={clock.scheduler}
     />,
@@ -97,6 +99,46 @@ const dialog = () => screen.queryByRole('dialog');
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+describe('LoadingGate activity', () => {
+  it('says it is active while the loader is on screen and inactive once it is gone', () => {
+    const onActiveChange = vi.fn();
+    const { play } = setup({ onActiveChange });
+    expect(onActiveChange).toHaveBeenLastCalledWith(true);
+    play(FULL_RUN_SECONDS);
+    expect(onActiveChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it('says it is inactive when the visitor already saw the loader', () => {
+    const onActiveChange = vi.fn();
+    setup({ onActiveChange, storage: createStorage({ [LOADER_SEEN_KEY]: '1' }) });
+    expect(onActiveChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it('says it is inactive after a skip', async () => {
+    const user = userEvent.setup();
+    const onActiveChange = vi.fn();
+    const { play } = setup({ onActiveChange, isSceneReady: false });
+    await user.keyboard('{Escape}');
+    play(3);
+    expect(onActiveChange).toHaveBeenLastCalledWith(false);
+  });
+
+  it('covers the static loader of reduced motion too', () => {
+    vi.stubGlobal(
+      'matchMedia',
+      (query: string) =>
+        ({
+          matches: query.includes('reduce'),
+          addEventListener: () => undefined,
+          removeEventListener: () => undefined,
+        }) as unknown as MediaQueryList,
+    );
+    const onActiveChange = vi.fn();
+    setup({ onActiveChange, isSceneReady: false });
+    expect(onActiveChange).toHaveBeenLastCalledWith(true);
+  });
 });
 
 describe('LoadingGate', () => {

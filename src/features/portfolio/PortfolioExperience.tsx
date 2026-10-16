@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import type { ComponentType } from 'react';
 import { AttributionNote, ContentPanel } from '@/features/content-panel';
 import { LoadingGate } from '@/features/loading-screen';
@@ -48,6 +49,7 @@ export function PortfolioExperience({
   immersiveTransition = DEFAULT_IMMERSIVE_TRANSITION,
 }: PortfolioExperienceProps) {
   const { keyboardControlsRef, model } = usePortfolioModel(bodies);
+  const [isLoaderActive, setIsLoaderActive] = useState(true);
   const shell = useSceneShell({ probeWebGL, idleScheduler });
   const prefersReducedMotion = usePrefersReducedMotion();
   const skipsImmersiveTransition = prefersReducedMotion || immersiveTransition.diveSeconds <= 0;
@@ -63,7 +65,11 @@ export function PortfolioExperience({
 
   return (
     <>
-      <LoadingGate isSceneReady={shell.isSceneReady} scheduler={loaderScheduler} />
+      <LoadingGate
+        isSceneReady={shell.isSceneReady}
+        onActiveChange={setIsLoaderActive}
+        scheduler={loaderScheduler}
+      />
       <div inert={isBodyOpen} className="contents">
         <SceneErrorBoundary
           fallback={null}
@@ -79,7 +85,7 @@ export function PortfolioExperience({
               onContextLost={shell.availability.markContextLost}
               onContextRestored={shell.availability.markContextRestored}
               isActive={!isBodyOpen}
-              isHidden={immersive.stage === 'open'}
+              isHidden={isLoaderActive || immersive.stage === 'open'}
               cameraTarget={sceneCameraTarget}
               dive={immersive.dive}
               description={sceneDescription}

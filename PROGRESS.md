@@ -327,3 +327,10 @@ Pausada a pedido do Matheus. O que já existe, o que o handoff pede e as ideias 
 - **Feito.** `SceneCamera` e `SceneBodies` saíram do `SolarSystemScene`; `createCometEngine` saiu do `use-comet`; `celestial-body-validation.ts` saiu de `celestial-body.ts`. Os 130 testes de domínio foram divididos entre os dois arquivos sem mudança, e os 83 do contato continuam passando.
 - **Testes novos.** 12 do motor do cometa (chegada, interrupção, tail, `from`, movimento reduzido, durações inválidas, reduzir no meio da viagem, `dispose` e reuso), 4 de `SceneBodies` e 2 de `SceneCamera`. A mutação "movimento reduzido não leva a cabeça ao destino" derruba 2 testes.
 - **Validação no navegador.** Arrastar orbita a câmera, a roda dá zoom, o contato desloca a câmera, o console fica limpo; 84 e2e passam.
+
+## T27: cena em repouso atrás do loader
+
+- **Caso de uso.** Quem abre o site pela primeira vez, sobretudo num celular fraco, vê o loader fluido enquanto a cena carrega por trás, e depois a cena aparece sem tranco. Quem já viu o loader não espera nada a mais. Se falhasse: loader a 20 quadros por segundo, ou a cena sem aparecer (ou travando) quando o loader sai.
+- **Feito.** `LoadingGate` ganhou `onActiveChange`; `PortfolioExperience` guarda `isLoaderActive` e repassa à cena como `isHidden`, junto com o fliperama aberto. A cena só deixa de renderizar; texturas, revelação e o bloom montam normalmente.
+- **Medição antes e depois** (build de produção, SwiftShader, 390x844): CPU 4x, quadro mediano 50 ms para 17 ms, p95 133 ms para 17 ms, bloqueio de tarefas longas 866 ms para 86 ms (o loader sozinho, sem WebGL, dava 17 ms e 101 ms); CPU 6x, bloqueio de 1275 ms para 215 ms. Numa janela de 15 s, que inclui a saída do loader, o p95 segue em 17 ms.
+- **Testes novos.** 4 do `LoadingGate` (ativo enquanto visível, inativo depois de uma volta inteira, após pular, já visto, e o loader estático do movimento reduzido) e 3 do portfólio (cena em repouso sob o loader, acorda ao pular, não repousa para quem já viu).

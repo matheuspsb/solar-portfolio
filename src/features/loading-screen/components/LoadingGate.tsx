@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from 'react';
+import { useEffect, useEffectEvent, useState, useSyncExternalStore } from 'react';
 import type { FrameScheduler } from '@/hooks/frame-scheduler';
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 import { hasSeenLoader, markLoaderSeen } from '@/lib/loader-seen';
@@ -9,6 +9,7 @@ import { StaticLoader } from './StaticLoader';
 
 type LoadingGateProps = {
   isSceneReady: boolean;
+  onActiveChange?: (isActive: boolean) => void;
   storage?: SeenStorage | null;
   scheduler?: FrameScheduler;
 };
@@ -17,6 +18,7 @@ const subscribeToNothing = () => () => undefined;
 
 export function LoadingGate({
   isSceneReady,
+  onActiveChange,
   storage = getSessionStorage(),
   scheduler,
 }: LoadingGateProps) {
@@ -27,7 +29,13 @@ export function LoadingGate({
   );
   const prefersReducedMotion = usePrefersReducedMotion();
   const [isDone, setIsDone] = useState(false);
-  if (hasSeen || isDone) return null;
+  const isActive = !hasSeen && !isDone;
+  const reportActive = useEffectEvent((active: boolean) => onActiveChange?.(active));
+  useEffect(() => {
+    reportActive(isActive);
+  }, [isActive]);
+
+  if (!isActive) return null;
 
   const finish = () => {
     markLoaderSeen(storage);

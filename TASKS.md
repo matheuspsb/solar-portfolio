@@ -25,6 +25,7 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **T15, T17 e T19, effects dispensáveis.** `AnswerField` foca com `autoFocus` (sem effect, ref extra nem `attachControl`); `useTexture` ganhou o terceiro parâmetro `onSettled`, chamado na própria promessa de carga (ou de imediato quando não há textura), e `CelestialBody` perdeu o effect que avisava a cena; `useCameraTakeover` passou a derivar o estado de `{ nonce, isTakenOver }` e devolve um booleano, sem effect para zerar um ref.
 - **T18 e T20, mantidos de propósito.** O effect do `SceneEffects` marca que o compositor de pós-processamento está montado; avisar pela promessa do `import()` sinalizaria só que o código chegou, um instante antes do bloom existir, e exigiria criar o `lazy` dentro do componente. O effect de movimento reduzido do `use-comet` reage a uma preferência que muda com o tween em andamento e é o uso legítimo do effect. O `isMountedRef` citado no T20 já não existe (ver `DECISIONS.md`).
 - **T14, arquivos com mais de uma responsabilidade.** `SolarSystemScene` (176 para 116 linhas) agora só monta o `Canvas`, a revelação e o rastreador; a câmera inteira (distância, foco, mergulho, deslocamento, zoom por teclado e `OrbitControls`) é `SceneCamera` e a lista de corpos com o contexto de interação é `SceneBodies`. O `use-comet` (143 para 38 linhas) só liga o React: o motor do cometa (laço de quadros, interpolação, promessas e movimento reduzido) é `createCometEngine`, testável sem React. `domain/celestial-body.ts` ficou só com os tipos e `getInteractiveBodies`; a validação foi para `celestial-body-validation.ts` e os construtores dos testes para `src/test/celestial-body-builders.ts`.
+- **T27, cena renderizando atrás do loader.** A cena fica em repouso (`frameloop="never"`) enquanto o loader a cobre e acorda quando ele termina ou é pulado. O `LoadingGate` avisa quando está ativo (`onActiveChange`) e o `PortfolioExperience` junta isso com o fliperama aberto em `isHidden`. Medido com `scripts/measure-loader.mjs first` (CPU 4x mais lenta, 390x844, WebGL por software): quadro mediano 50 ms para 17 ms, p95 133 ms para 17 ms, bloqueio de 866 ms para 86 ms; com CPU 6x, 1275 ms para 215 ms de bloqueio. Em 15 s de janela, que inclui o fim do loader, o p95 continua 17 ms: não há tranco na revelação.
 
 ## Tasks abertas
 
@@ -110,12 +111,6 @@ Auditoria de listeners, timers, `requestAnimationFrame`, observers e recursos 3D
 - **Onde:** `QuickAccessMenu`, `SolarSystemSceneLoader`, `TargetLock`. Durante um redimensionamento contínuo os três re-renderizam a cada evento.
 - **Proposta:** limitar a taxa (throttle por frame) dentro do hook, ou derivar só o que cada um precisa (por exemplo, o menu só precisa da faixa de
   largura que muda o raio da órbita).
-
-### T27 (C) Pausar o render da cena enquanto o loader a cobre
-
-- **Onde:** `solar-scene/components/scene/SolarSystemScene.tsx` (`frameloop`) e `portfolio/PortfolioExperience.tsx`.
-- **Problema:** durante os ~8 s do loader a cena 3D renderiza (com bloom) por trás de uma camada opaca. Em GPU real o custo é pequeno; em celular fraco ele compete com o loader.
-- **Proposta:** `frameloop="demand"` até a cena ser revelada e o loader terminar, invalidando uma vez ao liberar. Medir com `scripts/measure-loader.mjs first` antes e depois.
 
 ### T29 (C) Três versões da mesma proteção contra passo de tempo inválido
 

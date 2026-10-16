@@ -548,6 +548,26 @@ describe('PortfolioExperience', () => {
       expect(sunButton()).toHaveFocus();
     });
 
+    it('rests the scene while the loader covers it', () => {
+      const frames = createManualFrameScheduler();
+      setup({ loaderScheduler: frames.scheduler });
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'true');
+    });
+
+    it('wakes the scene when the visitor skips the loader', async () => {
+      const frames = createManualFrameScheduler();
+      const user = setup({ loaderScheduler: frames.scheduler });
+      await user.keyboard('{Escape}');
+      frames.play(3);
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
+    });
+
+    it('does not keep the scene resting for a visitor who already saw the loader', () => {
+      sessionStorage.setItem(LOADER_SEEN_KEY, '1');
+      setup();
+      expect(screen.getByTestId('fake-scene')).toHaveAttribute('data-hidden', 'false');
+    });
+
     it('does not hold back a visitor who already saw it', () => {
       sessionStorage.setItem(LOADER_SEEN_KEY, '1');
       setup();
