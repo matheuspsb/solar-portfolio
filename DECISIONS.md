@@ -587,3 +587,8 @@ Layers, cheapest first:
 - **`SceneEffects` calls `onReady` from an effect.** O sinal que a revelação da cena espera é "o compositor com bloom está montado", e é isso que o effect marca. Avisar pela promessa do `import()` diria só que o código foi baixado, um instante antes de o bloom existir (o Sol apareceria sem brilho por alguns quadros), e obrigaria a criar o `lazy` dentro do componente para ter acesso ao callback.
 - **`use-comet` settles for reduced motion in an effect.** Se a preferência mudar com o cometa em viagem, o tween precisa terminar na hora. O effect é o lugar certo: sincroniza com uma preferência externa que muda em tempo de execução. Tratar isso no laço de quadros pediria um `useEffectEvent` por quadro agendado sem simplificar nada.
 - **`isMountedRef` is gone.** O guarda contra `setState` depois de desmontar já não existe no hook (a limpeza de frame e de promessa é o que protege).
+
+## Comet engine outside React (T14)
+
+- **The engine is a closure, not a hook.** `createCometEngine({ store, scheduler, isReducedMotion })` guarda a viagem em andamento, o laço de quadros e as promessas; o hook cria uma vez, avisa quando o movimento reduzido muda (`setReducedMotion`, que termina a viagem na hora) e chama `dispose` na limpeza. O motor continua utilizável depois do `dispose`, porque o React roda a limpeza e os efeitos duas vezes em desenvolvimento.
+- **The scheduler is read once.** O agendador de quadros é injetado na criação; trocá-lo com o componente montado não tem efeito. Nada na aplicação faz isso, e os testes passam o mesmo agendador durante todo o teste.

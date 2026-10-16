@@ -1,37 +1,23 @@
 'use client';
 
-import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { Suspense, lazy } from 'react';
 import { sceneTokens } from '@/styles/scene-tokens';
 import { getFrameloop, getTrackerEasingRate } from '../../lib/motion';
 import type { SceneSettings } from '../../lib/scene-settings';
-import { MIN_ZOOM_DISTANCE, getMaxZoomDistance } from '../../lib/zoom';
-import {
-  CAMERA_FIELD_OF_VIEW,
-  CAMERA_FOCUS_SIDE_OFFSET_RADIANS,
-  SCENE_REVEAL_MAX_WAIT_MS,
-} from '../../constants';
-import { BodyInteractionProvider } from '../../hooks/use-body-interaction';
+import { CAMERA_FIELD_OF_VIEW, SCENE_REVEAL_MAX_WAIT_MS } from '../../constants';
 import { useSceneReveal } from '../../hooks/use-scene-reveal';
 import type { SceneProps } from '../../types';
 import { BodyTracker } from './BodyTracker';
-import { CameraDive } from '../camera/CameraDive';
-import { CameraDistance } from '../camera/CameraDistance';
-import { CameraFocus } from '../camera/CameraFocus';
-import { CameraViewOffset } from '../camera/CameraViewOffset';
-import { KeyboardZoom } from '../camera/KeyboardZoom';
+import { SceneBodies } from './SceneBodies';
+import { SceneCamera } from './SceneCamera';
 import { SceneLights } from './SceneLights';
-import { WebglContextEvents } from './WebglContextEvents';
 import { StarField } from './StarField';
-import { CelestialBody } from '../bodies/CelestialBody';
+import { WebglContextEvents } from './WebglContextEvents';
 
 const CAMERA_POSITION: [number, number, number] = [0, 4, 9.5];
 const CAMERA_NEAR = 0.1;
 const CAMERA_FAR = 400;
-const CONTROLS_DAMPING = 0.08;
-const MIN_POLAR_ANGLE = Math.PI * 0.2;
-const MAX_POLAR_ANGLE = Math.PI * 0.8;
 
 const SceneEffects = lazy(() =>
   import('./SceneEffects').then((module) => ({ default: module.SceneEffects })),
@@ -64,7 +50,6 @@ export function SolarSystemScene({
   onRevealChange,
   dive = null,
 }: SolarSystemSceneProps) {
-  const maxZoomDistance = getMaxZoomDistance(cameraDistance);
   const diveBodyRadius = bodies.find((body) => body.id === dive?.bodyId)?.radius ?? 0;
   const reveal = useSceneReveal({
     bodyIds: bodies.map((body) => body.id),
@@ -95,19 +80,17 @@ export function SolarSystemScene({
     >
       <color attach="background" args={[sceneTokens.backgroundColor]} />
       <WebglContextEvents onLost={onContextLost} onRestored={onContextRestored} />
-      <CameraDistance distance={cameraDistance} />
-      <CameraFocus
-        targetId={cameraTarget.id}
-        nonce={cameraTarget.nonce}
-        easingRate={cameraFocusEasingRate}
-        sideOffset={CAMERA_FOCUS_SIDE_OFFSET_RADIANS}
-      />
-      <CameraDive
+      <SceneCamera
+        cameraDistance={cameraDistance}
+        cameraTarget={cameraTarget}
+        cameraFocusEasingRate={cameraFocusEasingRate}
+        viewOffsetPixels={viewOffsetPixels}
+        viewOffsetEasingRate={viewOffsetEasingRate}
         dive={dive}
-        bodyRadius={diveBodyRadius}
-        fieldOfViewDegrees={CAMERA_FIELD_OF_VIEW}
+        diveBodyRadius={diveBodyRadius}
+        isActive={isActive}
+        prefersReducedMotion={prefersReducedMotion}
       />
-      <CameraViewOffset targetOffsetPixels={viewOffsetPixels} easingRate={viewOffsetEasingRate} />
       <BodyTracker
         targetId={trackedBodyId}
         bodies={bodies}
@@ -116,45 +99,18 @@ export function SolarSystemScene({
       />
       <SceneLights />
       <StarField starCount={quality.starCount} />
-      <BodyInteractionProvider
+      <SceneBodies
+        bodies={bodies}
+        prefersSmallTexture={quality.tier === 'low'}
         highlightOf={highlightOf}
         onHoverChange={onHoverChange}
         onSelect={onSelect}
         prefersReducedMotion={prefersReducedMotion}
-      >
-        {bodies.map((body) => (
-          <CelestialBody
-            key={body.id}
-            id={body.id}
-            kind={body.kind}
-            orbit={body.orbit}
-            radius={body.radius}
-            texture={body.texture}
-            prefersSmallTexture={quality.tier === 'low'}
-            rotationPeriodSeconds={body.rotationPeriodSeconds}
-            isInteractive={body.section !== null}
-            onSettled={reveal.markBodySettled}
-          />
-        ))}
-      </BodyInteractionProvider>
+        onBodySettled={reveal.markBodySettled}
+      />
       <Suspense fallback={null}>
         <SceneEffects onReady={reveal.markEffectsReady} />
       </Suspense>
-      <KeyboardZoom
-        minDistance={MIN_ZOOM_DISTANCE}
-        maxDistance={maxZoomDistance}
-        isEnabled={isActive}
-      />
-      <OrbitControls
-        makeDefault
-        enablePan={false}
-        minPolarAngle={MIN_POLAR_ANGLE}
-        maxPolarAngle={MAX_POLAR_ANGLE}
-        enableDamping={!prefersReducedMotion}
-        dampingFactor={CONTROLS_DAMPING}
-        minDistance={MIN_ZOOM_DISTANCE}
-        maxDistance={maxZoomDistance}
-      />
     </Canvas>
   );
 }

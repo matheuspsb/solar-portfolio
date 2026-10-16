@@ -24,6 +24,7 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **T10, T13, T16 e T28, `QuickAccessMenu`.** O estado do menu (abrir, fechar, foco, pressão, navegação por setas) foi para `useQuickAccessMenu`; o clique fora virou o hook `useDismissOnOutsidePointer`; o foco no primeiro item acontece no mesmo gesto que abre o menu (`flushSync` no handler), sem effect; o anel e o brilho são `OrbitRing`; a lista pronta de destinos (código, posição e atraso) vem de `getOrbitItems`, sem cálculo no JSX. Com mais de três destinos o menu usa a coluna (`MAX_ARC_ITEMS`), em qualquer largura, porque o arco só separa três cartões. `QuickAccessMenu` caiu de 160 para 107 linhas. O `onCreated` da cena, citado no T10, já tinha sido resolvido no T21.
 - **T15, T17 e T19, effects dispensáveis.** `AnswerField` foca com `autoFocus` (sem effect, ref extra nem `attachControl`); `useTexture` ganhou o terceiro parâmetro `onSettled`, chamado na própria promessa de carga (ou de imediato quando não há textura), e `CelestialBody` perdeu o effect que avisava a cena; `useCameraTakeover` passou a derivar o estado de `{ nonce, isTakenOver }` e devolve um booleano, sem effect para zerar um ref.
 - **T18 e T20, mantidos de propósito.** O effect do `SceneEffects` marca que o compositor de pós-processamento está montado; avisar pela promessa do `import()` sinalizaria só que o código chegou, um instante antes do bloom existir, e exigiria criar o `lazy` dentro do componente. O effect de movimento reduzido do `use-comet` reage a uma preferência que muda com o tween em andamento e é o uso legítimo do effect. O `isMountedRef` citado no T20 já não existe (ver `DECISIONS.md`).
+- **T14, arquivos com mais de uma responsabilidade.** `SolarSystemScene` (176 para 116 linhas) agora só monta o `Canvas`, a revelação e o rastreador; a câmera inteira (distância, foco, mergulho, deslocamento, zoom por teclado e `OrbitControls`) é `SceneCamera` e a lista de corpos com o contexto de interação é `SceneBodies`. O `use-comet` (143 para 38 linhas) só liga o React: o motor do cometa (laço de quadros, interpolação, promessas e movimento reduzido) é `createCometEngine`, testável sem React. `domain/celestial-body.ts` ficou só com os tipos e `getInteractiveBodies`; a validação foi para `celestial-body-validation.ts` e os construtores dos testes para `src/test/celestial-body-builders.ts`.
 
 ## Tasks abertas
 
@@ -68,14 +69,6 @@ abaixo é uma task. Prioridade: **A** (vale fazer logo), **B** (melhora clara), 
 - **Proposta:** nomear o valor antes do JSX (`const materialKey = texture ? 'textured' : 'plain'`). Baixo risco, ganho de leitura.
 
 ## Arquivos com mais de uma responsabilidade
-
-### T14 (B) `SolarSystemScene.tsx` (176 linhas) e `use-comet.ts` (143 linhas)
-
-- **`SolarSystemScene`:** configuração do `Canvas`, ciclo de vida do WebGL (listeners de contexto), revelação, limpeza de hover e o mapa dos
-  corpos no mesmo componente. Separar `SceneCanvas` (config e ciclo de vida) e `SceneBodies` (lista).
-- **`use-comet`:** três responsabilidades no mesmo hook: o agendador de frames, o motor de interpolação (tween) e o estado React com
-  promessas. Extrair o motor para uma função/classe pura testável e deixar o hook só ligando ao React.
-- **`domain/celestial-body.ts` (159 linhas):** tipos de domínio e validação no mesmo arquivo; separar `types` e `validate`.
 
 ## useEffect
 

@@ -1,4 +1,4 @@
-import { assertValidCelestialBodies } from '@/domain/celestial-body';
+import { assertValidCelestialBodies } from '@/domain/celestial-body-validation';
 import type { CelestialBodyConfig } from '@/domain/celestial-body';
 import { aboutContent } from './about';
 import { contactContent } from './contact';
