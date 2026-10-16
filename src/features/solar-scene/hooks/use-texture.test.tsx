@@ -89,4 +89,65 @@ describe('useTexture', () => {
     expect(result.current).toEqual({ texture: null, status: 'idle' });
     expect(disposeSpy).toHaveBeenCalledOnce();
   });
+
+  describe('onSettled', () => {
+    it('is called once when the texture loads', async () => {
+      const loader = createDeferredLoader();
+      const onSettled = vi.fn();
+      renderHook(() => useTexture('/sun.webp', loader.load, onSettled));
+      expect(onSettled).not.toHaveBeenCalled();
+      await act(async () => loader.resolvers[0]!.resolve(new Texture()));
+      expect(onSettled).toHaveBeenCalledOnce();
+    });
+
+    it('is called once when the load fails, so nothing waits forever', async () => {
+      const loader = createDeferredLoader();
+      const onSettled = vi.fn();
+      renderHook(() => useTexture('/missing.webp', loader.load, onSettled));
+      await act(async () => loader.resolvers[0]!.reject(new Error('404')));
+      expect(onSettled).toHaveBeenCalledOnce();
+    });
+
+    it('is called at once when there is no texture to wait for', () => {
+      const onSettled = vi.fn();
+      renderHook(() => useTexture(null, vi.fn(), onSettled));
+      expect(onSettled).toHaveBeenCalledOnce();
+    });
+
+    it('is not called for a load that was cancelled by a new url or by unmounting', async () => {
+      const loader = createDeferredLoader();
+      const onSettled = vi.fn();
+      const { rerender, unmount } = renderHook(
+        ({ url }) => useTexture(url, loader.load, onSettled),
+        { initialProps: { url: '/first.webp' } },
+      );
+      rerender({ url: '/second.webp' });
+      await act(async () => loader.resolvers[0]!.resolve(new Texture()));
+      expect(onSettled).not.toHaveBeenCalled();
+      unmount();
+      await act(async () => loader.resolvers[1]!.resolve(new Texture()));
+      expect(onSettled).not.toHaveBeenCalled();
+    });
+
+    it('is not called for a load that fails after it was cancelled', async () => {
+      const loader = createDeferredLoader();
+      const onSettled = vi.fn();
+      const { unmount } = renderHook(() => useTexture('/missing.webp', loader.load, onSettled));
+      unmount();
+      await act(async () => loader.resolvers[0]!.reject(new Error('404')));
+      expect(onSettled).not.toHaveBeenCalled();
+    });
+
+    it('is not called again when the caller passes a new callback on every render', async () => {
+      const loader = createDeferredLoader();
+      const calls: number[] = [];
+      const { rerender } = renderHook(() =>
+        useTexture('/sun.webp', loader.load, () => calls.push(1)),
+      );
+      await act(async () => loader.resolvers[0]!.resolve(new Texture()));
+      rerender();
+      rerender();
+      expect(calls).toHaveLength(1);
+    });
+  });
 });

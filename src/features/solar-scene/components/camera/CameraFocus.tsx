@@ -20,10 +20,10 @@ type CameraFocusProps = {
 
 export function CameraFocus({ targetId, nonce, easingRate, sideOffset }: CameraFocusProps) {
   const controls = useThree((state) => state.controls) as EventTarget | null;
-  const hasTakenOverRef = useCameraTakeover(controls, nonce);
+  const hasTakenOver = useCameraTakeover(controls, nonce);
 
   useFrame(({ scene, camera, invalidate }, deltaSeconds) => {
-    if (targetId === null || hasTakenOverRef.current) return;
+    if (targetId === null || hasTakenOver) return;
     const body = scene.getObjectByName(getBodySceneName(targetId));
     if (!body) return;
 

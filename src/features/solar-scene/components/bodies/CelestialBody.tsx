@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import type { BodyKind, BodyTexture, Orbit } from '@/domain/celestial-body';
 import { useBodyHighlight, useScenePrefersReducedMotion } from '../../hooks/use-body-interaction';
 import { useTexture } from '../../hooks/use-texture';
@@ -43,11 +42,7 @@ export function CelestialBody({
   loadTexture,
 }: CelestialBodyProps) {
   const textureUrl = pickTextureUrl(texture, prefersSmallTexture);
-  const { texture: loadedTexture, status } = useTexture(textureUrl, loadTexture);
-  const isSettled = textureUrl === null || status === 'loaded' || status === 'error';
-  useEffect(() => {
-    if (isSettled) onSettled?.(id);
-  }, [isSettled, id, onSettled]);
+  const { texture: loadedTexture } = useTexture(textureUrl, loadTexture, () => onSettled?.(id));
 
   const prefersReducedMotion = useScenePrefersReducedMotion();
   const isAnimated = !prefersReducedMotion;

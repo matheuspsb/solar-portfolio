@@ -581,3 +581,9 @@ Layers, cheapest first:
 - **The game plays in the screen, not in the window.** A área de jogo agora é a tela da cabine (no máximo 1080 por 780 px). O motor já era independente do tamanho do campo, então nada mudou nele.
 - **Motion is opt-in.** Flicker, LEDs piscando e o ruído animado usam `motion-safe:`; as scanlines, o ruído e a vinheta ficam estáticos com movimento reduzido.
 - **Noise is an SVG, not a canvas.** O ruído de 128 px é um `feTurbulence` embutido em CSS, sem JavaScript e sem imagem para baixar.
+
+## Effects kept on purpose (T18, T20)
+
+- **`SceneEffects` calls `onReady` from an effect.** O sinal que a revelação da cena espera é "o compositor com bloom está montado", e é isso que o effect marca. Avisar pela promessa do `import()` diria só que o código foi baixado, um instante antes de o bloom existir (o Sol apareceria sem brilho por alguns quadros), e obrigaria a criar o `lazy` dentro do componente para ter acesso ao callback.
+- **`use-comet` settles for reduced motion in an effect.** Se a preferência mudar com o cometa em viagem, o tween precisa terminar na hora. O effect é o lugar certo: sincroniza com uma preferência externa que muda em tempo de execução. Tratar isso no laço de quadros pediria um `useEffectEvent` por quadro agendado sem simplificar nada.
+- **`isMountedRef` is gone.** O guarda contra `setState` depois de desmontar já não existe no hook (a limpeza de frame e de promessa é o que protege).

@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useState } from 'react';
 import type { FocusEvent } from 'react';
 import type { UseFormRegisterReturn } from 'react-hook-form';
 import { joinClassNames } from '@/lib/join-class-names';
@@ -37,18 +37,8 @@ export function AnswerField({
   focusOnMount,
 }: AnswerFieldProps) {
   const controlId = useId();
-  const controlRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const underlinePercent = getUnderlinePercent({ hasValue, isFocused, isValid });
-
-  useEffect(() => {
-    if (focusOnMount) controlRef.current?.focus();
-  }, [focusOnMount]);
-
-  const attachControl = (element: HTMLInputElement | HTMLTextAreaElement | null) => {
-    controlRef.current = element;
-    registration.ref(element);
-  };
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = (event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -58,6 +48,8 @@ export function AnswerField({
 
   const sharedProps = {
     id: controlId,
+    autoFocus: focusOnMount,
+    ref: registration.ref,
     name: registration.name,
     onChange: registration.onChange,
     onFocus: handleFocus,
@@ -76,7 +68,6 @@ export function AnswerField({
       </label>
       {multiline ? (
         <textarea
-          ref={attachControl}
           {...sharedProps}
           className={joinClassNames(
             sharedControlClasses,
@@ -85,7 +76,6 @@ export function AnswerField({
         />
       ) : (
         <input
-          ref={attachControl}
           type={type}
           {...sharedProps}
           className={joinClassNames(sharedControlClasses, 'h-14 pr-10 text-answer')}

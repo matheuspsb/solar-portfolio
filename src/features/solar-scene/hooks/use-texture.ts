@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import { MirroredRepeatWrapping, RepeatWrapping, SRGBColorSpace, TextureLoader } from 'three';
 import type { Texture } from 'three';
 
@@ -28,11 +28,16 @@ const LOADING_STATE: TextureState = { texture: null, status: 'loading' };
 export function useTexture(
   url: string | null,
   load: TextureLoadFunction = loadTextureWithThree,
+  onSettled?: () => void,
 ): TextureState {
   const [settled, setSettled] = useState<SettledTextureState | null>(null);
+  const notifySettled = useEffectEvent(() => onSettled?.());
 
   useEffect(() => {
-    if (url === null) return;
+    if (url === null) {
+      notifySettled();
+      return;
+    }
     let isCancelled = false;
     let loadedTexture: Texture | null = null;
 
@@ -44,9 +49,12 @@ export function useTexture(
         }
         loadedTexture = texture;
         setSettled({ url, texture, status: 'loaded' });
+        notifySettled();
       },
       () => {
-        if (!isCancelled) setSettled({ url, texture: null, status: 'error' });
+        if (isCancelled) return;
+        setSettled({ url, texture: null, status: 'error' });
+        notifySettled();
       },
     );
 

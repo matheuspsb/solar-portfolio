@@ -22,6 +22,8 @@ Cada task tem contexto, onde está, proposta e critério de pronto. Prioridade: 
 - **T3 e T4, props que só atravessavam componentes.** A textura do emblema do Sol virou dado do conteúdo "Sobre" (`AboutContent.emblem.textureUrl`, derivada de `content/textures.ts`, a mesma constante do corpo), então `SectionView` e `AboutSection` perderam a prop `emblemTextureUrl`. `ArcJourney`, `JourneyPlanet`, `DeliveryScene` e `MercuryPlanet` leem `usePrefersReducedMotion()` direto; `ContactSection` não repassa mais `reducedMotion`. Os testes forçam o valor com `stubReducedMotion` (`src/test`).
 - **T26, hover perdido quando a textura chega.** Não foi possível reproduzir hoje. Com movimento reduzido e as texturas atrasadas, o ponteiro parado sobre Mercúrio manteve o alvo travado e o cursor `pointer` depois da chegada das texturas em todas as tentativas (8 execuções do teste novo e cerca de 25 de sondagem, variando o atraso entre 0 e 3,5 s e o instante em que o ponteiro chega). O sintoma provavelmente foi corrigido por mudanças posteriores (interação lida pela malha, T2, e revelação da cena). Fica o e2e `hover-texture.spec.ts` como guarda permanente do cenário descrito; se o bug voltar, ele falha.
 - **T10, T13, T16 e T28, `QuickAccessMenu`.** O estado do menu (abrir, fechar, foco, pressão, navegação por setas) foi para `useQuickAccessMenu`; o clique fora virou o hook `useDismissOnOutsidePointer`; o foco no primeiro item acontece no mesmo gesto que abre o menu (`flushSync` no handler), sem effect; o anel e o brilho são `OrbitRing`; a lista pronta de destinos (código, posição e atraso) vem de `getOrbitItems`, sem cálculo no JSX. Com mais de três destinos o menu usa a coluna (`MAX_ARC_ITEMS`), em qualquer largura, porque o arco só separa três cartões. `QuickAccessMenu` caiu de 160 para 107 linhas. O `onCreated` da cena, citado no T10, já tinha sido resolvido no T21.
+- **T15, T17 e T19, effects dispensáveis.** `AnswerField` foca com `autoFocus` (sem effect, ref extra nem `attachControl`); `useTexture` ganhou o terceiro parâmetro `onSettled`, chamado na própria promessa de carga (ou de imediato quando não há textura), e `CelestialBody` perdeu o effect que avisava a cena; `useCameraTakeover` passou a derivar o estado de `{ nonce, isTakenOver }` e devolve um booleano, sem effect para zerar um ref.
+- **T18 e T20, mantidos de propósito.** O effect do `SceneEffects` marca que o compositor de pós-processamento está montado; avisar pela promessa do `import()` sinalizaria só que o código chegou, um instante antes do bloom existir, e exigiria criar o `lazy` dentro do componente. O effect de movimento reduzido do `use-comet` reage a uma preferência que muda com o tween em andamento e é o uso legítimo do effect. O `isMountedRef` citado no T20 já não existe (ver `DECISIONS.md`).
 
 ## Tasks abertas
 
@@ -83,34 +85,6 @@ abaixo é uma task. Prioridade: **A** (vale fazer logo), **B** (melhora clara), 
 `use-idle-ready`, `use-texture` (todos com timer ou carga assíncrona e limpeza), `KeyboardZoom`, `use-camera-takeover` (listener),
 `BodyTracker` (`invalidate` no modo sob demanda), `CameraDistance` (aplica a distância à câmera 3D), `DeliveryReceipt` (foco no título ao entrar:
 `autoFocus` não funciona em `<h2>`).
-
-### T15 (B) `AnswerField`: effect só para focar no mount
-
-- **Onde:** `contact/AnswerField.tsx:44`. `useEffect(() => { if (focusOnMount) controlRef.current?.focus() }, [focusOnMount])`.
-- **Proposta:** usar o atributo `autoFocus={focusOnMount}` no `<input>`/`<textarea>`, que o React já trata no mount. Remove o effect, o ref extra
-  e a função `attachControl` que só existia para isso (continua a necessidade de repassar o ref do RHF).
-
-### T17 (C) `CelestialBody`: effect que avisa o pai que a textura terminou
-
-- **Onde:** `CelestialBody.tsx:57` (`useEffect` que chama `onSettled(id)`).
-- **Padrão:** "effect para notificar o pai". Alternativa: avisar dentro do `useTexture`, na promessa que já resolve (`onSettled` como opção do
-  hook), sem passar pela renderização.
-
-### T18 (C) `SceneEffects`: effect de mount só para chamar `onReady`
-
-- **Onde:** `SceneEffects.tsx:13`. O componente é carregado com `lazy`; o sinal "pronto" pode vir da própria promessa do `import()`
-  (`.then(markEffectsReady)`) em vez de um effect no componente carregado.
-
-### T19 (C) `use-camera-takeover`: effect para zerar um ref quando muda o nonce
-
-- **Onde:** `use-camera-takeover.ts:10`. Padrão "resetar estado quando a prop muda". Alternativa: guardar o nonce junto do flag
-  (`{ nonce, takenOver }`) e derivar durante o render, sem effect.
-
-### T20 (C) `use-comet`: `isMountedRef` e effect de reduced motion
-
-- **Onde:** `use-comet.ts:131` (guarda `isMountedRef` para não chamar `setState` depois de desmontar). Desde o React 18 não há aviso de
-  `setState` após desmontagem, então o guarda é desnecessário; a limpeza do frame e da promessa continua necessária.
-- **Também:** `use-comet.ts:121` reage a `reducedMotion` com um effect. Pode ser tratado no `travelTo`/no loop, que já lê o valor.
 
 ## Vazamentos de memória
 
